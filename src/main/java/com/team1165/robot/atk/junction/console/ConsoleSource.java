@@ -5,6 +5,9 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems.drive.constants;
+package com.team1165.robot.atk.junction.console;
 
-public class DriveConstants {}
+public interface ConsoleSource extends AutoCloseable {
+  /** Reads all console data that has been produced since the last call to this method. */
+  public String getNewData();
+}
