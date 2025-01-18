@@ -31,6 +31,7 @@ public class Elevator extends SubsystemBase {
   private static final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/kS", gains.kS());
   private static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/kV", gains.kV());
   private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/kA", gains.kA());
+
   private static final LoggedTunableNumber risingLeftRPM =
       new LoggedTunableNumber("Elevator/risingingLeftRpm", 5066.0);
   private static final LoggedTunableNumber risingRightRPM =
