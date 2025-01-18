@@ -13,6 +13,10 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.team1165.robot.Commands.ElevatorCommand;
+import com.team1165.robot.subsystems.Elevator;
+import com.team1165.robot.subsystems.ElevatorIO;
+import com.team1165.robot.subsystems.ElevatorKraken;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -30,9 +34,12 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
+  public static final CommandXboxController joystick = new CommandXboxController(0); // My joystick
+
+
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
-
+  public static Elevator elevator = new  Elevator(new ElevatorKraken());
   // Testing, likely will be changed later
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
@@ -68,19 +75,34 @@ public class RobotContainer {
                     TunerConstants.BackLeft,
                     TunerConstants.BackRight));
         break;
-
       default:
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
         break;
     }
 
+
+    if (elevator == null) {
+      elevator = new Elevator(new ElevatorKraken());
+    }
+
+
     configureButtonBindings();
     configureDefaultCommands();
+
+
   }
+//  autoSelector.addRoutine(
+//        "Flywheels FF Characterization",
+//        new FeedForwardCharacterization(
+//            flywheels, flywheels::runCharacterization, flywheels::getCharacterizationVelocity)); - to be placed in auto config.
+
 
   /** Use this method to define your button->command mappings. */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    elevator.setDefaultCommand(new ElevatorCommand(0.0));
+    joystick.leftTrigger(0.1).whileTrue(new ElevatorCommand(7.0));//along with moving the robot, don't know how to do rn.
+  }
 
   /** Use this method to define default commands for subsystems. */
   private void configureDefaultCommands() {
