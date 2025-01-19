@@ -10,11 +10,14 @@
 package com.team1165.robot.subsystems.vision.apriltag;
 
 import static com.team1165.robot.subsystems.vision.apriltag.constants.ATVisionConstants.*;
+
+import com.ctre.phoenix6.Utils;
+import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
+import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOInputsAutoLogged;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -31,14 +34,14 @@ public class ATVision extends SubsystemBase {
   private final ATVisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
 
-  public ATVision(ATVisionConsumer consumer, VisionIO... io) {
+  public ATVision(ATVisionConsumer consumer, ATVisionIO... io) {
     this.consumer = consumer;
     this.io = io;
 
     // Initialize inputs
-    this.inputs = new VisionIOInputsAutoLogged[io.length];
+    this.inputs = new ATVisionIOInputsAutoLogged[io.length];
     for (int i = 0; i < inputs.length; i++) {
-      inputs[i] = new VisionIOInputsAutoLogged();
+      inputs[i] = new ATVisionIOInputsAutoLogged();
     }
 
     // Initialize disconnected alerts
@@ -48,15 +51,6 @@ public class ATVision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
-  }
-
-  /**
-   * Returns the X angle to the best target, which can be used for simple servoing with vision.
-   *
-   * @param cameraIndex The index of the camera to use.
-   */
-  public Rotation2d getTargetX(int cameraIndex) {
-    return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
   @Override
@@ -125,10 +119,6 @@ public class ATVision extends SubsystemBase {
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
-        if (observation.type() == PoseObservationType.MEGATAG_2) {
-          linearStdDev *= linearStdDevMegatag2Factor;
-          angularStdDev *= angularStdDevMegatag2Factor;
-        }
         if (cameraIndex < cameraStdDevFactors.length) {
           linearStdDev *= cameraStdDevFactors[cameraIndex];
           angularStdDev *= cameraStdDevFactors[cameraIndex];
@@ -137,7 +127,7 @@ public class ATVision extends SubsystemBase {
         // Send vision observation
         consumer.accept(
             observation.pose().toPose2d(),
-            observation.timestamp(),
+            Utils.fpgaToCurrentTime(observation.timestamp()),
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
