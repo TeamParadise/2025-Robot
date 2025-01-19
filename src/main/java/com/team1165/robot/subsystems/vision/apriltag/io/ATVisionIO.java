@@ -17,6 +17,14 @@ import org.littletonrobotics.junction.AutoLog;
  * AprilTags placed around the field.
  */
 public interface ATVisionIO {
+  /**
+   * Updates a {@link ATVisionIOInputs} instance with the latest updates from this {@link
+   * ATVisionIO}.
+   *
+   * @param inputs A {@link ATVisionIOInputs} instance to update.
+   */
+  default void updateInputs(ATVisionIOInputs inputs) {}
+
   /** Class used to store the IO values of an AprilTag vision camera. */
   @AutoLog
   class ATVisionIOInputs {
@@ -44,12 +52,4 @@ public interface ATVisionIO {
    */
   record PoseObservation(
       double timestamp, Pose3d pose, double ambiguity, int tagCount, double averageTagDistance) {}
-
-  /**
-   * Updates a {@link ATVisionIOInputs} instance with the latest updates from this {@link
-   * ATVisionIO}.
-   *
-   * @param inputs A {@link ATVisionIOInputs} instance to update.
-   */
-  default void updateInputs(ATVisionIOInputs inputs) {}
 }

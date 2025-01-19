@@ -7,4 +7,7 @@
 
 package com.team1165.robot.subsystems.drive.constants;
 
-public class DriveConstants {}
+public class DriveConstants {
+  /** How often the simulation thread should be run. */
+  public static final double simulationLoopPeriod = 0.005;
+}
