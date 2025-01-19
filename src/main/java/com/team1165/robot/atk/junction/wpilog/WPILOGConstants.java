@@ -5,9 +5,9 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems.drive.constants;
+package com.team1165.robot.atk.junction.wpilog;
 
-public class DriveConstants {
-  /** How often the simulation thread should be run. */
-  public static final double simulationLoopPeriod = 0.005;
+class WPILOGConstants {
+  public static final String extraHeader = "AdvantageKit";
+  public static final String entryMetadata = "{\"source\":\"AdvantageKit\"}";
 }
