@@ -18,19 +18,13 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.Commands.ElevatorCommand;
 import com.team1165.robot.subsystems.Elevator;
-import com.team1165.robot.subsystems.ElevatorIO;
-import com.team1165.robot.subsystems.ElevatorKraken;
+import com.team1165.robot.subsystems.ElevatorSimIO;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim.MapleSimConfig;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
-import com.team1165.robot.subsystems.vision.apriltag.ATVision;
-import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton.ATVisionIOPhotonConfig;
-import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
-import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -43,14 +37,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final ATVision apriltagVision;
 
   public static final CommandXboxController joystick = new CommandXboxController(0); // My joystick
 
-
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
-  public static Elevator elevator = new  Elevator(new ElevatorKraken());
+  public static Elevator elevator = new Elevator(new ElevatorSimIO());
   // Testing, likely will be changed later
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
@@ -73,10 +65,6 @@ public class RobotContainer {
                     TunerConstants.FrontRight,
                     TunerConstants.BackLeft,
                     TunerConstants.BackRight));
-        apriltagVision =
-            new ATVision(
-                drive::addVisionMeasurement,
-                new ATVisionIOPhotonSim("test", new Transform3d(), drive::getSimulationPose));
         break;
 
       case SIM:
@@ -97,48 +85,36 @@ public class RobotContainer {
                     TunerConstants.FrontRight,
                     TunerConstants.BackLeft,
                     TunerConstants.BackRight));
-        apriltagVision =
-            new ATVision(
-                drive::addVisionMeasurement,
-                new ATVisionIOPhotonSim(
-                    new ATVisionIOPhotonConfig("test", new Transform3d()),
-                    new ATVisionIOPhotonSimConfig(960, 720)
-                        .withCalibError(1, 0.1)
-                        .withLatency(0, 0)
-                        .withFPS(150),
-                    drive::getSimulationPose));
+
         break;
       default:
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
-        apriltagVision =
-            new ATVision(
-                drive::addVisionMeasurement,
-                new ATVisionIOPhotonSim("test", new Transform3d(), drive::getSimulationPose));
+
         break;
     }
 
-
     if (elevator == null) {
-      elevator = new Elevator(new ElevatorKraken());
+      elevator = new Elevator(new ElevatorSimIO());
     }
-
 
     configureButtonBindings();
     configureDefaultCommands();
-
-
   }
-//  autoSelector.addRoutine(
-//        "Flywheels FF Characterization",
-//        new FeedForwardCharacterization(
-//            flywheels, flywheels::runCharacterization, flywheels::getCharacterizationVelocity)); - to be placed in auto config.
 
+  //  autoSelector.addRoutine(
+  //        "Flywheels FF Characterization",
+  //        new FeedForwardCharacterization(
+  //            flywheels, flywheels::runCharacterization, flywheels::getCharacterizationVelocity));
+  // - to be placed in auto config.
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
     elevator.setDefaultCommand(new ElevatorCommand(0.0));
-    joystick.leftTrigger(0.1).whileTrue(new ElevatorCommand(7.0));//along with moving the robot, don't know how to do rn.
+    joystick
+        .leftTrigger(0.1)
+        .whileTrue(
+            new ElevatorCommand(7.0)); // along with moving the robot, don't know how to do rn.
   }
 
   /** Use this method to define default commands for subsystems. */

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
  *
@@ -9,12 +8,8 @@
 package com.team1165.robot.Commands;
 
 import com.team1165.robot.RobotContainer;
-import com.team1165.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 
 public class ElevatorCommand extends Command {
   public double rpm;
@@ -28,14 +23,12 @@ public class ElevatorCommand extends Command {
   }
 
   @Override
-  public void initialize() {
-
-  }
+  public void initialize() {}
 
   @Override
   public void execute() {
-    RobotContainer.elevator.io.runVolts(-rpm,rpm);
-    //don't forget to add wait timeout to this
+    RobotContainer.elevator.io.runVolts(-rpm, rpm);
+    // don't forget to add wait timeout to this
   }
 
   @Override
@@ -46,6 +39,6 @@ public class ElevatorCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    RobotContainer.elevator.io.runVolts(0,0);
+    RobotContainer.elevator.io.runVolts(0, 0);
   }
 }

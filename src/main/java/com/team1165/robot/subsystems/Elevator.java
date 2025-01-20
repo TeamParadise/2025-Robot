@@ -7,20 +7,18 @@
 
 package com.team1165.robot.subsystems;
 
-import static com.team1165.robot.subsystems.ElevatorKraken.gains;
+import static com.team1165.robot.subsystems.ConstantsElevator.gains;
 
 import com.team1165.robot.Alert;
 import com.team1165.robot.Constants;
 import com.team1165.robot.Util.LinearProfile;
 import com.team1165.robot.Util.LoggedTunableNumber;
 import com.team1165.robot.atk.junction.Logger;
-import com.team1165.robot.atk.junction.inputs.LoggableInputs;
 import com.team1165.robot.subsystems.ElevatorIO.ElevatorIOInputs;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class Elevator extends SubsystemBase {
@@ -49,11 +47,11 @@ public class Elevator extends SubsystemBase {
   private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS.get(), kV.get(), kA.get());
   private boolean wasClosedLoop = false;
   private boolean closedLoop = false;
-  private BooleanSupplier preparerisingSupplier;
+  //  private BooleanSupplier preparerisingSupplier;
 
-  public void setPreparerisingSupplier(BooleanSupplier preparerisingSupplier) {
-    this.preparerisingSupplier = preparerisingSupplier;
-  }
+  //  public void setPreparerisingSupplier(BooleanSupplier preparerisingSupplier) {
+  //    this.preparerisingSupplier = preparerisingSupplier;
+  //  }
 
   // Disconnected alerts
   private final Alert leftDisconnected =
@@ -63,7 +61,7 @@ public class Elevator extends SubsystemBase {
 
   public enum Goal {
     IDLE(() -> 0.0, () -> 0.0),
-    rising(risingLeftRPM, risingLeftRPM),
+    rising(risingLeftRPM, risingRightRPM),
     CHARACTERIZING(() -> 0.0, () -> 0.0);
 
     private final DoubleSupplier leftGoal;
@@ -115,7 +113,7 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Elevator", (LoggableInputs) inputs);
+    //    processInputs("Elevator", (LoggableInputs) inputs);
 
     // Set alerts
     leftDisconnected.set(!inputs.leftMotorConnected);
@@ -148,14 +146,14 @@ public class Elevator extends SubsystemBase {
     // Get goal
     double leftGoal = goal.getLeftGoal();
     double rightGoal = goal.getRightGoal();
-    boolean idlePreparerising = goal == Goal.IDLE && preparerisingSupplier.getAsBoolean();
-    if (idlePreparerising) {
-      leftGoal = Goal.rising.getLeftGoal() * preparerisingMultiplier.get();
-      rightGoal = Goal.rising.getRightGoal() * preparerisingMultiplier.get();
-    }
+    //    boolean idlePreparerising = goal == Goal.IDLE && preparerisingSupplier.getAsBoolean();
+    //    if (idlePreparerising) {
+    //      leftGoal = Goal.rising.getLeftGoal() * preparerisingMultiplier.get();
+    //      rightGoal = Goal.rising.getRightGoal() * preparerisingMultiplier.get();
+    //    }
 
     // Run to setpoint
-    if (closedLoop || idlePreparerising) {
+    if (closedLoop) { // supposed to put a || idlePreparerising
       // Update goals
       leftProfile.setGoal(leftGoal);
       rightProfile.setGoal(rightGoal);
