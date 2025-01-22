@@ -8,18 +8,19 @@
 package com.team1165.robot.Commands;
 
 import com.team1165.robot.RobotContainer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ElevatorCommand extends Command {
-  public double rpm;
+  private Distance height;
 
-  public ElevatorCommand(Double rpm) {
+  public ElevatorCommand(Distance height) {
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
     addRequirements(RobotContainer.elevator);
-    this.rpm = rpm;
-    SmartDashboard.putNumber("Elevaotr speed:", rpm);
+    this.height = height;
+    //    SmartDashboard.putNumber("Elevator speed:", 1.0); can't do that if we use set position,
+    // figruring it out.
   }
 
   @Override
@@ -27,7 +28,7 @@ public class ElevatorCommand extends Command {
 
   @Override
   public void execute() {
-    RobotContainer.elevator.io.runVolts(-rpm, rpm);
+    RobotContainer.elevator.io.setPosition(height);
     // don't forget to add wait timeout to this
   }
 
@@ -38,7 +39,5 @@ public class ElevatorCommand extends Command {
   }
 
   @Override
-  public void end(boolean interrupted) {
-    RobotContainer.elevator.io.runVolts(0, 0);
-  }
+  public void end(boolean interrupted) {}
 }
