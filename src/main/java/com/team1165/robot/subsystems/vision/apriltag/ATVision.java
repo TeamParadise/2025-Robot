@@ -24,13 +24,12 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayDeque;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * A subsystem for a collection of cameras that estimates the pose of the robot with AprilTags placed around the field.
+ * A subsystem for a collection of cameras that estimates the pose of the robot with AprilTags
+ * placed around the field.
  */
 public class ATVision extends SubsystemBase {
   // IO
@@ -56,7 +55,8 @@ public class ATVision extends SubsystemBase {
     for (int i = 0; i < io.length; i++) {
       disconnectedAlerts[i] =
           new Alert(
-              "The AprilTag camera " + inputs[i].name + " (ID " + i + ") is disconnected.", AlertType.kWarning);
+              "The AprilTag camera " + inputs[i].name + " (ID " + i + ") is disconnected.",
+              AlertType.kWarning);
     }
   }
 
@@ -136,36 +136,38 @@ public class ATVision extends SubsystemBase {
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      // Log camera datadata
+      // Log camera pose data
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
-          tagPoses.toArray(new Pose3d[tagPoses.size()]));
+          "AprilTagVision/Camera" + cameraIndex + "/TagPoses",
+          tagPoses.toArray(new Pose3d[0]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
-          robotPoses.toArray(new Pose3d[robotPoses.size()]));
+          "AprilTagVision/Camera" + cameraIndex + "/RobotPoses",
+          robotPoses.toArray(new Pose3d[0]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
-          robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
+          "AprilTagVision/Camera" + cameraIndex + "/RobotPosesAccepted",
+          robotPosesAccepted.toArray(new Pose3d[0]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
-          robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
+          "AprilTagVision/Camera" + cameraIndex + "/RobotPosesRejected",
+          robotPosesRejected.toArray(new Pose3d[0]));
+
+      // Add camera data to the all queues
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);
       allRobotPosesRejected.addAll(robotPosesRejected);
     }
 
-    // Log summary data
+    // Log summary data from all cameras
     Logger.recordOutput(
-        "Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
+        "AprilTagVision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
     Logger.recordOutput(
-        "Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[allRobotPoses.size()]));
+        "AprilTagVision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
     Logger.recordOutput(
-        "Vision/Summary/RobotPosesAccepted",
-        allRobotPosesAccepted.toArray(new Pose3d[allRobotPosesAccepted.size()]));
+        "AprilTagVision/Summary/RobotPosesAccepted",
+        allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
-        "Vision/Summary/RobotPosesRejected",
-        allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+        "AprilTagVision/Summary/RobotPosesRejected",
+        allRobotPosesRejected.toArray(new Pose3d[0]));
   }
 
   @FunctionalInterface
