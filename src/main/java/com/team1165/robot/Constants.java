@@ -11,9 +11,6 @@ public class Constants {
   /** The running mode of the robot (REAL, SIM, or REPLAY). By default, set to REAL. */
   public static Mode robotMode = Mode.REAL;
 
-  public static final double loopPeriodSecs = 0.02;
-  public static final boolean tuningMode = false;
-
   /** The possible modes that a robot can run in. */
   public enum Mode {
     /** Running on a real robot. */
