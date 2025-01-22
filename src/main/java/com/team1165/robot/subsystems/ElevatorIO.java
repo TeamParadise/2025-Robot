@@ -7,6 +7,8 @@
 
 package com.team1165.robot.subsystems;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ElevatorIO {
@@ -15,30 +17,22 @@ public interface ElevatorIO {
     public boolean leftMotorConnected = true;
     public boolean rightMotorConnected = true;
 
-    public double leftPositionRads = 0.0;
+    Distance currentLeftPosition = Units.Inches.of(0);
     public double leftVelocityRpm = 0.0;
-    public double leftAppliedVolts = 0.0;
-    public double leftSupplyCurrentAmps = 0.0;
-    public double leftTorqueCurrentAmps = 0.0;
 
-    public double rightPositionRads = 0.0;
+    Distance currentRightPosition = Units.Inches.of(0);
     public double rightVelocityRpm = 0.0;
-    public double rightAppliedVolts = 0.0;
-    public double rightSupplyCurrentAmps = 0.0;
-    public double rightTorqueCurrentAmps = 0.0;
   }
 
   default void updateInputs(ElevatorIOInputs inputs) {}
 
+  default void resetSensorPosition(Distance setpoint) {}
+
   /** Run both motors at voltage */
-  default void runVolts(double leftVolts, double rightVolts) {}
+  default void setPosition(Distance height) {}
 
-  /** Stop both flywheels */
+  /** Stop both Elevator Motors */
   default void stop() {}
-
-  /** Run left and right flywheels at velocity in rpm */
-  default void runVelocity(
-      double leftRpm, double rightRpm, double leftFeedforward, double rightFeedforward) {}
 
   /** Config PID values for both motors */
   default void setPID(double kP, double kI, double kD) {}

@@ -8,17 +8,19 @@
 package com.team1165.robot.subsystems;
 
 import com.team1165.robot.Constants;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
+@Logged
 public class ElevatorSimIO implements ElevatorIO {
+  private static final double kMetersPerInch = 0.0254;
   private static final double reduction = 32.0 / 10.0;
-  private static final double maxLengthMeters = Units.inchesToMeters(11.872);
-  private static final double drumRadiusMeters = Units.inchesToMeters(0.5);
+  private static final double maxLengthMeters = inchesToMeters(11.872);
+  private static final double drumRadiusMeters = inchesToMeters(0.5);
   private final ElevatorSim leftSim =
       new ElevatorSim(
           DCMotor.getKrakenX60Foc(1),
@@ -66,19 +68,20 @@ public class ElevatorSimIO implements ElevatorIO {
           rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
               + rightFeedforward); // probs wrong
     }
-    // velocityRadsPerSec should be here
-    inputs.leftPositionRads += leftSim.getPositionMeters() / drumRadiusMeters;
 
-    inputs.leftAppliedVolts = leftAppliedVolts;
-    inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
+    // inputs.currentLeftPosition += Units.Inches.of(leftSim.getPositionMeters() /
+    // drumRadiusMeters); ***NEEDED just don't know error
 
-    inputs.rightPositionRads += rightSim.getPositionMeters() / drumRadiusMeters;
+    //    inputs.leftAppliedVolts = leftAppliedVolts;
+    //    inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
 
-    inputs.rightAppliedVolts = rightAppliedVolts;
-    inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
+    //    inputs.currentRightPosition += Units.Inches.of(rightSim.getPositionMeters() /
+    // drumRadiusMeters); ***NEEDED just don't know error
+
+    //    inputs.rightAppliedVolts = rightAppliedVolts;
+    //    inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
   }
 
-  @Override
   public void runVolts(double leftVolts, double rightVolts) {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
@@ -88,13 +91,12 @@ public class ElevatorSimIO implements ElevatorIO {
     rightSim.setInputVoltage(rightAppliedVolts);
   }
 
-  @Override
-  public void runVelocity(
-      double leftRpm, double rightRpm, double leftFeedforward, double rightFeedforward) {
-    leftSetpointRpm = leftRpm;
-    rightSetpointRpm = rightRpm;
-    this.leftFeedforward = leftFeedforward;
-    this.rightFeedforward = rightFeedforward;
+  public static double metersToInches(double meters) {
+    return meters / kMetersPerInch;
+  }
+
+  public static double inchesToMeters(double inches) {
+    return inches * kMetersPerInch;
   }
 
   @Override

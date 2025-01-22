@@ -7,7 +7,7 @@
 
 package com.team1165.robot.subsystems;
 
-import static com.team1165.robot.subsystems.ConstantsElevator.gains;
+import static com.team1165.robot.subsystems.ElevatorKraken.gains;
 
 import com.team1165.robot.Alert;
 import com.team1165.robot.Constants;
@@ -29,6 +29,7 @@ public class Elevator extends SubsystemBase {
   private static final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/kS", gains.kS());
   private static final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/kV", gains.kV());
   private static final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/kA", gains.kA());
+  private static final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/kG", gains.kG());
 
   private static final LoggedTunableNumber risingLeftRPM =
       new LoggedTunableNumber("Elevator/risingingLeftRpm", 5066.0);
@@ -96,10 +97,10 @@ public class Elevator extends SubsystemBase {
     return goal;
   }
 
-  private boolean isDrawingHighCurrent() {
-    return Math.abs(inputs.leftSupplyCurrentAmps) > 50.0
-        || Math.abs(inputs.rightSupplyCurrentAmps) > 50.0;
-  }
+  //  private boolean isDrawingHighCurrent() { Don't know what happened here
+  //    return Math.abs(inputs.leftSupplyCurrentAmps) > 50.0
+  //        || Math.abs(inputs.rightSupplyCurrentAmps) > 50.0;
+  //  }
 
   public Elevator(ElevatorIO io) {
     this.io = io;
@@ -112,66 +113,90 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    //    processInputs("Elevator", (LoggableInputs) inputs);
+    //    io.updateInputs(inputs);
+    //    Logger.processInputs("Elevator", (LoggableInputs) inputs); - didn't work when build
 
     // Set alerts
     leftDisconnected.set(!inputs.leftMotorConnected);
     rightDisconnected.set(!inputs.rightMotorConnected);
 
+    //  this i seperate but we can keep it just in case, pretty cool flywheel code
     // Check controllers
-    LoggedTunableNumber.ifChanged(hashCode(), pid -> io.setPID(pid[0], pid[1], pid[2]), kP, kI, kD);
-    LoggedTunableNumber.ifChanged(
-        hashCode(), kSVA -> ff = new SimpleMotorFeedforward(kSVA[0], kSVA[1], kSVA[2]), kS, kV, kA);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> {
-          leftProfile.setMaxAcceleration(maxAcceleration.get());
-          rightProfile.setMaxAcceleration(maxAcceleration.get());
-        },
-        maxAcceleration);
+    //    LoggedTunableNumber.ifChanged(hashCode(), pid -> io.setPID(pid[0], pid[1], pid[2]), kP,
+    // kI, kD);
+    //    LoggedTunableNumber.ifChanged(
+    //        hashCode(), kSVA -> ff = new SimpleMotorFeedforward(kSVA[0], kSVA[1], kSVA[2]), kS,
+    // kV, kA);
+    //    LoggedTunableNumber.ifChanged(
+    //        hashCode(),
+    //        () -> {
+    //          leftProfile.setMaxAcceleration(maxAcceleration.get());
+    //          rightProfile.setMaxAcceleration(maxAcceleration.get());
+    //        },
+    //        maxAcceleration);
 
     // Stop when disabled
     if (DriverStation.isDisabled()) {
       setGoal(Goal.IDLE);
     }
 
-    // Check if profile needs to be reset
-    if (!closedLoop && wasClosedLoop) {
-      leftProfile.reset();
-      rightProfile.reset();
-      wasClosedLoop = false;
-    }
-
-    // Get goal
-    double leftGoal = goal.getLeftGoal();
-    double rightGoal = goal.getRightGoal();
-    //    boolean idlePreparerising = goal == Goal.IDLE && preparerisingSupplier.getAsBoolean();
-    //    if (idlePreparerising) {
-    //      leftGoal = Goal.rising.getLeftGoal() * preparerisingMultiplier.get();
-    //      rightGoal = Goal.rising.getRightGoal() * preparerisingMultiplier.get();
+    // this i seperate but we can keep it just in case, pretty cool flywheel code
+    //    // Check if profile needs to be reset
+    //    if (!closedLoop && wasClosedLoop) {
+    //      leftProfile.reset();
+    //      rightProfile.reset();
+    //      wasClosedLoop = false;
     //    }
+    //
+    //    // Get goal
+    //    double leftGoal = goal.getLeftGoal();
+    //    double rightGoal = goal.getRightGoal();
+    //    //    boolean idlePreparerising = goal == Goal.IDLE &&
+    // preparerisingSupplier.getAsBoolean();
+    //    //    if (idlePreparerising) {
+    //    //      leftGoal = Goal.rising.getLeftGoal() * preparerisingMultiplier.get();
+    //    //      rightGoal = Goal.rising.getRightGoal() * preparerisingMultiplier.get();
+    //    //    }
+    //
+    //    // Run to setpoint
+    //    if (closedLoop) { // supposed to put a || idlePreparerising
+    //      // Update goals
+    //      leftProfile.setGoal(leftGoal);
+    //      rightProfile.setGoal(rightGoal);
+    //      double leftSetpoint = leftProfile.calculateSetpoint();
+    //      double rightSetpoint = rightProfile.calculateSetpoint();
+    //      io.runVelocity(
+    //          leftSetpoint, rightSetpoint, ff.calculate(leftSetpoint),
+    // ff.calculate(rightSetpoint));
+    //      //   RobotState.getInstance().setFlywheelAccelerating(!atGoal() ||
+    // isDrawingHighCurrent()); -
+    //      // dont know if we have a robot location updater.
+    //    } else if (goal == Goal.IDLE) {
+    //      //   RobotState.getInstance().setFlywheelAccelerating(false);
+    //      io.stop();
+    //    }
+    //
+    //    Logger.recordOutput("Elevator/SetpointLeftRpm", leftProfile.getCurrentSetpoint());
+    //    Logger.recordOutput("Elevator/SetpointRightRpm", rightProfile.getCurrentSetpoint());
+    //    Logger.recordOutput("Elevator/GoalLeftRpm", leftGoal);
+    //    Logger.recordOutput("Elevator/GoalRightRpm", rightGoal);
 
-    // Run to setpoint
-    if (closedLoop) { // supposed to put a || idlePreparerising
-      // Update goals
-      leftProfile.setGoal(leftGoal);
-      rightProfile.setGoal(rightGoal);
-      double leftSetpoint = leftProfile.calculateSetpoint();
-      double rightSetpoint = rightProfile.calculateSetpoint();
-      io.runVelocity(
-          leftSetpoint, rightSetpoint, ff.calculate(leftSetpoint), ff.calculate(rightSetpoint));
-      //   RobotState.getInstance().setFlywheelAccelerating(!atGoal() || isDrawingHighCurrent()); -
-      // dont know if we have a robot location updater.
-    } else if (goal == Goal.IDLE) {
-      //   RobotState.getInstance().setFlywheelAccelerating(false);
-      io.stop();
-    }
-
-    Logger.recordOutput("Elevator/SetpointLeftRpm", leftProfile.getCurrentSetpoint());
-    Logger.recordOutput("Elevator/SetpointRightRpm", rightProfile.getCurrentSetpoint());
-    Logger.recordOutput("Elevator/GoalLeftRpm", leftGoal);
-    Logger.recordOutput("Elevator/GoalRightRpm", rightGoal);
+    //    SmartDashboard.putNumber("Elevator/Left/CLO",
+    // leftMotorFollower.getClosedLoopOutput().getValueAsDouble()); - WE NEED JUST FIGRURING OUT IF
+    // IO CAN TAKE PERIODIC OR IF I NEED TO REINSTATE MOTORS
+    //    SmartDashboard.putNumber("Elevator/Left/Output", leftMotorFollower.get());
+    //    SmartDashboard.putNumber("Elevator/Left/Inverted",
+    // leftMotorFollower.getAppliedRotorPolarity().getValueAsDouble());
+    //    SmartDashboard.putNumber("Elevator/Left/Current",
+    // leftMotorFollower.getSupplyCurrent().getValueAsDouble());
+    //
+    //    SmartDashboard.putNumber("Elevator/Right/CLO",
+    // rightMotorLeader.getClosedLoopOutput().getValueAsDouble());
+    //    SmartDashboard.putNumber("Elevator/Right/Output", rightMotorLeader.get());
+    //    SmartDashboard.putNumber("Elevator/Right/Inverted",
+    // rightMotorLeader.getAppliedRotorPolarity().getValueAsDouble());
+    //    SmartDashboard.putNumber("Elevator/Right/Current",
+    // rightMotorLeader.getSupplyCurrent().getValueAsDouble());
   }
 
   /** Set the current goal of the flywheel */
@@ -207,7 +232,7 @@ public class Elevator extends SubsystemBase {
   }
 
   /** Get if velocity profile has ended */
-  public void logFlywheelsAtGoal() {
+  public void logElevatorAtGoal() {
     Logger.recordOutput("Elevators/AtGoal", goal); // Where 'atGoal' is a boolean variable
   }
 
@@ -219,6 +244,6 @@ public class Elevator extends SubsystemBase {
 
   public Command risingCommand() {
     return startEnd(() -> setGoal(Goal.rising), () -> setGoal(Goal.IDLE))
-        .withName("Flywheels rising");
+        .withName("Elevator rising");
   }
 }

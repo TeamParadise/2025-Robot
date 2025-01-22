@@ -17,8 +17,10 @@ import static edu.wpi.first.units.Units.Seconds;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.Commands.ElevatorCommand;
+import com.team1165.robot.subsystems.ConstantsElevator;
 import com.team1165.robot.subsystems.Elevator;
-import com.team1165.robot.subsystems.ElevatorSimIO;
+import com.team1165.robot.subsystems.ElevatorIO;
+import com.team1165.robot.subsystems.ElevatorKraken;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -26,6 +28,7 @@ import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim.MapleSimConfig;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -38,11 +41,10 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
-  public static final CommandXboxController joystick = new CommandXboxController(0); // My joystick
-
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
-  public static Elevator elevator = new Elevator(new ElevatorSimIO());
+  public static Elevator elevator;
+
   // Testing, likely will be changed later
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
@@ -93,9 +95,11 @@ public class RobotContainer {
 
         break;
     }
+    elevator = new Elevator(new ElevatorKraken());
 
+    // ik its redundant, gimme time
     if (elevator == null) {
-      elevator = new Elevator(new ElevatorSimIO());
+      elevator = new Elevator(new ElevatorIO() {});
     }
 
     configureButtonBindings();
@@ -109,13 +113,7 @@ public class RobotContainer {
   // - to be placed in auto config.
 
   /** Use this method to define your button->command mappings. */
-  private void configureButtonBindings() {
-    elevator.setDefaultCommand(new ElevatorCommand(0.0));
-    joystick
-        .leftTrigger(0.1)
-        .whileTrue(
-            new ElevatorCommand(7.0)); // along with moving the robot, don't know how to do rn.
-  }
+  private void configureButtonBindings() {}
 
   /** Use this method to define default commands for subsystems. */
   private void configureDefaultCommands() {
@@ -126,5 +124,30 @@ public class RobotContainer {
                     .withVelocityX(-driverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
+  }
+
+  private void configureTesterBindings(CommandXboxController controller) {
+    // Start: Reset Elevator Sensor Position
+    controller.start().onTrue(new ElevatorCommand(Inches.of(0)));
+    controller
+        .a()
+        .onTrue(
+            Commands.runOnce(
+                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L1_HEIGHT), elevator));
+    controller
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L2_HEIGHT), elevator));
+    controller
+        .y()
+        .onTrue(
+            Commands.runOnce(
+                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L3_HEIGHT), elevator));
+    controller
+        .x()
+        .onTrue(
+            Commands.runOnce(
+                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L4_HEIGHT), elevator));
   }
 }
