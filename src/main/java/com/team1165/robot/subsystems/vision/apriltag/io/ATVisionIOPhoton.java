@@ -60,6 +60,9 @@ public class ATVisionIOPhoton implements ATVisionIO {
     // Save camera connection status to inputs object
     inputs.connected = camera.isConnected();
 
+    // Make sure the name of the camera is saved to inputs
+    inputs.name = camera.getName();
+
     // Save tag IDs and pose observations to add to inputs later
     Set<Short> tagIds = new HashSet<>();
     Queue<PoseObservation> poseObservations = new ArrayDeque<>(5);
