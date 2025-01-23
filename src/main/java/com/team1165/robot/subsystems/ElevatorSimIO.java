@@ -7,6 +7,8 @@
 
 package com.team1165.robot.subsystems;
 
+import com.team1165.robot.Alert;
+import com.team1165.robot.Alert.AlertType;
 import com.team1165.robot.Constants;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
@@ -21,6 +23,9 @@ public class ElevatorSimIO implements ElevatorIO {
   private static final double reduction = 32.0 / 10.0;
   private static final double maxLengthMeters = inchesToMeters(11.872);
   private static final double drumRadiusMeters = inchesToMeters(0.5);
+  private double lastDesiredPosition = 0.0;
+  Alert alert = new Alert("Elevator", "ElevatorSimIO", AlertType.ERROR);
+
   private final ElevatorSim leftSim =
       new ElevatorSim(
           DCMotor.getKrakenX60Foc(1),
@@ -61,13 +66,13 @@ public class ElevatorSimIO implements ElevatorIO {
     leftSim.update(Constants.loopPeriodSecs);
     rightSim.update(Constants.loopPeriodSecs);
     // control to setpoint
-    if (leftSetpointRpm != null && rightSetpointRpm != null) {
-      runVolts(
-          leftController.calculate(leftSim.getVelocityMetersPerSecond(), leftSetpointRpm)
-              + leftFeedforward,
-          rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
-              + rightFeedforward); // probs wrong
-    }
+    //    if (leftSetpointRpm != null && rightSetpointRpm != null) {
+    //      runVolts(
+    //          leftController.calculate(leftSim.getVelocityMetersPerSecond(), leftSetpointRpm)
+    //              + leftFeedforward,
+    //          rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
+    //              + rightFeedforward); // probs wrong
+    //    }
 
     // inputs.currentLeftPosition += Units.Inches.of(leftSim.getPositionMeters() /
     // drumRadiusMeters); ***NEEDED just don't know error
@@ -82,6 +87,7 @@ public class ElevatorSimIO implements ElevatorIO {
     //    inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
   }
 
+  @Override
   public void runVolts(double leftVolts, double rightVolts) {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
@@ -89,6 +95,17 @@ public class ElevatorSimIO implements ElevatorIO {
     rightAppliedVolts = MathUtil.clamp(rightVolts, -12.0, 12.0);
     leftSim.setInputVoltage(leftAppliedVolts);
     rightSim.setInputVoltage(rightAppliedVolts);
+  }
+
+  @Override
+  public void setPosition(Double height, double velocity) {
+    if (height + lastDesiredPosition < maxLengthMeters) {
+      rightSim.setState(height, velocity);
+      leftSim.setState(height, velocity);
+      lastDesiredPosition = height;
+    } else {
+      alert.setText("Elevator not at limit");
+    }
   }
 
   public static double metersToInches(double meters) {
@@ -122,5 +139,9 @@ public class ElevatorSimIO implements ElevatorIO {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
     runVolts(0.0, input);
+  }
+
+  public void setLastDesiredPosition(double lastDesiredPosition) {
+    this.lastDesiredPosition = lastDesiredPosition;
   }
 }

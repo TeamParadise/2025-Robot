@@ -16,8 +16,8 @@ import com.team1165.robot.Util.LoggedTunableNumber;
 import com.team1165.robot.atk.junction.Logger;
 import com.team1165.robot.subsystems.ElevatorIO.ElevatorIOInputs;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 
@@ -219,31 +219,52 @@ public class Elevator extends SubsystemBase {
     this.goal = goal;
   }
 
-  /** Runs flywheels at the commanded voltage or amps. */
-  public void runCharacterization(double input) {
-    setGoal(Goal.CHARACTERIZING);
-    io.runCharacterizationLeft(input);
-    io.runCharacterizationRight(input);
+  /** Runs Elevator at the commanded voltage or amps. */
+  //  public void runCharacterization(double input) {
+  //    setGoal(Goal.CHARACTERIZING);
+  //    io.runCharacterizationLeft(input);
+  //    io.runCharacterizationRight(input);
+  //  }
+  //
+  //  /** Get characterization velocity */
+  //  public double getCharacterizationVelocity() {
+  //    return (inputs.leftVelocityRpm + inputs.rightVelocityRpm) / 2.0;
+  //  }
+  //
+  //  /** Get if velocity profile has ended */
+  //  public void logElevatorAtGoal() {
+  //    Logger.recordOutput("Elevators/AtGoal", goal); // Where 'atGoal' is a boolean variable
+  //  }
+  //
+  //  public boolean atGoal() {
+  //    return goal == Goal.IDLE
+  //        || (leftProfile.getCurrentSetpoint() == goal.getLeftGoal()
+  //            && rightProfile.getCurrentSetpoint() == goal.getRightGoal());
+  //  }
+  //
+  //  public Command risingCommand() {
+  //    return startEnd(() -> setGoal(Goal.rising), () -> setGoal(Goal.IDLE))
+  //        .withName("Elevator rising");
+  //  }
+  public void resetSensorPosition(Distance setpoint) {
+    this.io.resetSensorPosition(setpoint);
   }
 
-  /** Get characterization velocity */
-  public double getCharacterizationVelocity() {
-    return (inputs.leftVelocityRpm + inputs.rightVelocityRpm) / 2.0;
+  /** Run both motors at voltage */
+  public void setPosition(Distance height) {
+    this.io.setPosition(height);
   }
 
-  /** Get if velocity profile has ended */
-  public void logElevatorAtGoal() {
-    Logger.recordOutput("Elevators/AtGoal", goal); // Where 'atGoal' is a boolean variable
+  /** Stop both Elevator Motors */
+  public void stop() {
+    this.io.stop();
   }
 
-  public boolean atGoal() {
-    return goal == Goal.IDLE
-        || (leftProfile.getCurrentSetpoint() == goal.getLeftGoal()
-            && rightProfile.getCurrentSetpoint() == goal.getRightGoal());
+  public void setPID(double kp, double ki, double kd) {
+    io.setPID(kp, ki, kd);
   }
 
-  public Command risingCommand() {
-    return startEnd(() -> setGoal(Goal.rising), () -> setGoal(Goal.IDLE))
-        .withName("Elevator rising");
+  public void setPosition(Double height, double velocity) {
+    io.setPosition(height, velocity);
   }
 }

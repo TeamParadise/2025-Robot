@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class ElevatorCommand extends Command {
   private Distance height;
+  private Double h;
 
   public ElevatorCommand(Distance height) {
     // each subsystem used by the command must be passed into the
@@ -23,12 +24,23 @@ public class ElevatorCommand extends Command {
     // figruring it out.
   }
 
+  public ElevatorCommand(Double h) {
+    // each subsystem used by the command must be passed into the
+    // addRequirements() method (which takes a vararg of Subsystem)
+    addRequirements(RobotContainer.elevator);
+    this.h = h;
+    //    SmartDashboard.putNumber("Elevator speed:", 1.0); can't do that if we use set position,
+    // figruring it out.
+  }
+
   @Override
-  public void initialize() {}
+  public void initialize() {
+    RobotContainer.elevator.setPID(0.3, 0.02, 0.05);
+  }
 
   @Override
   public void execute() {
-    RobotContainer.elevator.io.setPosition(height);
+    RobotContainer.elevator.setPosition(h, 3.0);
     // don't forget to add wait timeout to this
   }
 

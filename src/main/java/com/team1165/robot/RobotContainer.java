@@ -20,7 +20,7 @@ import com.team1165.robot.Commands.ElevatorCommand;
 import com.team1165.robot.subsystems.ConstantsElevator;
 import com.team1165.robot.subsystems.Elevator;
 import com.team1165.robot.subsystems.ElevatorIO;
-import com.team1165.robot.subsystems.ElevatorKraken;
+import com.team1165.robot.subsystems.ElevatorSimIO;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -28,7 +28,6 @@ import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim.MapleSimConfig;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -43,7 +42,7 @@ public class RobotContainer {
 
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
-  public static Elevator elevator;
+  public static Elevator elevator = new Elevator(new ElevatorSimIO());
 
   // Testing, likely will be changed later
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -95,7 +94,6 @@ public class RobotContainer {
 
         break;
     }
-    elevator = new Elevator(new ElevatorKraken());
 
     // ik its redundant, gimme time
     if (elevator == null) {
@@ -104,13 +102,8 @@ public class RobotContainer {
 
     configureButtonBindings();
     configureDefaultCommands();
+    configureTesterBindings(driverController);
   }
-
-  //  autoSelector.addRoutine(
-  //        "Flywheels FF Characterization",
-  //        new FeedForwardCharacterization(
-  //            flywheels, flywheels::runCharacterization, flywheels::getCharacterizationVelocity));
-  // - to be placed in auto config.
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {}
@@ -129,25 +122,9 @@ public class RobotContainer {
   private void configureTesterBindings(CommandXboxController controller) {
     // Start: Reset Elevator Sensor Position
     controller.start().onTrue(new ElevatorCommand(Inches.of(0)));
-    controller
-        .a()
-        .onTrue(
-            Commands.runOnce(
-                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L1_HEIGHT), elevator));
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L2_HEIGHT), elevator));
-    controller
-        .y()
-        .onTrue(
-            Commands.runOnce(
-                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L3_HEIGHT), elevator));
-    controller
-        .x()
-        .onTrue(
-            Commands.runOnce(
-                () -> elevator.io.setPosition(ConstantsElevator.CORAL_L4_HEIGHT), elevator));
+    controller.a().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L1_HEIGHT));
+    controller.b().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L2_HEIGHT));
+    controller.y().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L3_HEIGHT));
+    controller.x().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L4_HEIGHT));
   }
 }
