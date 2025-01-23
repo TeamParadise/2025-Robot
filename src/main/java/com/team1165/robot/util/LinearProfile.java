@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.team1165.robot.Util;
+package com.team1165.robot.util;
 
 /** Ramps up and down to setpoint for velocity closed loop control */
 public class LinearProfile {

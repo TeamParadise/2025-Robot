@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.team1165.robot.Util;
+package com.team1165.robot.util;
 
 import edu.wpi.first.math.geometry.Twist2d;
 

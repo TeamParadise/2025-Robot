@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.team1165.robot.Util;
+package com.team1165.robot.util;
 
 import com.team1165.robot.Constants;
 import java.util.Arrays;
