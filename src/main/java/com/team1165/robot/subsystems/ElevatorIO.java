@@ -34,6 +34,10 @@ public interface ElevatorIO {
   /** Stop both Elevator Motors */
   default void stop() {}
 
+  default void runVolts(double leftVoltage, double rightVoltage) {}
+
+  default void setPosition(Double height, double velocity) {}
+
   /** Config PID values for both motors */
   default void setPID(double kP, double kI, double kD) {}
 
