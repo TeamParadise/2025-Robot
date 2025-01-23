@@ -16,7 +16,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.team1165.robot.Commands.ElevatorCommand;
+import com.team1165.robot.commands.ElevatorCommand;
 import com.team1165.robot.subsystems.ConstantsElevator;
 import com.team1165.robot.subsystems.Elevator;
 import com.team1165.robot.subsystems.ElevatorIO;

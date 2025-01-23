@@ -7,7 +7,8 @@
 
 package com.team1165.robot;
 
-import com.team1165.robot.Alert.AlertType;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class Constants {
@@ -32,7 +33,7 @@ public class Constants {
 
   public static RobotType getRobot() {
     if (!disableHAL && RobotBase.isReal() && robotType == RobotType.SIMBOT) {
-      new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR)
+      new Alert("Invalid robot selected, using competition robot as default.", AlertType.kError)
           .set(true);
       robotType = RobotType.COMPBOT;
     }

@@ -9,13 +9,14 @@ package com.team1165.robot.subsystems;
 
 import static com.team1165.robot.subsystems.ElevatorKraken.gains;
 
-import com.team1165.robot.Alert;
 import com.team1165.robot.Constants;
 import com.team1165.robot.subsystems.ElevatorIO.ElevatorIOInputs;
 import com.team1165.robot.util.LinearProfile;
 import com.team1165.robot.util.LoggedTunableNumber;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
@@ -56,9 +57,9 @@ public class Elevator extends SubsystemBase {
 
   // Disconnected alerts
   private final Alert leftDisconnected =
-      new Alert("Left ElevatorMotor disconnected!", Alert.AlertType.WARNING);
+      new Alert("Left ElevatorMotor disconnected!", AlertType.kWarning);
   private final Alert rightDisconnected =
-      new Alert("Right ElevatorMotor disconnected!", Alert.AlertType.WARNING);
+      new Alert("Right ElevatorMotor disconnected!", AlertType.kWarning);
 
   public enum Goal {
     IDLE(() -> 0.0, () -> 0.0),

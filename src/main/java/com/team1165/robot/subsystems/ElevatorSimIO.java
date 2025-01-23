@@ -7,13 +7,13 @@
 
 package com.team1165.robot.subsystems;
 
-import com.team1165.robot.Alert;
-import com.team1165.robot.Alert.AlertType;
 import com.team1165.robot.Constants;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -24,7 +24,7 @@ public class ElevatorSimIO implements ElevatorIO {
   private static final double maxLengthMeters = inchesToMeters(11.872);
   private static final double drumRadiusMeters = inchesToMeters(0.5);
   private double lastDesiredPosition = 0.0;
-  Alert alert = new Alert("Elevator", "ElevatorSimIO", AlertType.ERROR);
+  Alert alert = new Alert("Elevator", "ElevatorSimIO", AlertType.kError);
 
   private final ElevatorSim leftSim =
       new ElevatorSim(
