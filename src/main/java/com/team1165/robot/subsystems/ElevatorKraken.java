@@ -9,20 +9,33 @@ package com.team1165.robot.subsystems; /// *
 //
 // package com.team1165.robot.subsystems;
 
-import static com.team1165.robot.subsystems.ElevatorConstants.ELEVATOR_CONFIG;
 import static edu.wpi.first.units.Units.Inches;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 
-@Logged
 public class ElevatorKraken implements ElevatorIO {
+
+  private StatusSignal<Angle> leftP;
+  private StatusSignal<AngularVelocity> leftV;
+  private StatusSignal<Voltage> leftAppliedVolts;
+  private StatusSignal<Current> leftSupplyCurrent;
+  private StatusSignal<Temperature> leftTempCelsius;
+  private StatusSignal<Angle> rightP;
+  private StatusSignal<AngularVelocity> rightV;
+  private StatusSignal<Voltage> rightAppliedVolts;
+  private StatusSignal<Current> rightSupplyCurrent;
+  private StatusSignal<Temperature> rightTempCelsius;
 
   public TalonFX leftTalon;
   public TalonFX rightTalon;
@@ -36,7 +49,7 @@ public class ElevatorKraken implements ElevatorIO {
   public StatusSignal<Double> rightVelocity;
 
   public VoltageOut voltageControl = new VoltageOut(0).withUpdateFreqHz(0.0);
-
+  private final VelocityVoltage velocityControl = new VelocityVoltage(0).withUpdateFreqHz(0.0);
 
   public ElevatorKraken() {
     if (RobotBase.isReal()) {
@@ -46,8 +59,33 @@ public class ElevatorKraken implements ElevatorIO {
       lastDesiredPosition = Units.Inches.of(0);
 
       // Apply configs
-      rightTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
-      leftTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
+      rightTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG, 1);
+      leftTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG, 1);
+
+      leftP = leftTalon.getPosition();
+      leftV = leftTalon.getVelocity();
+      leftAppliedVolts = leftTalon.getMotorVoltage();
+      leftSupplyCurrent = leftTalon.getSupplyCurrent();
+      leftTempCelsius = leftTalon.getDeviceTemp();
+
+      rightP = rightTalon.getPosition();
+      rightV = rightTalon.getVelocity();
+      rightAppliedVolts = rightTalon.getMotorVoltage();
+      rightSupplyCurrent = rightTalon.getSupplyCurrent();
+      rightTempCelsius = rightTalon.getDeviceTemp();
+
+      BaseStatusSignal.setUpdateFrequencyForAll(
+          100.0,
+          leftPosition,
+          leftVelocity,
+          leftAppliedVolts,
+          leftSupplyCurrent,
+          leftTempCelsius,
+          rightPosition,
+          rightVelocity,
+          rightAppliedVolts,
+          rightSupplyCurrent,
+          rightTempCelsius);
     }
   }
 
@@ -57,16 +95,35 @@ public class ElevatorKraken implements ElevatorIO {
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
-        inputs.leftMotorConnected = BaseStatusSignal.refreshAll(leftPosition,
-     leftVelocity).isOK();
-        inputs.rightMotorConnected = BaseStatusSignal.refreshAll(rightPosition,
-     rightVelocity).isOK();
+    inputs.leftMotorConnected =
+        BaseStatusSignal.refreshAll(
+                leftPosition, leftVelocity, leftAppliedVolts, leftSupplyCurrent, leftTempCelsius)
+            .isOK();
+    inputs.rightMotorConnected =
+        BaseStatusSignal.refreshAll(
+                rightPosition,
+                rightVelocity,
+                rightAppliedVolts,
+                rightSupplyCurrent,
+                rightTempCelsius)
+            .isOK();
 
     inputs.currentLeftPosition = Units.Inches.of(leftTalon.getPosition().getValueAsDouble());
-    inputs.leftVelocityRpm = leftVelocity.getValueAsDouble() * 60.0;
+    inputs.leftVelocityRpm =
+        leftVelocity.getValueAsDouble() * 60.0; // probs redundant considering whats above
 
     inputs.currentRightPosition = Units.Inches.of(rightTalon.getPosition().getValueAsDouble());
     inputs.rightVelocityRpm = rightVelocity.getValueAsDouble() * 60.0;
+
+    inputs.leftVelocityRpm = leftVelocity.getValueAsDouble() * 60.0;
+    inputs.leftAppliedVolts = leftAppliedVolts.getValueAsDouble();
+    inputs.leftSupplyCurrentAmps = leftSupplyCurrent.getValueAsDouble();
+    inputs.leftTempCelsius = leftTempCelsius.getValueAsDouble();
+
+    inputs.rightVelocityRpm = rightVelocity.getValueAsDouble() * 60.0;
+    inputs.rightAppliedVolts = rightAppliedVolts.getValueAsDouble();
+    inputs.rightSupplyCurrentAmps = rightSupplyCurrent.getValueAsDouble();
+    inputs.rightTempCelsius = rightTempCelsius.getValueAsDouble();
   }
 
   @Override
@@ -95,13 +152,17 @@ public class ElevatorKraken implements ElevatorIO {
   }
 
   @Override
-  public void runCharacterizationLeft(double input) {
-    leftTalon.setControl(voltageControl.withOutput(input));
+  public void runVelocity(
+      double leftRpm, double rightRpm, double leftFeedforward, double rightFeedforward) {
+    leftTalon.setControl(
+        velocityControl.withVelocity(leftRpm / 60.0).withFeedForward(leftFeedforward));
+    rightTalon.setControl(
+        velocityControl.withVelocity(rightRpm / 60.0).withFeedForward(rightFeedforward));
   }
 
-  // these 2 Idek what I was on tbh
   @Override
-  public void runCharacterizationRight(double input) {
-    rightTalon.setControl(voltageControl.withOutput(input));
+  public void runVolts(double leftVolts, double rightVolts) {
+    leftTalon.setControl(voltageControl.withOutput(leftVolts));
+    rightTalon.setControl(voltageControl.withOutput(rightVolts));
   }
 }

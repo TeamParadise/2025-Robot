@@ -7,13 +7,14 @@
 
 package com.team1165.robot.subsystems;
 
-import com.team1165.robot.Alert;
-import com.team1165.robot.Alert.AlertType;
 import com.team1165.robot.Constants;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -24,7 +25,11 @@ public class ElevatorSimIO implements ElevatorIO {
   private static final double maxLengthMeters = inchesToMeters(11.872);
   private static final double drumRadiusMeters = inchesToMeters(0.5);
   private double lastDesiredPosition = 0.0;
-  Alert alert = new Alert("Elevator", "ElevatorSimIO", AlertType.ERROR);
+  Alert alert =
+      new Alert(
+          "Elevator",
+          "ElevatorSimIO",
+          AlertType.kError); // I saw u removed this, commented out logic until just in case,
 
   private final ElevatorSim leftSim =
       new ElevatorSim(
@@ -65,26 +70,23 @@ public class ElevatorSimIO implements ElevatorIO {
     }
     leftSim.update(Constants.loopPeriodSecs);
     rightSim.update(Constants.loopPeriodSecs);
-    // control to setpoint
-    //    if (leftSetpointRpm != null && rightSetpointRpm != null) {
-    //      runVolts(
-    //          leftController.calculate(leftSim.getVelocityMetersPerSecond(), leftSetpointRpm)
-    //              + leftFeedforward,
-    //          rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
-    //              + rightFeedforward); // probs wrong
-    //    }
 
-    // inputs.currentLeftPosition += Units.Inches.of(leftSim.getPositionMeters() /
-    // drumRadiusMeters); ***NEEDED just don't know error
+    if (leftSetpointRpm != null && rightSetpointRpm != null) {
+      runVolts(
+          leftController.calculate(leftSim.getVelocityMetersPerSecond(), leftSetpointRpm)
+              + leftFeedforward,
+          rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
+              + rightFeedforward); // probs wrong
+    }
+    inputs.currentLeftPosition = Units.Inches.of(leftSim.getPositionMeters() / drumRadiusMeters);
 
-    //    inputs.leftAppliedVolts = leftAppliedVolts;
-    //    inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
+    inputs.leftAppliedVolts = leftAppliedVolts;
+    inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
 
-    //    inputs.currentRightPosition += Units.Inches.of(rightSim.getPositionMeters() /
-    // drumRadiusMeters); ***NEEDED just don't know error
+    inputs.currentRightPosition = Units.Inches.of(rightSim.getPositionMeters() / drumRadiusMeters);
 
-    //    inputs.rightAppliedVolts = rightAppliedVolts;
-    //    inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
+    inputs.rightAppliedVolts = rightAppliedVolts;
+    inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
   }
 
   @Override
@@ -99,17 +101,13 @@ public class ElevatorSimIO implements ElevatorIO {
 
   @Override
   public void setPosition(Double height, double velocity) {
-    if (height + lastDesiredPosition < maxLengthMeters) {
-      rightSim.setState(height, velocity);
-      leftSim.setState(height, velocity);
-      lastDesiredPosition = height;
-    } else {
-      alert.setText("Elevator not at limit");
-    }
-  }
-
-  public static double metersToInches(double meters) {
-    return meters / kMetersPerInch;
+    //    if (height + lastDesiredPosition < maxLengthMeters) {
+    rightSim.setState(height, velocity);
+    leftSim.setState(height, velocity);
+    lastDesiredPosition = height;
+    //    } else {
+    //      alert.setText("Elevator not at limit");
+    //    }
   }
 
   public static double inchesToMeters(double inches) {
@@ -125,20 +123,6 @@ public class ElevatorSimIO implements ElevatorIO {
   @Override
   public void stop() {
     runVolts(0.0, 0.0);
-  }
-
-  @Override
-  public void runCharacterizationLeft(double input) {
-    leftSetpointRpm = null;
-    rightSetpointRpm = null;
-    runVolts(input, 0.0);
-  }
-
-  @Override
-  public void runCharacterizationRight(double input) {
-    leftSetpointRpm = null;
-    rightSetpointRpm = null;
-    runVolts(0.0, input);
   }
 
   public void setLastDesiredPosition(double lastDesiredPosition) {

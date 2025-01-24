@@ -5,7 +5,7 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.Commands;
+package com.team1165.robot.commands;
 
 import com.team1165.robot.RobotContainer;
 import edu.wpi.first.units.measure.Distance;

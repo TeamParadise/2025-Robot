@@ -17,7 +17,7 @@ public interface ElevatorIO {
     public boolean leftMotorConnected = true;
     public boolean rightMotorConnected = true;
 
-    Distance currentLeftPosition = Units.Inches.of(0);
+    Distance currentLeftPosition = Units.Inches.of(0.0);
     public double leftVelocityRpm = 0.0;
     public double leftAppliedVolts = 0.0;
     public double leftSupplyCurrentAmps = 0.0;
@@ -47,12 +47,6 @@ public interface ElevatorIO {
   /** Config PID values for both motors */
   default void setPID(double kP, double kI, double kD) {}
 
-  /** Config FF values for both motors */
-  default void setFF(double kS, double kV, double kA) {}
-
-  /** Run left flywheels at voltage */
-  default void runCharacterizationLeft(double input) {}
-
-  /** Run right flywheels at voltage */
-  default void runCharacterizationRight(double input) {}
+  default void runVelocity(
+      double leftRpm, double rightRpm, double leftFeedforward, double rightFeedforward) {}
 }

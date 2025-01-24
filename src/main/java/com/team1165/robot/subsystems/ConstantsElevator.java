@@ -14,7 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 
-public class ElevatorConstants {
+public class ConstantsElevator {
 
   public static final Distance CORAL_L1_HEIGHT = Units.Inches.of(9.039062);
   public static final Distance CORAL_L2_HEIGHT = Units.Inches.of(17.946289);
@@ -53,11 +53,6 @@ public class ElevatorConstants {
     ELEVATOR_CONFIG.Slot0.kS = 0.4;
     // ELEVATOR_CONFIG.Slot0.kP = 1;
     ELEVATOR_CONFIG.Slot0.kP = 0.3;
-
-    ELEVATOR_CONFIG.CurrentLimits.SupplyCurrentLimit = 80;
-    ELEVATOR_CONFIG.CurrentLimits.SupplyCurrentLimitEnable = true;
-    ELEVATOR_CONFIG.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    ELEVATOR_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   }
 
   //  public static final ElevatorConfig elevatorConfig =
@@ -74,4 +69,9 @@ public class ElevatorConstants {
   //        case SIMBOT -> new Gains(0.05, 0.0, 0.0, 0.01, 0.00103, 0.0);
   //      };
 
+  public record ElevatorConfig(
+      int leftID, int rightID, double reduction, double maxAcclerationRpmPerSec) {}
+
+  public record Gains(
+      double kP, double kI, double kD, double kS, double kV, double kA, double kG) {}
 }
