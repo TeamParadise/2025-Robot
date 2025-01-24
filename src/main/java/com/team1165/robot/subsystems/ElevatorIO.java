@@ -19,9 +19,15 @@ public interface ElevatorIO {
 
     Distance currentLeftPosition = Units.Inches.of(0);
     public double leftVelocityRpm = 0.0;
+    public double leftAppliedVolts = 0.0;
+    public double leftSupplyCurrentAmps = 0.0;
+    public double leftTempCelsius = 0.0;
 
     Distance currentRightPosition = Units.Inches.of(0);
     public double rightVelocityRpm = 0.0;
+    public double rightAppliedVolts = 0.0;
+    public double rightSupplyCurrentAmps = 0.0;
+    public double rightTempCelsius = 0.0;
   }
 
   default void updateInputs(ElevatorIOInputs inputs) {}

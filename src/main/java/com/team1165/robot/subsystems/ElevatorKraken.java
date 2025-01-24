@@ -9,13 +9,13 @@ package com.team1165.robot.subsystems; /// *
 //
 // package com.team1165.robot.subsystems;
 
-import static com.team1165.robot.subsystems.ConstantsElevator.ELEVATOR_CONFIG;
+import static com.team1165.robot.subsystems.ElevatorConstants.ELEVATOR_CONFIG;
 import static edu.wpi.first.units.Units.Inches;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.team1165.robot.subsystems.ConstantsElevator.Gains;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
@@ -37,15 +37,6 @@ public class ElevatorKraken implements ElevatorIO {
 
   public VoltageOut voltageControl = new VoltageOut(0).withUpdateFreqHz(0.0);
 
-  public static final Gains gains =
-      new Gains(
-          ELEVATOR_CONFIG.Slot0.kP,
-          ELEVATOR_CONFIG.Slot0.kI,
-          ELEVATOR_CONFIG.Slot0.kD,
-          ELEVATOR_CONFIG.Slot0.kS,
-          ELEVATOR_CONFIG.Slot0.kV,
-          1.2,
-          ELEVATOR_CONFIG.Slot0.kG); // don't really know what to do here
 
   public ElevatorKraken() {
     if (RobotBase.isReal()) {
@@ -55,8 +46,8 @@ public class ElevatorKraken implements ElevatorIO {
       lastDesiredPosition = Units.Inches.of(0);
 
       // Apply configs
-      rightTalon.getConfigurator().apply(ConstantsElevator.ELEVATOR_CONFIG);
-      leftTalon.getConfigurator().apply(ConstantsElevator.ELEVATOR_CONFIG);
+      rightTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
+      leftTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
     }
   }
 
@@ -66,10 +57,10 @@ public class ElevatorKraken implements ElevatorIO {
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
-    //    inputs.leftMotorConnected = BaseStatusSignal.refreshAll(leftPosition,
-    // leftVelocity).isOK();
-    //    inputs.rightMotorConnected = BaseStatusSignal.refreshAll(rightPosition, - didnt build
-    // rightVelocity).isOK();
+        inputs.leftMotorConnected = BaseStatusSignal.refreshAll(leftPosition,
+     leftVelocity).isOK();
+        inputs.rightMotorConnected = BaseStatusSignal.refreshAll(rightPosition,
+     rightVelocity).isOK();
 
     inputs.currentLeftPosition = Units.Inches.of(leftTalon.getPosition().getValueAsDouble());
     inputs.leftVelocityRpm = leftVelocity.getValueAsDouble() * 60.0;
@@ -99,8 +90,8 @@ public class ElevatorKraken implements ElevatorIO {
 
   @Override
   public void setPID(double kP, double kI, double kD) {
-    rightTalon.getConfigurator().apply(ConstantsElevator.ELEVATOR_CONFIG);
-    leftTalon.getConfigurator().apply(ConstantsElevator.ELEVATOR_CONFIG);
+    rightTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
+    leftTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
   }
 
   @Override
