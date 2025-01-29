@@ -17,9 +17,11 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -79,11 +81,8 @@ public class ATVision extends SubsystemBase {
       // Add robot to camera transform to array
       cameraTransforms[i] = config[i].robotToCamera();
 
-      // Activate single-tag trig if the camera orientation supports it
-      if (cameraTransforms[i].getRotation().getY() == 0
-          && cameraTransforms[i].getRotation().getX() == 0) {
-        io[i].setSingleTagTrig(true);
-      }
+      // Activate single-tag trig by default
+      io[i].setSingleTagTrig(true);
 
       // Create the alert that will be sent if the camera is disconnected
       disconnectedAlerts[i] =
@@ -231,12 +230,17 @@ public class ATVision extends SubsystemBase {
         // Get the robot to camera transform/offset
         Transform3d robotToCamera = cameraTransforms[cameraIndex];
 
-        // Get the 2D distance from the camera to the tag
-        double distance2d =
-            observation.distance()
-                * Math.cos(robotToCamera.getRotation().getY() + observation.ty());
+        // Get the 2D translation from the camera to the tag
+        Translation2d camToTagTranslation =
+            new Pose3d(Translation3d.kZero, new Rotation3d(0, observation.ty(), observation.tx()))
+                .transformBy(
+                    new Transform3d(
+                        new Translation3d(observation.distance(), 0, 0), Rotation3d.kZero))
+                .getTranslation()
+                .rotateBy(new Rotation3d(0, robotToCamera.getRotation().getY(), 0))
+                .toTranslation2d();
 
-        // Get the rotation of the tag from the camera position
+        // Get the rotation of the tag from the camera translation
         Rotation2d camToTagRotation =
             rotationSupplier
                 .getRotation(timestamp)
@@ -244,7 +248,7 @@ public class ATVision extends SubsystemBase {
                     robotToCamera
                         .getRotation()
                         .toRotation2d()
-                        .plus(Rotation2d.fromRadians(observation.tx())));
+                        .plus(camToTagTranslation.getAngle()));
 
         // Get the 2D tag pose from the AprilTag layout
         var tagPose =
@@ -256,7 +260,7 @@ public class ATVision extends SubsystemBase {
         // Get the translation from the field to the camera
         Translation2d fieldToCameraTranslation =
             new Pose2d(tagPose.getTranslation(), camToTagRotation.plus(Rotation2d.kPi))
-                .transformBy(new Transform2d(distance2d, 0, new Rotation2d()))
+                .transformBy(new Transform2d(camToTagTranslation.getNorm(), 0, new Rotation2d()))
                 .getTranslation();
 
         // Get the robot pose with the translation

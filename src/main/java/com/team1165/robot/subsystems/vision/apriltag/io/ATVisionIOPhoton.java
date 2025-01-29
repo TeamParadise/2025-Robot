@@ -85,7 +85,7 @@ public class ATVisionIOPhoton implements ATVisionIO {
                 new Pose3d(
                     multitagResult.estimatedPose.best.getTranslation(),
                     multitagResult.estimatedPose.best.getRotation()), // 3D pose estimate
-                new Pose3d(), // MultiTag, no alternative pose
+                Pose3d.kZero, // MultiTag, no alternative pose
                 totalTagDistance / result.targets.size(), // Average tag distance
                 multitagResult.estimatedPose.ambiguity, // Ambiguity
                 multitagResult.fiducialIDsUsed.size(), // Tag count

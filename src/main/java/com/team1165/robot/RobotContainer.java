@@ -31,6 +31,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -105,12 +106,15 @@ public class RobotContainer {
                                 960,
                                 720,
                                 new Transform3d(
-                                    new Translation3d(0, 0, 0), new Rotation3d(0, 0.0, 0.0)))
+                                    new Translation3d(0, 0, 0),
+                                    new Rotation3d(0, 0.0, Units.degreesToRadians(-30))))
                             .withCalibError(0.15, 0.1)
                             .withLatency(0, 0)
                             .withFPS(150),
                         drive::getSimulationPose),
-                    new Transform3d()));
+                    new Transform3d(
+                        new Translation3d(0, 0, 0),
+                        new Rotation3d(0, 0.0, Units.degreesToRadians(-30)))));
         break;
 
       default:
