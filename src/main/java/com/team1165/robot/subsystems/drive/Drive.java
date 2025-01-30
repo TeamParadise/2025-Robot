@@ -266,6 +266,12 @@ public class Drive extends SubsystemBase {
     }
   }
 
+  /** Get the rotation of the robot at a certain timestamp for vision. */
+  public Rotation2d getRotation(double timestamp) {
+    // Need to try to add some latency compensation
+    return inputs.Pose.getRotation();
+  }
+
   /**
    * Get the current {@link ChassisSpeeds} of the drivetrain.
    *

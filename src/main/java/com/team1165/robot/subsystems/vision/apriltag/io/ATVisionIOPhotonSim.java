@@ -1,6 +1,4 @@
 /*
- * File originally made by: Mechanical Advantage - FRC 6328
- * Copyright (c) 2025 Team 6328 (https://github.com/Mechanical-Advantage)
  * Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
  *
  * Use of this source code is governed by the MIT License, which can be found in the LICENSE file at
@@ -48,7 +46,7 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
       SimCameraProperties cameraProperties,
       Supplier<Pose2d> poseSupplier) {
     // Call constructor from ATVisionIOPhoton
-    super(name, robotToCamera);
+    super(name);
     this.poseSupplier = poseSupplier;
 
     // Initialize vision sim
@@ -64,17 +62,15 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
   /**
    * Creates a new {@link ATVisionIOPhotonSim} with the provided configurations.
    *
-   * @param photonConfig The {@link ATVisionIOPhotonConfig} with the configuration for this camera.
+   * @param name The name of the camera.
    * @param simConfig The {@link ATVisionIOPhotonSimConfig} with the simulation configuration for
    *     this camera.
    * @param poseSupplier The supplier of the robot pose to base the camera position on.
    */
   public ATVisionIOPhotonSim(
-      ATVisionIOPhotonConfig photonConfig,
-      ATVisionIOPhotonSimConfig simConfig,
-      Supplier<Pose2d> poseSupplier) {
+      String name, ATVisionIOPhotonSimConfig simConfig, Supplier<Pose2d> poseSupplier) {
     // Call constructor from ATVisionIOPhoton
-    super(photonConfig.name(), photonConfig.robotToCamera());
+    super(name);
     var cameraProperties = new SimCameraProperties();
 
     // Set calibration based on provided values
@@ -106,18 +102,7 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
 
     // Add sim camera
     cameraSim = new PhotonCameraSim(camera, cameraProperties);
-    visionSim.addCamera(cameraSim, photonConfig.robotToCamera());
-  }
-
-  /**
-   * Creates a new {@link ATVisionIOPhotonSim} with the provided configuration. This constructor
-   * creates a 960x720 "perfect camera", with no latency or error.
-   *
-   * @param photonConfig The {@link ATVisionIOPhotonConfig} with the configuration for this camera.
-   * @param poseSupplier The supplier of the robot pose to base the camera position on.
-   */
-  public ATVisionIOPhotonSim(ATVisionIOPhotonConfig photonConfig, Supplier<Pose2d> poseSupplier) {
-    this(photonConfig.name(), photonConfig.robotToCamera(), poseSupplier);
+    visionSim.addCamera(cameraSim, simConfig.robotToCamera());
   }
 
   /**
@@ -133,6 +118,12 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
     this(name, robotToCamera, new SimCameraProperties(), poseSupplier);
   }
 
+  /**
+   * Updates a {@link ATVisionIOInputs} instance with the latest updates from this {@link
+   * ATVisionIO}.
+   *
+   * @param inputs A {@link ATVisionIOInputs} instance to update.
+   */
   @Override
   public void updateInputs(ATVisionIOInputs inputs) {
     visionSim.update(poseSupplier.get());
@@ -142,6 +133,7 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
   /**
    * A configuration class used to provide values needed to create an {@link ATVisionIOPhotonSim}.
    *
+   * @param robotToCamera The 3D position of the camera relative to the robot.
    * @param width The resolution width of the camera.
    * @param height The resolution height of the camera.
    * @param cameraFOV The diagonal FOV (field of view) of the camera. This will be ignored if {@code
@@ -159,6 +151,7 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
   public record ATVisionIOPhotonSimConfig(
       int width,
       int height,
+      Transform3d robotToCamera,
       Rotation2d cameraFOV,
       Matrix<N3, N3> camIntrinsics,
       Matrix<N8, N1> distCoeffs,
@@ -168,14 +161,25 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
       double avgLatencyMs,
       double latencyStdDevMs) {
     /**
+     * Creates a new {@link ATVisionIOPhotonSimConfig} with the provided camera offset. This
+     * constructor creates a 960x720 "perfect camera", with no latency or error.
+     *
+     * @param robotToCamera The 3D position of the camera relative to the robot.
+     */
+    public ATVisionIOPhotonSimConfig(Transform3d robotToCamera) {
+      this(960, 720, robotToCamera, null, null, null, 0, 0, 0, 0, 0);
+    }
+
+    /**
      * Creates a new {@link ATVisionIOPhotonSimConfig} with the provided values. This constructor
      * assumes a "perfect camera", with no latency or error.
      *
      * @param width The resolution width of the camera.
      * @param height The resolution height of the camera.
+     * @param robotToCamera The 3D position of the camera relative to the robot.
      */
-    public ATVisionIOPhotonSimConfig(int width, int height) {
-      this(width, height, null, null, null, 0, 0, 0, 0, 0);
+    public ATVisionIOPhotonSimConfig(int width, int height, Transform3d robotToCamera) {
+      this(width, height, robotToCamera, null, null, null, 0, 0, 0, 0, 0);
     }
 
     /**
@@ -183,10 +187,12 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
      *
      * @param width The resolution width of the camera.
      * @param height The resolution height of the camera.
+     * @param robotToCamera The 3D position of the camera relative to the robot.
      * @param cameraFOV The diagonal FOV (field of view) of the camera.
      */
-    public ATVisionIOPhotonSimConfig(int width, int height, Rotation2d cameraFOV) {
-      this(width, height, cameraFOV, null, null, 0, 0, 0, 0, 0);
+    public ATVisionIOPhotonSimConfig(
+        int width, int height, Transform3d robotToCamera, Rotation2d cameraFOV) {
+      this(width, height, robotToCamera, cameraFOV, null, null, 0, 0, 0, 0, 0);
     }
 
     /**
@@ -194,14 +200,19 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
      *
      * @param width The resolution width of the camera.
      * @param height The resolution height of the camera.
+     * @param robotToCamera The 3D position of the camera relative to the robot.
      * @param camIntrinsics The intrinsics of the camera (can be found through PhotonVision
      *     calibration). In the format of (fx, 0, cx, 0, fy, cy, 0, 0, 1).
      * @param distCoeffs The distortion of the camera (can be found through PhotonVision
      *     calibration).
      */
     public ATVisionIOPhotonSimConfig(
-        int width, int height, Matrix<N3, N3> camIntrinsics, Matrix<N8, N1> distCoeffs) {
-      this(width, height, null, camIntrinsics, distCoeffs, 0, 0, 0, 0, 0);
+        int width,
+        int height,
+        Transform3d robotToCamera,
+        Matrix<N3, N3> camIntrinsics,
+        Matrix<N8, N1> distCoeffs) {
+      this(width, height, robotToCamera, null, camIntrinsics, distCoeffs, 0, 0, 0, 0, 0);
     }
 
     /**
@@ -216,6 +227,7 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
       return new ATVisionIOPhotonSimConfig(
           width,
           height,
+          robotToCamera,
           cameraFOV,
           camIntrinsics,
           distCoeffs,
@@ -236,6 +248,7 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
       return new ATVisionIOPhotonSimConfig(
           width,
           height,
+          robotToCamera,
           cameraFOV,
           camIntrinsics,
           distCoeffs,
@@ -258,6 +271,7 @@ public class ATVisionIOPhotonSim extends ATVisionIOPhoton {
       return new ATVisionIOPhotonSimConfig(
           width,
           height,
+          robotToCamera,
           cameraFOV,
           camIntrinsics,
           distCoeffs,
