@@ -5,12 +5,13 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems;
+package com.team1165.robot.subsystems.elevator.constants;
 
 import com.team1165.robot.Alert;
 import com.team1165.robot.atk.junction.Logger;
 import com.team1165.robot.atk.junction.inputs.LoggableInputs;
-import com.team1165.robot.subsystems.ElevatorIO.ElevatorIOInputs;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIO.ElevatorIOInputs;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

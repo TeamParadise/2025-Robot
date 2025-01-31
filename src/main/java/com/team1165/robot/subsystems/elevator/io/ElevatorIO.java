@@ -5,7 +5,7 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems;
+package com.team1165.robot.subsystems.elevator.io;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
