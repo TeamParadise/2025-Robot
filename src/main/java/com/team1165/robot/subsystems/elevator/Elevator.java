@@ -5,16 +5,17 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems.elevator.constants;
+package com.team1165.robot.subsystems.elevator;
 
-import com.team1165.robot.Alert;
-import com.team1165.robot.atk.junction.Logger;
-import com.team1165.robot.atk.junction.inputs.LoggableInputs;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO.ElevatorIOInputs;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 @Logged
 public class Elevator extends SubsystemBase {
@@ -47,9 +48,9 @@ public class Elevator extends SubsystemBase {
 
   // Disconnected alerts
   private final Alert leftDisconnected =
-      new Alert("Left ElevatorMotor disconnected!", Alert.AlertType.WARNING);
+      new Alert("Left ElevatorMotor disconnected!", AlertType.kWarning);
   private final Alert rightDisconnected =
-      new Alert("Right ElevatorMotor disconnected!", Alert.AlertType.WARNING);
+      new Alert("Right ElevatorMotor disconnected!", AlertType.kWarning);
 
   //  private boolean isDrawingHighCurrent() { Don't know what happened here
   //    return Math.abs(inputs.leftSupplyCurrentAmps) > 50.0

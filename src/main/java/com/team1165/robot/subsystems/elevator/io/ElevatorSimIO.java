@@ -7,7 +7,6 @@
 
 package com.team1165.robot.subsystems.elevator.io;
 
-import com.team1165.robot.Constants;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -68,8 +67,8 @@ public class ElevatorSimIO implements ElevatorIO {
     if (DriverStation.isDisabled()) {
       stop();
     }
-    leftSim.update(Constants.loopPeriodSecs);
-    rightSim.update(Constants.loopPeriodSecs);
+    leftSim.update(0.02);
+    rightSim.update(0.02);
 
     if (leftSetpointRpm != null && rightSetpointRpm != null) {
       runVolts(

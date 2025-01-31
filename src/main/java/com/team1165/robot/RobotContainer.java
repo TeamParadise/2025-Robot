@@ -17,16 +17,21 @@ import static edu.wpi.first.units.Units.Seconds;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.commands.ElevatorCommand;
-import com.team1165.robot.subsystems.ConstantsElevator;
-import com.team1165.robot.subsystems.elevator.constants.Elevator;
-import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
-import com.team1165.robot.subsystems.elevator.io.ElevatorSimIO;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim.MapleSimConfig;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
+import com.team1165.robot.subsystems.elevator.Elevator;
+import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
+import com.team1165.robot.subsystems.elevator.io.ElevatorSimIO;
+import com.team1165.robot.subsystems.vision.apriltag.ATVision;
+import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton.ATVisionIOPhotonConfig;
+import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
+import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -39,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final ATVision apriltagVision;
 
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -66,6 +72,10 @@ public class RobotContainer {
                     TunerConstants.FrontRight,
                     TunerConstants.BackLeft,
                     TunerConstants.BackRight));
+        apriltagVision =
+            new ATVision(
+                drive::addVisionMeasurement,
+                new ATVisionIOPhotonSim("test", new Transform3d(), drive::getSimulationPose));
         break;
 
       case SIM:
@@ -86,12 +96,24 @@ public class RobotContainer {
                     TunerConstants.FrontRight,
                     TunerConstants.BackLeft,
                     TunerConstants.BackRight));
-
+        apriltagVision =
+            new ATVision(
+                drive::addVisionMeasurement,
+                new ATVisionIOPhotonSim(
+                    new ATVisionIOPhotonConfig("test", new Transform3d()),
+                    new ATVisionIOPhotonSimConfig(960, 720)
+                        .withCalibError(1, 0.1)
+                        .withLatency(0, 0)
+                        .withFPS(150),
+                    drive::getSimulationPose));
         break;
       default:
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
-
+        apriltagVision =
+            new ATVision(
+                drive::addVisionMeasurement,
+                new ATVisionIOPhotonSim("test", new Transform3d(), drive::getSimulationPose));
         break;
     }
 
@@ -122,9 +144,9 @@ public class RobotContainer {
   private void configureTesterBindings(CommandXboxController controller) {
     // Start: Reset Elevator Sensor Position
     controller.start().onTrue(new ElevatorCommand(Inches.of(0)));
-    controller.a().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L1_HEIGHT));
-    controller.b().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L2_HEIGHT));
-    controller.y().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L3_HEIGHT));
-    controller.x().onTrue(new ElevatorCommand(ConstantsElevator.SimCORAL_L4_HEIGHT));
+    controller.a().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L1_HEIGHT));
+    controller.b().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L2_HEIGHT));
+    controller.y().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L3_HEIGHT));
+    controller.x().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L4_HEIGHT));
   }
 }

@@ -31,6 +31,9 @@ public interface ATVisionIO {
     /** Value that represents if the camera is currently connected or not. */
     public boolean connected = false;
 
+    /** Name of the camera, if it has one. */
+    public String name = "N/A";
+
     /** Pose observations gathered since the last time the input was updated. */
     public PoseObservation[] poseObservations = new PoseObservation[0];
 

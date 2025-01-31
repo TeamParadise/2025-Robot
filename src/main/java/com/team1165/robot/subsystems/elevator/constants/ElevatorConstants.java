@@ -5,7 +5,7 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems;
+package com.team1165.robot.subsystems.elevator.constants;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
