@@ -176,9 +176,9 @@ public class ATVision extends SubsystemBase {
             // Get the current rotation of the robot
             Rotation2d currentRotation = rotationSupplier.getRotation(Timer.getTimestamp());
             if (Math.abs(
-                    currentRotation.minus(robotPose1.getRotation().toRotation2d()).getRadians())
+                currentRotation.minus(robotPose1.getRotation().toRotation2d()).getRadians())
                 < Math.abs(
-                    currentRotation.minus(robotPose2.getRotation().toRotation2d()).getRadians())) {
+                currentRotation.minus(robotPose2.getRotation().toRotation2d()).getRadians())) {
               robotPose = robotPose1;
             } else {
               robotPose = robotPose2;
@@ -266,10 +266,10 @@ public class ATVision extends SubsystemBase {
         // Get the robot pose with the translation
         var robotPose =
             new Pose2d(
-                    fieldToCameraTranslation,
-                    rotationSupplier
-                        .getRotation(timestamp)
-                        .plus(robotToCamera.getRotation().toRotation2d()))
+                fieldToCameraTranslation,
+                rotationSupplier
+                    .getRotation(timestamp)
+                    .plus(robotToCamera.getRotation().toRotation2d()))
                 .transformBy(
                     new Transform2d(
                         new Pose2d(
