@@ -107,6 +107,7 @@ public class RobotContainer {
                         .withFPS(150),
                     drive::getSimulationPose));
         break;
+
       default:
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
