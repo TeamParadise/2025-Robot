@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.commands.ElevatorCommand;
+import com.team1165.robot.commands.flyWheelsCommand;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -27,6 +28,7 @@ import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorSimIO;
+import com.team1165.robot.subsystems.flywheels.TwoNeoSubsystem;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton.ATVisionIOPhotonConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
@@ -49,6 +51,7 @@ public class RobotContainer {
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   public static Elevator elevator = new Elevator(new ElevatorSimIO());
+  public static TwoNeoSubsystem neoSubsystem = new TwoNeoSubsystem(8, 9);
 
   // Testing, likely will be changed later
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -140,6 +143,8 @@ public class RobotContainer {
                     .withVelocityX(-driverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
+
+    driverController.rightTrigger().whileTrue(new flyWheelsCommand(0.8, -0.8));
   }
 
   private void configureTesterBindings(CommandXboxController controller) {

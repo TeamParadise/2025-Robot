@@ -7,9 +7,15 @@
 
 package com.team1165.robot;
 
+import edu.wpi.first.wpilibj.RobotBase;
+
 public class Constants {
   /** The running mode of the robot (REAL, SIM, or REPLAY). By default, set to REAL. */
+  public static final double loopPeriodSecs = 0.02;
+
   public static Mode robotMode = Mode.REAL;
+  public static boolean disableHAL = false;
+  private static RobotType robotType = RobotType.COMPBOT;
 
   /** The possible modes that a robot can run in. */
   public enum Mode {
@@ -21,5 +27,21 @@ public class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public enum RobotType {
+    SIMBOT,
+    COMPBOT
+  }
+
+  public static RobotType getRobot() {
+    if (!disableHAL && RobotBase.isReal() && robotType == RobotType.SIMBOT) {
+      robotType = RobotType.COMPBOT;
+    }
+    return robotType;
+  }
+
+  public static void disableHAL() {
+    disableHAL = true;
   }
 }
