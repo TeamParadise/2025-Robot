@@ -13,6 +13,8 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+// THIS IS TEMPORARY IN PLACE OF THE ACTUAL SUBSYSTEM.
+
 public class TwoNeoSubsystem extends SubsystemBase {
 
   private final SparkMax neo1;

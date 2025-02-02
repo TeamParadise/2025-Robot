@@ -77,36 +77,36 @@ public class ElevatorSimIO implements ElevatorIO {
           rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
               + rightFeedforward); // probs wrong
     }
-    inputs.currentLeftPosition = Units.Inches.of(leftSim.getPositionMeters() / drumRadiusMeters);
+    inputs.currentLeftPosition = Units.Inches.of(leftSim.getPositionMeters());
 
     inputs.leftAppliedVolts = leftAppliedVolts;
     inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
 
-    inputs.currentRightPosition = Units.Inches.of(rightSim.getPositionMeters() / drumRadiusMeters);
+    inputs.currentRightPosition = Units.Inches.of(rightSim.getPositionMeters());
 
     inputs.rightAppliedVolts = rightAppliedVolts;
     inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
+    System.out.println(rightSim.getPositionMeters());
   }
 
   @Override
   public void runVolts(double leftVolts, double rightVolts) {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
-    leftAppliedVolts = MathUtil.clamp(leftVolts, -12.0, 12.0);
-    rightAppliedVolts = MathUtil.clamp(rightVolts, -12.0, 12.0);
+    leftAppliedVolts = leftVolts;
+    rightAppliedVolts = rightVolts;
     leftSim.setInputVoltage(leftAppliedVolts);
     rightSim.setInputVoltage(rightAppliedVolts);
   }
 
   @Override
   public void setPosition(Double height, double velocity) {
-    //    if (height + lastDesiredPosition < maxLengthMeters) {
-    rightSim.setState(height, velocity);
-    leftSim.setState(height, velocity);
-    lastDesiredPosition = height;
-    //    } else {
-    //      alert.setText("Elevator not at limit");
-    //    }
+
+    double error = height - rightSim.getPositionMeters();
+    double kP = 10.0; // Tune this value
+    double voltage = MathUtil.clamp(error * kP, -12.0, 12.0);
+
+    runVolts(voltage, voltage);
   }
 
   public static double inchesToMeters(double inches) {
@@ -126,5 +126,10 @@ public class ElevatorSimIO implements ElevatorIO {
 
   public void setLastDesiredPosition(double lastDesiredPosition) {
     this.lastDesiredPosition = lastDesiredPosition;
+  }
+
+  @Override
+  public double getLastDesiredPosition() {
+    return leftSim.getPositionMeters();
   }
 }

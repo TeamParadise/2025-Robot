@@ -49,4 +49,8 @@ public interface ElevatorIO {
 
   default void runVelocity(
       double leftRpm, double rightRpm, double leftFeedforward, double rightFeedforward) {}
+
+  default double getLastDesiredPosition() {
+    return 0;
+  }
 }

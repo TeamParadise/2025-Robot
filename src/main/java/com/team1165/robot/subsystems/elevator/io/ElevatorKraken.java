@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ElevatorKraken implements ElevatorIO {
 
@@ -123,6 +124,22 @@ public class ElevatorKraken implements ElevatorIO {
     inputs.rightAppliedVolts = rightAppliedVolts.getValueAsDouble();
     inputs.rightSupplyCurrentAmps = rightSupplyCurrent.getValueAsDouble();
     inputs.rightTempCelsius = rightTempCelsius.getValueAsDouble();
+
+    SmartDashboard.putNumber(
+        "Elevator/Left/CLO", leftTalon.getClosedLoopOutput().getValueAsDouble());
+    SmartDashboard.putNumber("Elevator/Left/Output", leftTalon.get());
+    SmartDashboard.putNumber(
+        "Elevator/Left/Inverted", leftTalon.getAppliedRotorPolarity().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Elevator/Left/Current", leftTalon.getSupplyCurrent().getValueAsDouble());
+
+    SmartDashboard.putNumber(
+        "Elevator/Right/CLO", rightTalon.getClosedLoopOutput().getValueAsDouble());
+    SmartDashboard.putNumber("Elevator/Right/Output", rightTalon.get());
+    SmartDashboard.putNumber(
+        "Elevator/Right/Inverted", rightTalon.getAppliedRotorPolarity().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Elevator/Right/Current", rightTalon.getSupplyCurrent().getValueAsDouble());
   }
 
   @Override

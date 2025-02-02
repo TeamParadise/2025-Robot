@@ -21,10 +21,10 @@ public class ElevatorConstants {
   public static final Distance CORAL_L3_HEIGHT = Units.Inches.of(33.742188);
   public static final Distance CORAL_L4_HEIGHT = Units.Inches.of(58.888916);
 
-  public static final Double SimCORAL_L1_HEIGHT = 9.039062;
-  public static final Double SimCORAL_L2_HEIGHT = 17.946289;
-  public static final Double SimCORAL_L3_HEIGHT = 33.742188;
-  public static final Double SimCORAL_L4_HEIGHT = 58.888916;
+  public static final double SimCORAL_L1_HEIGHT = 9.039062;
+  public static final double SimCORAL_L2_HEIGHT = 17.946289;
+  public static final double SimCORAL_L3_HEIGHT = 33.742188;
+  public static final double SimCORAL_L4_HEIGHT = 58.888916;
 
   public static final Distance ALGAE_PREP_NET = Units.Inches.of(50);
   public static final Distance ALGAE_PREP_PROCESSOR_HEIGHT = Units.Inches.of(1);

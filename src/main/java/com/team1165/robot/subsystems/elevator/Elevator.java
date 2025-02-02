@@ -8,14 +8,13 @@
 package com.team1165.robot.subsystems.elevator;
 
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
-import com.team1165.robot.subsystems.elevator.io.ElevatorIO.ElevatorIOInputs;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIOInputsAutoLogged;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 @Logged
 public class Elevator extends SubsystemBase {
@@ -35,7 +34,7 @@ public class Elevator extends SubsystemBase {
   // All can be used either for log or for simple motor feed.
 
   public ElevatorIO io;
-  private final ElevatorIOInputs inputs = new ElevatorIOInputs();
+  private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
   //  private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS.get(), kV.get(), kA.get());
   private boolean wasClosedLoop = false;
@@ -64,73 +63,13 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Elevator", (LoggableInputs) inputs);
+    Logger.processInputs("Elevator", inputs);
 
     // Set alerts
     leftDisconnected.set(!inputs.leftMotorConnected);
     rightDisconnected.set(!inputs.rightMotorConnected);
-
-    //  this i seperate but we can keep it just in case, pretty cool flywheel code
-    // Check controllers
-    //    LoggedTunableNumber.ifChanged(hashCode(), pid -> io.setPID(pid[0], pid[1], pid[2]), kP,
-    // kI, kD);
-    //    LoggedTunableNumber.ifChanged(
-    //        hashCode(), kSVA -> ff = new SimpleMotorFeedforward(kSVA[0], kSVA[1], kSVA[2]), kS,
-    // kV, kA);
-    //    LoggedTunableNumber.ifChanged(
-    //        hashCode(),
-    //        () -> {
-    //          leftProfile.setMaxAcceleration(maxAcceleration.get());
-    //          rightProfile.setMaxAcceleration(maxAcceleration.get());
-    //        },
-    //        maxAcceleration);
-
-    // Stop when disabled
-
-    //    SmartDashboard.putNumber("Elevator/Left/CLO",
-    // leftMotorFollower.getClosedLoopOutput().getValueAsDouble());
-    //    SmartDashboard.putNumber("Elevator/Left/Output", leftMotorFollower.get());
-    //    SmartDashboard.putNumber("Elevator/Left/Inverted",
-    // leftMotorFollower.getAppliedRotorPolarity().getValueAsDouble());
-    //    SmartDashboard.putNumber("Elevator/Left/Current",
-    // leftMotorFollower.getSupplyCurrent().getValueAsDouble());
-    //
-    //    SmartDashboard.putNumber("Elevator/Right/CLO",
-    // rightMotorLeader.getClosedLoopOutput().getValueAsDouble());
-    //    SmartDashboard.putNumber("Elevator/Right/Output", rightMotorLeader.get());
-    //    SmartDashboard.putNumber("Elevator/Right/Inverted",
-    // rightMotorLeader.getAppliedRotorPolarity().getValueAsDouble());
-    //    SmartDashboard.putNumber("Elevator/Right/Current",
-    // rightMotorLeader.getSupplyCurrent().getValueAsDouble());
   }
 
-  /** Runs Elevator at the commanded voltage or amps. */
-  //  public void runCharacterization(double input) {
-  //    setGoal(Goal.CHARACTERIZING);
-  //    io.runCharacterizationLeft(input);
-  //    io.runCharacterizationRight(input);
-  //  }
-  //
-  //  /** Get characterization velocity */
-  //  public double getCharacterizationVelocity() {
-  //    return (inputs.leftVelocityRpm + inputs.rightVelocityRpm) / 2.0;
-  //  }
-  //
-  //  /** Get if velocity profile has ended */
-  //  public void logElevatorAtGoal() {
-  //    Logger.recordOutput("Elevators/AtGoal", goal); // Where 'atGoal' is a boolean variable
-  //  }
-  //
-  //  public boolean atGoal() {
-  //    return goal == Goal.IDLE
-  //        || (leftProfile.getCurrentSetpoint() == goal.getLeftGoal()
-  //            && rightProfile.getCurrentSetpoint() == goal.getRightGoal());
-  //  }
-  //
-  //  public Command risingCommand() {
-  //    return startEnd(() -> setGoal(Goal.rising), () -> setGoal(Goal.IDLE))
-  //        .withName("Elevator rising");
-  //  }
   public void resetSensorPosition(Distance setpoint) {
     io.resetSensorPosition(setpoint);
   }
@@ -160,5 +99,9 @@ public class Elevator extends SubsystemBase {
 
   public void setPosition(Double height, double velocity) {
     io.setPosition(height, velocity);
+  }
+
+  public double getLastDesiredPosition() {
+    return io.getLastDesiredPosition();
   }
 }

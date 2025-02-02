@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
   // Subsystems
   private final Drive drive;
   private final ATVision apriltagVision;
@@ -128,7 +129,6 @@ public class RobotContainer {
 
     configureButtonBindings();
     configureDefaultCommands();
-    configureTesterBindings(driverController);
   }
 
   /** Use this method to define your button->command mappings. */
@@ -145,14 +145,13 @@ public class RobotContainer {
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
 
     driverController.rightTrigger().whileTrue(new flyWheelsCommand(0.8, -0.8));
-  }
+    driverController.leftTrigger().whileTrue(new flyWheelsCommand(-0.8, 0.8));
 
-  private void configureTesterBindings(CommandXboxController controller) {
     // Start: Reset Elevator Sensor Position
-    controller.start().onTrue(new ElevatorCommand(Inches.of(0)));
-    controller.a().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L1_HEIGHT));
-    controller.b().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L2_HEIGHT));
-    controller.y().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L3_HEIGHT));
-    controller.x().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L4_HEIGHT));
+    driverController.start().onTrue(new ElevatorCommand(Inches.of(0)));
+    driverController.a().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L1_HEIGHT));
+    driverController.b().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L2_HEIGHT));
+    driverController.y().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L3_HEIGHT));
+    driverController.x().onTrue(new ElevatorCommand(ElevatorConstants.SimCORAL_L4_HEIGHT));
   }
 }
