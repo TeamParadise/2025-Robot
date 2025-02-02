@@ -8,7 +8,6 @@
 package com.team1165.robot.subsystems.elevator.io;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
@@ -21,7 +20,7 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 public class ElevatorSimIO implements ElevatorIO {
   private static final double kMetersPerInch = 0.0254;
   private static final double reduction = 32.0 / 10.0;
-  private static final double maxLengthMeters = inchesToMeters(11.872);
+  private static final double maxLengthMeters = inchesToMeters(40.872);
   private static final double drumRadiusMeters = inchesToMeters(0.5);
   private double lastDesiredPosition = 0.0;
   Alert alert =
@@ -77,16 +76,15 @@ public class ElevatorSimIO implements ElevatorIO {
           rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
               + rightFeedforward); // probs wrong
     }
-    inputs.currentLeftPosition = Units.Inches.of(leftSim.getPositionMeters());
+    inputs.currentLeftPosition = Units.Inches.of(meterstoInches(leftSim.getPositionMeters()));
 
     inputs.leftAppliedVolts = leftAppliedVolts;
     inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
 
-    inputs.currentRightPosition = Units.Inches.of(rightSim.getPositionMeters());
+    inputs.currentRightPosition = Units.Inches.of(meterstoInches(rightSim.getPositionMeters()));
 
     inputs.rightAppliedVolts = rightAppliedVolts;
     inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
-    System.out.println(rightSim.getPositionMeters());
   }
 
   @Override
@@ -100,17 +98,23 @@ public class ElevatorSimIO implements ElevatorIO {
   }
 
   @Override
-  public void setPosition(Double height, double velocity) {
+  public void setPosition(double height, double velocity) {
 
-    double error = height - rightSim.getPositionMeters();
-    double kP = 10.0; // Tune this value
-    double voltage = MathUtil.clamp(error * kP, -12.0, 12.0);
+    //    double error = height - rightSim.getPositionMeters();
+    //    double kP = 10.0; // Tune this value
+    //    double voltage = MathUtil.clamp(error * kP, -12.0, 12.0);
+    //    runVolts(voltage, voltage);
+    rightSim.setState(inchesToMeters(height), velocity);
 
-    runVolts(voltage, voltage);
+    leftSim.setState(inchesToMeters(height), velocity);
   }
 
   public static double inchesToMeters(double inches) {
     return inches * kMetersPerInch;
+  }
+
+  public static double meterstoInches(double meters) {
+    return meters / kMetersPerInch;
   }
 
   @Override
@@ -130,6 +134,6 @@ public class ElevatorSimIO implements ElevatorIO {
 
   @Override
   public double getLastDesiredPosition() {
-    return leftSim.getPositionMeters();
+    return meterstoInches(leftSim.getPositionMeters());
   }
 }

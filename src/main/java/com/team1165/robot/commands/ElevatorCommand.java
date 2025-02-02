@@ -8,6 +8,7 @@
 package com.team1165.robot.commands;
 
 import com.team1165.robot.RobotContainer;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -35,19 +36,31 @@ public class ElevatorCommand extends Command {
 
   @Override
   public void initialize() {
+    System.out.println("ElevatorCommand started, target height: " + h);
     RobotContainer.elevator.setPID(0.3, 0.02, 0.05);
   }
 
   @Override
   public void execute() {
-    RobotContainer.elevator.setPosition(h, 3.0);
-    // don't forget to add wait timeout to this
+    if (h != null) {
+      RobotContainer.elevator.setPosition(h, 0.2);
+    } else if (height != null) {
+      RobotContainer.elevator.setPosition(height.in(Units.Inches), 1.0);
+    } else {
+      System.err.println("Error: ElevatorCommand received no valid height!");
+    }
+    double currentPosition = RobotContainer.elevator.getLastDesiredPosition();
+    if (Math.abs(currentPosition - h) < 1) System.out.println("finished");
+    else {
+      System.out.println(currentPosition);
+    }
   }
 
   @Override
   public boolean isFinished() {
-    // TODO: Make this return true when this Command no longer needs to run execute()
-    return false;
+    double currentPosition = RobotContainer.elevator.getLastDesiredPosition();
+
+    return Math.abs(currentPosition - h) < 0.01; // Stop when close to target
   }
 
   @Override

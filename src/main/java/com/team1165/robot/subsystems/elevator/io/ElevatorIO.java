@@ -42,7 +42,7 @@ public interface ElevatorIO {
 
   default void runVolts(double leftVoltage, double rightVoltage) {}
 
-  default void setPosition(Double height, double velocity) {}
+  default void setPosition(double height, double velocity) {}
 
   /** Config PID values for both motors */
   default void setPID(double kP, double kI, double kD) {}
