@@ -16,6 +16,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -32,6 +33,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -85,7 +87,7 @@ public class RobotContainer {
                     TunerConstants.DrivetrainConstants,
                     new MapleSimConfig(
                         Seconds.of(0.002),
-                        Pounds.of(115),
+                        Pounds.of(130),
                         Inches.of(30),
                         Inches.of(30),
                         DCMotor.getKrakenX60Foc(1),
@@ -144,5 +146,9 @@ public class RobotContainer {
                     .withVelocityX(-driverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
+  }
+
+  public Command getAutonomousCommand() {
+    return new PathPlannerAuto("Testing Auto");
   }
 }

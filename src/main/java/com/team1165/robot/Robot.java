@@ -106,6 +106,8 @@ public class Robot extends LoggedRobot {
   /** This function runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    autonomousCommand = robotContainer.getAutonomousCommand();
+
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
     }
