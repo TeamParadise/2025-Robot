@@ -138,11 +138,9 @@ public class ATVision extends SubsystemBase {
 
       // Log camera pose data
       Logger.recordOutput(
-          "AprilTagVision/Camera" + cameraIndex + "/TagPoses",
-          tagPoses.toArray(new Pose3d[0]));
+          "AprilTagVision/Camera" + cameraIndex + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
       Logger.recordOutput(
-          "AprilTagVision/Camera" + cameraIndex + "/RobotPoses",
-          robotPoses.toArray(new Pose3d[0]));
+          "AprilTagVision/Camera" + cameraIndex + "/RobotPoses", robotPoses.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "AprilTagVision/Camera" + cameraIndex + "/RobotPosesAccepted",
           robotPosesAccepted.toArray(new Pose3d[0]));
@@ -158,16 +156,12 @@ public class ATVision extends SubsystemBase {
     }
 
     // Log summary data from all cameras
+    Logger.recordOutput("AprilTagVision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
+    Logger.recordOutput("AprilTagVision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
     Logger.recordOutput(
-        "AprilTagVision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
+        "AprilTagVision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
-        "AprilTagVision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
-    Logger.recordOutput(
-        "AprilTagVision/Summary/RobotPosesAccepted",
-        allRobotPosesAccepted.toArray(new Pose3d[0]));
-    Logger.recordOutput(
-        "AprilTagVision/Summary/RobotPosesRejected",
-        allRobotPosesRejected.toArray(new Pose3d[0]));
+        "AprilTagVision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
   }
 
   @FunctionalInterface
