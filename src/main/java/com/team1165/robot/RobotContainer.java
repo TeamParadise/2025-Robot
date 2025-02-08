@@ -28,6 +28,9 @@ import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorSimIO;
+import com.team1165.robot.subsystems.flywheels.Flywheels;
+import com.team1165.robot.subsystems.flywheels.Flywheels.Goal;
+import com.team1165.robot.subsystems.flywheels.FlywheelsIOSparkMax;
 import com.team1165.robot.subsystems.flywheels.TwoNeoSubsystem;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton.ATVisionIOPhotonConfig;
@@ -35,7 +38,9 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -53,6 +58,7 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
   public static Elevator elevator = new Elevator(new ElevatorSimIO());
   public static TwoNeoSubsystem neoSubsystem = new TwoNeoSubsystem(8, 9);
+  public static Flywheels flywheels = new Flywheels(new FlywheelsIOSparkMax());
 
   // Testing, likely will be changed later
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -144,7 +150,12 @@ public class RobotContainer {
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
 
-    driverController.rightTrigger().whileTrue(new flyWheelsCommand(0.8, -0.8));
+    new Trigger(() -> driverController.getRightTriggerAxis() > 0.1)
+        .whileTrue(flywheels.intakeCommand());
+
+    new Trigger(() -> driverController.getLeftTriggerAxis() > 0.1)
+        .whileTrue(flywheels.shootCommand());
+
     driverController.leftTrigger().whileTrue(new flyWheelsCommand(-0.8, 0.8));
 
     // Start: Reset Elevator Sensor Position
