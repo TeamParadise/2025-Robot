@@ -52,6 +52,8 @@ public class Drive extends SubsystemBase {
   // Create robot speed SwerveRequest for path following
   private final SwerveRequest.ApplyRobotSpeeds applyRobotSpeeds =
       new SwerveRequest.ApplyRobotSpeeds().withDriveRequestType(DriveRequestType.Velocity);
+  private final SwerveRequest.ApplyFieldSpeeds applyFieldSpeeds =
+      new SwerveRequest.ApplyFieldSpeeds().withDriveRequestType(DriveRequestType.Velocity);
 
   // Create PID controllers for path following and alignment
   private final PIDController xController =
@@ -109,7 +111,11 @@ public class Drive extends SubsystemBase {
                     inputs.Pose.getRotation().getRadians(), sample.heading));
 
     // Set the control of the drivetrain
-    io.setControl(applyRobotSpeeds.withSpeeds(speeds));
+    io.setControl(
+        applyFieldSpeeds
+            .withSpeeds(speeds)
+            .withWheelForceFeedforwardsX(sample.moduleForcesX())
+            .withWheelForceFeedforwardsY(sample.moduleForcesY()));
 
     // Log the setpoint pose
     Logger.recordOutput(
