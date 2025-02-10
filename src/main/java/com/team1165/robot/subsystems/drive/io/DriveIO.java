@@ -191,12 +191,12 @@ public interface DriveIO {
   default void setVisionMeasurementStdDevs(Matrix<N3, N1> visionMeasurementStdDevs) {}
 
   /**
-   * Sets the pose estimator's trust in robot odometry. This might be used to change
-   * trust in odometry after an impact with the wall or traversing a bump.
+   * Sets the pose estimator's trust in robot odometry. This might be used to change trust in
+   * odometry after an impact with the wall or traversing a bump.
    *
-   * @param stateStdDevs Standard deviations of the pose estimate. Increase these
-   *                     numbers to trust your state estimate less. This matrix is
-   *                     in the form [x, y, theta]ᵀ, with units in meters and radians.
+   * @param stateStdDevs Standard deviations of the pose estimate. Increase these numbers to trust
+   *     your state estimate less. This matrix is in the form [x, y, theta]ᵀ, with units in meters
+   *     and radians.
    */
   default void setStateStdDevs(Matrix<N3, N1> stateStdDevs) {}
 

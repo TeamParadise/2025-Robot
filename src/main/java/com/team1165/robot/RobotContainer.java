@@ -14,10 +14,10 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -34,10 +34,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -153,25 +151,21 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    try {
-      // Load the path you want to follow using its name in the GUI
-      PathPlannerPath path1 = PathPlannerPath.fromChoreoTrajectory("A to HL");
-      PathPlannerPath path2 = PathPlannerPath.fromChoreoTrajectory("HL to B");
-      PathPlannerPath path3 = PathPlannerPath.fromChoreoTrajectory("B to HL");
-      PathPlannerPath path4 = PathPlannerPath.fromChoreoTrajectory("HL to C");
-      PathPlannerPath path5 = PathPlannerPath.fromChoreoTrajectory("C to HL");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("Auto");
 
-      // Create a path following command using AutoBuilder. This will also trigger event markers.
-      return new SequentialCommandGroup(
-          AutoBuilder.resetOdom(path1.getStartingHolonomicPose().get()),
-          AutoBuilder.followPath(path1),
-          AutoBuilder.followPath(path2),
-          AutoBuilder.followPath(path3),
-          AutoBuilder.followPath(path4),
-          AutoBuilder.followPath(path5));
-    } catch (Exception e) {
-      DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
-      return Commands.none();
-    }
+    AutoTrajectory trajectoryOne = routine.trajectory("A to HL");
+    AutoTrajectory trajectoryTwo = routine.trajectory("HL to B");
+    AutoTrajectory trajectoryThree = routine.trajectory("B to HL");
+    AutoTrajectory trajectoryFour = routine.trajectory("HL to C");
+    AutoTrajectory trajectoryFive = routine.trajectory("C to HL");
+
+    routine.active().onTrue(Commands.sequence(trajectoryOne.resetOdometry(), trajectoryOne.cmd()));
+
+    trajectoryOne.done().onTrue(trajectoryTwo.cmd());
+    trajectoryTwo.done().onTrue(trajectoryThree.cmd());
+    trajectoryThree.done().onTrue(trajectoryFour.cmd());
+    trajectoryFour.done().onTrue(trajectoryFive.cmd());
+
+    return routine.cmd();
   }
 }

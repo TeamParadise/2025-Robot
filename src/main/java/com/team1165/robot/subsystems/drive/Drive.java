@@ -7,22 +7,19 @@
 
 package com.team1165.robot.subsystems.drive;
 
+import choreo.auto.AutoFactory;
+import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.PathPlannerLogging;
+import com.team1165.robot.subsystems.drive.constants.DriveConstants.PathConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
-import com.team1165.robot.util.LocalADStarAK;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,8 +27,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -50,9 +45,24 @@ public class Drive extends SubsystemBase {
   private final DriveIO io;
   private final DriveIOInputs inputs = new DriveIOInputs();
 
+  // Create auto factory to easily make auto commands
+  private final AutoFactory autoFactory =
+      new AutoFactory(() -> inputs.Pose, this::resetPose, this::followTrajectory, true, this);
+
   // Create robot speed SwerveRequest for path following
   private final SwerveRequest.ApplyRobotSpeeds applyRobotSpeeds =
       new SwerveRequest.ApplyRobotSpeeds().withDriveRequestType(DriveRequestType.Velocity);
+
+  // Create PID controllers for path following and alignment
+  private final PIDController xController =
+      new PIDController(
+          PathConstants.translation.kP, PathConstants.translation.kI, PathConstants.translation.kD);
+  private final PIDController yController =
+      new PIDController(
+          PathConstants.translation.kP, PathConstants.translation.kI, PathConstants.translation.kD);
+  private final PIDController rotationController =
+      new PIDController(
+          PathConstants.rotation.kP, PathConstants.rotation.kI, PathConstants.rotation.kD);
 
   // Create NetworkTables table to post Field2d
   private final Field2d field = new Field2d();
@@ -69,38 +79,8 @@ public class Drive extends SubsystemBase {
     this.io = io;
     // Put the Field2d value onto the dashboard
     SmartDashboard.putData("Field", field);
-
-    // Setup AutoBuilder with PathPlanner
-    try {
-      var config = RobotConfig.fromGUISettings();
-      AutoBuilder.configure(
-          () -> inputs.Pose,
-          this::resetPose,
-          () -> inputs.Speeds,
-          (speeds, feedforwards) ->
-              setControl(
-                  applyRobotSpeeds
-                      .withSpeeds(speeds)
-                      .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                      .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY())),
-          new PPHolonomicDriveController(new PIDConstants(10, 0, 0), new PIDConstants(7, 0, 0)),
-          config,
-          () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-          this);
-    } catch (Exception ex) {
-      DriverStation.reportError(
-          "Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
-    }
-
-    Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> {
-          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(
-        (targetPose) -> {
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-        });
+    // Configure the rotation controller to accept continuous input
+    rotationController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   @Override
@@ -112,6 +92,33 @@ public class Drive extends SubsystemBase {
     io.logModules();
     // Update the Field2d object with the new pose
     field.setRobotPose(inputs.Pose);
+  }
+
+  /**
+   * Method to follow a trajectory, typically from Choreo, using a provided {@link SwerveSample}. As
+   * this will attempt to move the drivetrain, make sure this is called from a command.
+   */
+  public void followTrajectory(SwerveSample sample) {
+    // Create the speeds using the provided sample and the current pose
+    ChassisSpeeds speeds =
+        new ChassisSpeeds(
+            sample.vx + xController.calculate(inputs.Pose.getX(), sample.x),
+            sample.vy + yController.calculate(inputs.Pose.getY(), sample.y),
+            sample.omega
+                + rotationController.calculate(
+                    inputs.Pose.getRotation().getRadians(), sample.heading));
+
+    // Set the control of the drivetrain
+    io.setControl(applyRobotSpeeds.withSpeeds(speeds));
+
+    // Log the setpoint pose
+    Logger.recordOutput(
+        "Auto/TrajectorySetpoint", new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading)));
+  }
+
+  /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */
+  public AutoFactory getAutoFactory() {
+    return autoFactory;
   }
 
   /**
@@ -133,7 +140,9 @@ public class Drive extends SubsystemBase {
 
   /** Get the rotation of the robot at a certain timestamp for vision. */
   public Rotation2d getRotation(double timestamp) {
-    // TODO: Try to add some latency compensation, ideally with either processing the SwerveDriveStates outside of the CTRE Library (likely for next season), or for now, just basic timestamp and current velocity adjustment.
+    // TODO: Try to add some latency compensation, ideally with either processing the
+    // SwerveDriveStates outside of the CTRE Library (likely for next season), or for now, just
+    // basic timestamp and current velocity adjustment.
     return inputs.Pose.getRotation();
   }
 
@@ -329,12 +338,12 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Sets the pose estimator's trust in robot odometry. This might be used to change
-   * trust in odometry after an impact with the wall or traversing a bump.
+   * Sets the pose estimator's trust in robot odometry. This might be used to change trust in
+   * odometry after an impact with the wall or traversing a bump.
    *
-   * @param stateStdDevs Standard deviations of the pose estimate. Increase these
-   *                     numbers to trust your state estimate less. This matrix is
-   *                     in the form [x, y, theta]ᵀ, with units in meters and radians.
+   * @param stateStdDevs Standard deviations of the pose estimate. Increase these numbers to trust
+   *     your state estimate less. This matrix is in the form [x, y, theta]ᵀ, with units in meters
+   *     and radians.
    */
   public void setStateStdDevs(Matrix<N3, N1> stateStdDevs) {
     io.setStateStdDevs(stateStdDevs);
