@@ -46,7 +46,6 @@ import org.littletonrobotics.junction.Logger;
  * {@link DriveIO} classes.
  */
 public class Drive extends SubsystemBase {
-
   // Create initial variables for DriveIO and DriveIOInputs
   private final DriveIO io;
   private final DriveIOInputs inputs = new DriveIOInputs();
@@ -115,6 +114,39 @@ public class Drive extends SubsystemBase {
     field.setRobotPose(inputs.Pose);
   }
 
+  /**
+   * Get the current {@link Pose2d} of the drivetrain.
+   *
+   * @return The current {@link Pose2d} of the drivetrain.
+   */
+  public Pose2d getPose() {
+    return inputs.Pose;
+  }
+
+  public Pose2d getSimulationPose() {
+    if (io.getClass() == DriveIOMapleSim.class) {
+      return ((DriveIOMapleSim) io).getSimulationPose();
+    } else {
+      return inputs.Pose;
+    }
+  }
+
+  /** Get the rotation of the robot at a certain timestamp for vision. */
+  public Rotation2d getRotation(double timestamp) {
+    // TODO: Try to add some latency compensation, ideally with either processing the SwerveDriveStates outside of the CTRE Library (likely for next season), or for now, just basic timestamp and current velocity adjustment.
+    return inputs.Pose.getRotation();
+  }
+
+  /**
+   * Get the current {@link ChassisSpeeds} of the drivetrain.
+   *
+   * @return The current {@link ChassisSpeeds} of the drivetrain.
+   */
+  public ChassisSpeeds getSpeeds() {
+    return inputs.Speeds;
+  }
+
+  // Methods below here are just the normal CTRE methods, calling the IO interface.
   /**
    * Returns a command that applies the specified control request to this swerve drivetrain.
    *
@@ -280,7 +312,7 @@ public class Drive extends SubsystemBase {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    io.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+    io.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
   /**
@@ -297,34 +329,14 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Get the current {@link Pose2d} of the drivetrain.
+   * Sets the pose estimator's trust in robot odometry. This might be used to change
+   * trust in odometry after an impact with the wall or traversing a bump.
    *
-   * @return The current {@link Pose2d} of the drivetrain.
+   * @param stateStdDevs Standard deviations of the pose estimate. Increase these
+   *                     numbers to trust your state estimate less. This matrix is
+   *                     in the form [x, y, theta]ᵀ, with units in meters and radians.
    */
-  public Pose2d getPose() {
-    return inputs.Pose;
-  }
-
-  public Pose2d getSimulationPose() {
-    if (io.getClass() == DriveIOMapleSim.class) {
-      return ((DriveIOMapleSim) io).getSimulationPose();
-    } else {
-      return inputs.Pose;
-    }
-  }
-
-  /** Get the rotation of the robot at a certain timestamp for vision. */
-  public Rotation2d getRotation(double timestamp) {
-    // Need to try to add some latency compensation
-    return inputs.Pose.getRotation();
-  }
-
-  /**
-   * Get the current {@link ChassisSpeeds} of the drivetrain.
-   *
-   * @return The current {@link ChassisSpeeds} of the drivetrain.
-   */
-  public ChassisSpeeds getSpeeds() {
-    return inputs.Speeds;
+  public void setStateStdDevs(Matrix<N3, N1> stateStdDevs) {
+    io.setStateStdDevs(stateStdDevs);
   }
 }
