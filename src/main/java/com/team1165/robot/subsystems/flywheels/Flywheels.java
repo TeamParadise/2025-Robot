@@ -15,7 +15,6 @@
  import edu.wpi.first.wpilibj2.command.Command;
  import edu.wpi.first.wpilibj2.command.SubsystemBase;
  import java.util.function.BooleanSupplier;
- import java.util.function.DoubleSupplier;
  import org.littletonrobotics.junction.AutoLogOutput;
  import org.littletonrobotics.junction.Logger;
  import edu.wpi.first.wpilibj.Alert;
@@ -124,11 +123,11 @@
 
   @AutoLogOutput(key = "Flywheels/Goal")
   private Goal goal = Goal.IDLE;
-
-  private boolean isDrawingHighCurrent() {
-    return Math.abs(inputs.leftSupplyCurrentAmps) > 50.0
-        || Math.abs(inputs.rightSupplyCurrentAmps) > 50.0;
-  }
+//
+//  private boolean isDrawingHighCurrent() {
+//    return Math.abs(inputs.leftSupplyCurrentAmps) > 50.0
+//        || Math.abs(inputs.rightSupplyCurrentAmps) > 50.0;
+//  }
 
   public Flywheels(FlywheelsIO io) {
     this.io = io;
