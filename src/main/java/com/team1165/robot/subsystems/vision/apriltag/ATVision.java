@@ -225,8 +225,6 @@ public class ATVision extends SubsystemBase {
 
       // Loop over single tag observations
       for (var observation : inputs[cameraIndex].singleTagObservations) {
-        // Convert timestamp from FPGA to current time for the Phoenix swerve library
-        double timestamp = Utils.fpgaToCurrentTime(observation.timestamp());
         // Get the robot to camera transform/offset
         Transform3d robotToCamera = cameraTransforms[cameraIndex];
 
@@ -243,7 +241,7 @@ public class ATVision extends SubsystemBase {
         // Get the rotation of the tag from the camera translation
         Rotation2d camToTagRotation =
             rotationSupplier
-                .getRotation(timestamp)
+                .getRotation(observation.timestamp())
                 .plus(
                     robotToCamera
                         .getRotation()
@@ -268,7 +266,7 @@ public class ATVision extends SubsystemBase {
             new Pose2d(
                     fieldToCameraTranslation,
                     rotationSupplier
-                        .getRotation(timestamp)
+                        .getRotation(observation.timestamp())
                         .plus(robotToCamera.getRotation().toRotation2d()))
                 .transformBy(
                     new Transform2d(
@@ -288,7 +286,9 @@ public class ATVision extends SubsystemBase {
 
         // Send vision observation
         globalConsumer.accept(
-            robotPose, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+            robotPose,
+            Utils.fpgaToCurrentTime(observation.timestamp()),
+            VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
       // Log camera pose data

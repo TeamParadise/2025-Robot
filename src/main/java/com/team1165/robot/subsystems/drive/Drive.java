@@ -34,9 +34,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -48,6 +52,7 @@ import org.littletonrobotics.junction.Logger;
  * {@link DriveIO} classes.
  */
 public class Drive extends SubsystemBase {
+
   // Create initial variables for DriveIO and DriveIOInputs
   private final DriveIO io;
   private final DriveIOInputs inputs = new DriveIOInputs();
@@ -61,8 +66,17 @@ public class Drive extends SubsystemBase {
           true,
           this,
           (trajectory, state) -> {
-            Logger.recordOutput("Drive/PathFollowing/Choreo/Trajectory", trajectory.getPoses());
-            Logger.recordOutput("Drive/PathFollowing/Choreo/Active", true);
+            if (state) {
+              Logger.recordOutput(
+                  "Drive/PathFollowing/Choreo/Trajectory",
+                  (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)
+                      ? trajectory.flipped().getPoses()
+                      : trajectory.getPoses()));
+            } else {
+              Logger.recordOutput("Drive/PathFollowing/Choreo/Trajectory", new Pose2d[0]);
+              Logger.recordOutput("Drive/PathFollowing/Choreo/TrajectorySetpoint", new Pose2d[0]);
+            }
+            Logger.recordOutput("Drive/PathFollowing/Choreo/Active", state);
           });
 
   // Create robot speed SwerveRequest for path following
@@ -109,7 +123,8 @@ public class Drive extends SubsystemBase {
         });
     PathPlannerLogging.setLogTargetPoseCallback(
         (targetPose) -> {
-          Logger.recordOutput("Drive/PathFollowing/PathPlanner/TrajectorySetpoint", targetPose);
+          Logger.recordOutput(
+              "Drive/PathFollowing/PathPlanner/TrajectorySetpoint", new Pose2d[] {targetPose});
         });
   }
 
@@ -150,7 +165,7 @@ public class Drive extends SubsystemBase {
     // Log the setpoint pose
     Logger.recordOutput(
         "Drive/PathFollowing/Choreo/TrajectorySetpoint",
-        new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading)));
+        new Pose2d[] {new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading))});
   }
 
   /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */
@@ -170,20 +185,29 @@ public class Drive extends SubsystemBase {
       Pose2d pose, PathConstraints constraints, LinearVelocity goalEndVelocity) {
     // Create the PathfindingCommand and return it
     return new PathfindingCommand(
-        pose,
-        constraints,
-        goalEndVelocity,
-        this::getPose,
-        this::getSpeeds,
-        (speeds, feedforwards) ->
-            setControl(
-                applyRobotSpeeds
-                    .withSpeeds(speeds)
-                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
-        PathConstants.ppDriveController,
-        DriveConstants.robotConfig,
-        this);
+            pose,
+            constraints,
+            goalEndVelocity,
+            this::getPose,
+            this::getSpeeds,
+            (speeds, feedforwards) ->
+                setControl(
+                    applyRobotSpeeds
+                        .withSpeeds(speeds)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
+            PathConstants.ppDriveController,
+            DriveConstants.robotConfig,
+            this)
+        .alongWith(
+            new InstantCommand(
+                () -> Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", true)))
+        .finallyDo(
+            () -> {
+              Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", false);
+              Logger.recordOutput(
+                  "Drive/PathFollowing/PathPlanner/TrajectorySetpoint", new Pose2d[0]);
+            });
   }
 
   // endregion
@@ -207,10 +231,10 @@ public class Drive extends SubsystemBase {
 
   /** Get the rotation of the robot at a certain timestamp for vision. */
   public Rotation2d getRotation(double timestamp) {
-    // TODO: Try to add some latency compensation, ideally with either processing the
-    // SwerveDriveStates outside of the CTRE Library (likely for next season), or for now, just
-    // basic timestamp and current velocity adjustment.
-    return inputs.Pose.getRotation();
+    // Run latency compensation based on the timestamp provided
+    return new Rotation2d(
+        inputs.Pose.getRotation().getRadians()
+            - (inputs.Speeds.omegaRadiansPerSecond * (Timer.getTimestamp() - timestamp)));
   }
 
   /**
