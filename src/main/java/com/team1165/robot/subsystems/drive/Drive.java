@@ -16,11 +16,14 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants.PathConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
+import com.team1165.robot.util.LocalADStarAK;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -51,7 +54,16 @@ public class Drive extends SubsystemBase {
 
   // Create auto factory to easily make auto commands
   private final AutoFactory autoFactory =
-      new AutoFactory(() -> inputs.Pose, this::resetPose, this::followTrajectory, true, this);
+      new AutoFactory(
+          () -> inputs.Pose,
+          this::resetPose,
+          this::followTrajectory,
+          true,
+          this,
+          (trajectory, state) -> {
+            Logger.recordOutput("Drive/PathFollowing/Choreo/Trajectory", trajectory.getPoses());
+            Logger.recordOutput("Drive/PathFollowing/Choreo/Active", true);
+          });
 
   // Create robot speed SwerveRequest for path following
   private final SwerveRequest.ApplyRobotSpeeds applyRobotSpeeds =
@@ -87,6 +99,18 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putData("Field", field);
     // Configure the rotation controller to accept continuous input
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
+
+    // Setup PathPlanner compatibility with AdvantageKit
+    Pathfinding.setPathfinder(new LocalADStarAK());
+    PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput(
+              "Drive/PathFollowing/PathPlanner/Trajectory", activePath.toArray(new Pose2d[0]));
+        });
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Drive/PathFollowing/PathPlanner/TrajectorySetpoint", targetPose);
+        });
   }
 
   @Override
@@ -125,7 +149,13 @@ public class Drive extends SubsystemBase {
 
     // Log the setpoint pose
     Logger.recordOutput(
-        "Auto/TrajectorySetpoint", new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading)));
+        "Drive/PathFollowing/Choreo/TrajectorySetpoint",
+        new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading)));
+  }
+
+  /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */
+  public AutoFactory getAutoFactory() {
+    return autoFactory;
   }
 
   /**
@@ -157,11 +187,6 @@ public class Drive extends SubsystemBase {
   }
 
   // endregion
-
-  /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */
-  public AutoFactory getAutoFactory() {
-    return autoFactory;
-  }
 
   /**
    * Get the current {@link Pose2d} of the drivetrain.
