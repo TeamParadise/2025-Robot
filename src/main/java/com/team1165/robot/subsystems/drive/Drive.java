@@ -14,6 +14,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathConstraints;
+import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants.PathConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
@@ -27,6 +30,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -96,6 +100,8 @@ public class Drive extends SubsystemBase {
     field.setRobotPose(inputs.Pose);
   }
 
+  // region Autonomous and path following
+
   /**
    * Method to follow a trajectory, typically from Choreo, using a provided {@link SwerveSample}. As
    * this will attempt to move the drivetrain, make sure this is called from a command.
@@ -121,6 +127,36 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput(
         "Auto/TrajectorySetpoint", new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading)));
   }
+
+  /**
+   * Build a command to pathfind to a given pose.
+   *
+   * @param pose The pose to pathfind to
+   * @param constraints The constraints to use while pathfinding
+   * @param goalEndVelocity The goal end velocity of the robot when reaching the target pose
+   * @return A command to pathfind to a given pose
+   */
+  public Command pathfindToPose(
+      Pose2d pose, PathConstraints constraints, LinearVelocity goalEndVelocity) {
+    // Create the PathfindingCommand and return it
+    return new PathfindingCommand(
+        pose,
+        constraints,
+        goalEndVelocity,
+        this::getPose,
+        this::getSpeeds,
+        (speeds, feedforwards) ->
+            setControl(
+                applyRobotSpeeds
+                    .withSpeeds(speeds)
+                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
+        PathConstants.ppDriveController,
+        DriveConstants.robotConfig,
+        this);
+  }
+
+  // endregion
 
   /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */
   public AutoFactory getAutoFactory() {
@@ -161,7 +197,8 @@ public class Drive extends SubsystemBase {
     return inputs.Speeds;
   }
 
-  // Methods below here are just the normal CTRE methods, calling the IO interface.
+  // region Default CTRE Methods
+
   /**
    * Returns a command that applies the specified control request to this swerve drivetrain.
    *
@@ -354,4 +391,5 @@ public class Drive extends SubsystemBase {
   public void setStateStdDevs(Matrix<N3, N1> stateStdDevs) {
     io.setStateStdDevs(stateStdDevs);
   }
+  // endregion
 }

@@ -20,10 +20,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 public class DriveConstants {
-
   /** Constants for autonomous driving and line up of the robot. */
   public static final class PathConstants {
-
     public static final PIDConstants translation = new PIDConstants(10, 0, 0);
     public static final PIDConstants rotation = new PIDConstants(7, 0, 0);
     public static final PPHolonomicDriveController ppDriveController =
