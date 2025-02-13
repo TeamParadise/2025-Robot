@@ -32,6 +32,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -85,9 +87,9 @@ public class RobotContainer {
                     TunerConstants.DrivetrainConstants,
                     new MapleSimConfig(
                         Seconds.of(0.002),
-                        Pounds.of(115),
-                        Inches.of(30),
-                        Inches.of(30),
+                        Pounds.of(130),
+                        Inches.of(35.645),
+                        Inches.of(35.645),
                         DCMotor.getKrakenX60Foc(1),
                         DCMotor.getFalcon500(1),
                         1.5),
@@ -144,5 +146,9 @@ public class RobotContainer {
                     .withVelocityX(-driverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
+  }
+
+  public Command getAutonomousCommand() {
+    return Commands.none();
   }
 }
