@@ -14,8 +14,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
-import choreo.auto.AutoRoutine;
-import choreo.auto.AutoTrajectory;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.subsystems.drive.Drive;
@@ -151,21 +149,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("Auto");
-
-    AutoTrajectory trajectoryOne = routine.trajectory("A to HL");
-    AutoTrajectory trajectoryTwo = routine.trajectory("HL to B");
-    AutoTrajectory trajectoryThree = routine.trajectory("B to HL");
-    AutoTrajectory trajectoryFour = routine.trajectory("HL to C");
-    AutoTrajectory trajectoryFive = routine.trajectory("C to HL");
-
-    routine.active().onTrue(Commands.sequence(trajectoryOne.resetOdometry(), trajectoryOne.cmd()));
-
-    trajectoryOne.done().onTrue(trajectoryTwo.cmd());
-    trajectoryTwo.done().onTrue(trajectoryThree.cmd());
-    trajectoryThree.done().onTrue(trajectoryFour.cmd());
-    trajectoryFour.done().onTrue(trajectoryFive.cmd());
-
-    return routine.cmd();
+    return Commands.none();
   }
 }

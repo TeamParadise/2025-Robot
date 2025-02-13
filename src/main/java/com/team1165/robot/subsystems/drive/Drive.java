@@ -52,7 +52,6 @@ import org.littletonrobotics.junction.Logger;
  * {@link DriveIO} classes.
  */
 public class Drive extends SubsystemBase {
-
   // Create initial variables for DriveIO and DriveIOInputs
   private final DriveIO io;
   private final DriveIOInputs inputs = new DriveIOInputs();
@@ -60,19 +59,19 @@ public class Drive extends SubsystemBase {
   // Create auto factory to easily make auto commands
   private final AutoFactory autoFactory =
       new AutoFactory(
-          () -> inputs.Pose,
-          this::resetPose,
-          this::followTrajectory,
-          true,
-          this,
-          (trajectory, state) -> {
-            if (state) {
+          () -> inputs.Pose, // Current robot pose
+          this::resetPose, // Method to reset pose
+          this::followTrajectory, // Method to control the drivetrain
+          true, // Enable alliance flipping
+          this, // Require this subsystem
+          (trajectory, state) -> { // Log through AdvantageKit
+            if (state) { // If trajectory is active, log trajectory (flipped for alliance)
               Logger.recordOutput(
                   "Drive/PathFollowing/Choreo/Trajectory",
                   (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)
                       ? trajectory.flipped().getPoses()
                       : trajectory.getPoses()));
-            } else {
+            } else { // If trajectory is not active, clear outputs
               Logger.recordOutput("Drive/PathFollowing/Choreo/Trajectory", new Pose2d[0]);
               Logger.recordOutput("Drive/PathFollowing/Choreo/TrajectorySetpoint", new Pose2d[0]);
             }
@@ -162,7 +161,7 @@ public class Drive extends SubsystemBase {
             .withWheelForceFeedforwardsX(sample.moduleForcesX())
             .withWheelForceFeedforwardsY(sample.moduleForcesY()));
 
-    // Log the setpoint pose
+    // Log the setpoint pose (using an array to clear and hide from AdvantageScope)
     Logger.recordOutput(
         "Drive/PathFollowing/Choreo/TrajectorySetpoint",
         new Pose2d[] {new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading))});
@@ -199,11 +198,11 @@ public class Drive extends SubsystemBase {
             PathConstants.ppDriveController,
             DriveConstants.robotConfig,
             this)
-        .alongWith(
+        .alongWith( // Log that PathPlanner is active
             new InstantCommand(
                 () -> Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", true)))
         .finallyDo(
-            () -> {
+            () -> { // Log that PathPlanner is not longer active, and clear setpoint
               Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", false);
               Logger.recordOutput(
                   "Drive/PathFollowing/PathPlanner/TrajectorySetpoint", new Pose2d[0]);
