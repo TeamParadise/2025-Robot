@@ -26,7 +26,6 @@ public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
 
   public Robot() {
-    var test = FieldConstants.fieldLength;
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
