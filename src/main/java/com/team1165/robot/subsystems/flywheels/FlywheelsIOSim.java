@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
 public class FlywheelsIOSim implements FlywheelsIO {
   DCMotor Gearbox = DCMotor.getNEO(1); // One Falcon 500 motor
-  double gearing = 1.0; // Example gear ratio
+  double gearing = 50.0; // Example gear ratio
   double momentOfInertia = 0.01; // Example inertia (kg⋅m²)
 
   // Create the plant model for the flywheel
@@ -48,13 +48,13 @@ public class FlywheelsIOSim implements FlywheelsIO {
     leftSim.update(Constants.loopPeriodSecs);
     rightSim.update(Constants.loopPeriodSecs);
     // control to setpoint
-    if (leftSetpointRpm != null && rightSetpointRpm != null) {
-      runVolts(
-          leftController.calculate(leftSim.getAngularVelocityRPM(), leftSetpointRpm)
-              + leftFeedforward,
-          rightController.calculate(rightSim.getAngularVelocityRPM(), rightSetpointRpm)
-              + rightFeedforward);
-    }
+    //    if (leftSetpointRpm != null && rightSetpointRpm != null) {
+    //      runVolts(
+    //          leftController.calculate(leftSim.getAngularVelocityRPM(), leftSetpointRpm)
+    //              + leftFeedforward,
+    //          rightController.calculate(rightSim.getAngularVelocityRPM(), rightSetpointRpm)
+    //              + rightFeedforward);
+    //    }
 
     inputs.leftPositionRads +=
         Units.radiansToRotations(leftSim.getAngularVelocityRadPerSec() * Constants.loopPeriodSecs);
@@ -70,13 +70,24 @@ public class FlywheelsIOSim implements FlywheelsIO {
   }
 
   @Override
-  public void runVolts(double leftVolts, double rightVolts) {
+  public void runVolts(double leftRpm, double rightRpm) {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
-    leftAppliedVolts = MathUtil.clamp(leftVolts, -12.0, 12.0);
-    rightAppliedVolts = MathUtil.clamp(rightVolts, -12.0, 12.0);
-    leftSim.setInputVoltage(leftAppliedVolts);
-    rightSim.setInputVoltage(rightAppliedVolts);
+
+    double kS = 0.5; // Adjust based on testing
+    double kV = 12.0 / 5676.0; // Approximate for a NEO motor
+
+    double leftAppliedVolts = MathUtil.clamp(kS + kV * leftRpm, -12.0, 12.0);
+    double rightAppliedVolts = MathUtil.clamp(kS + kV * rightRpm, -12.0, 12.0);
+
+    System.out.println(leftAppliedVolts);
+    if (leftRpm == 0) {
+      leftSim.setInputVoltage(0);
+      rightSim.setInputVoltage(0);
+    } else {
+      leftSim.setInputVoltage(leftAppliedVolts);
+      rightSim.setInputVoltage(rightAppliedVolts);
+    }
   }
 
   @Override

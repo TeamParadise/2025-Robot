@@ -6,7 +6,8 @@
 // * the root directory of this project.
 // */
 //
- package com.team1165.robot.subsystems.flywheels;
+package com.team1165.robot.subsystems.flywheels;
+
 //
 //// Copyright (c) 2024 FRC 6328
 //// http://github.com/Mechanical-Advantage
@@ -19,7 +20,7 @@
 import edu.wpi.first.math.geometry.Twist2d;
 
 /// ** Ramps up and down to setpoint for velocity closed loop control */
- public class LinearProfile {
+public class LinearProfile {
   private double dv;
   private final double period;
   private double currentSetpoint = 0;
@@ -115,4 +116,4 @@ import edu.wpi.first.math.geometry.Twist2d;
       }
     }
   }
- }
+}

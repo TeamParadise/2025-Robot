@@ -19,7 +19,7 @@ public class flyWheelsCommand extends Command {
     // addRequirements() method (which takes a vararg of Subsystem)
     this.speed1 = speed1;
     this.speed2 = speed2;
-    addRequirements(RobotContainer.neoSubsystem);
+    addRequirements(RobotContainer.flywheels);
   }
 
   @Override
@@ -27,7 +27,7 @@ public class flyWheelsCommand extends Command {
 
   @Override
   public void execute() {
-    RobotContainer.neoSubsystem.runBothNeos(speed1, speed2);
+    RobotContainer.flywheels.shootCommand();
   }
 
   @Override

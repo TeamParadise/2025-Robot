@@ -60,7 +60,7 @@ public class ElevatorCommand extends Command {
   public boolean isFinished() {
     double currentPosition = RobotContainer.elevator.getLastDesiredPosition();
 
-    return Math.abs(currentPosition - h) < 0.01; // Stop when close to target
+    return Math.abs(currentPosition - h) < 0.05; // Stop when close to target
   }
 
   @Override
