@@ -57,7 +57,7 @@ public class RobotContainer {
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   public static Elevator elevator = new Elevator(new ElevatorSimIO());
-  public static TwoNeoSubsystem neoSubsystem = new TwoNeoSubsystem(8, 9);
+  public static TwoNeoSubsystem neoSubsystem = new TwoNeoSubsystem(0, 19);
   public static Flywheels flywheels = new Flywheels(new FlywheelsIOSparkMax());
 
   // Testing, likely will be changed later

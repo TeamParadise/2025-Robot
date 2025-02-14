@@ -10,30 +10,27 @@ package com.team1165.robot.subsystems.Pivot;
 import static com.team1165.robot.subsystems.flywheels.FlywheelConstants.gains;
 
 import com.team1165.robot.Constants;
-import com.team1165.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class PivotSIMIO {
+public class PivotSIMIO implements PivotIO{
   DCMotor Gearbox = DCMotor.getNEO(1); // One Falcon 500 motor
   double gearing = 1.0; // Example gear ratio
   double momentOfInertia = 0.01; // Example inertia (kg⋅m²)
 
   // Create the plant model for the flywheel
-  LinearSystem<N1, N1, N1> FlywheelPlant =
-      LinearSystemId.createFlywheelSystem(Gearbox, momentOfInertia, gearing);
-  private final FlywheelSim leftSim = new FlywheelSim(FlywheelPlant, Gearbox);
-  private final FlywheelSim rightSim = new FlywheelSim(FlywheelPlant, Gearbox);
+  LinearSystem<N2, N1, N2> DCMotorSystem =
+      LinearSystemId.createDCMotorSystem(Gearbox, momentOfInertia, gearing);
+  private final DCMotorSim leftSim = new DCMotorSim(DCMotorSystem, Gearbox);
 
-  private final PIDController leftController =
-      new PIDController(gains.kP(), gains.kI(), gains.kD());
-  private final PIDController rightController =
+  private final PIDController Controller =
       new PIDController(gains.kP(), gains.kI(), gains.kD());
 
   private double leftAppliedVolts = 0.0;
@@ -45,39 +42,25 @@ public class PivotSIMIO {
   private double rightFeedforward = 0.0;
 
   @Override
-  public void updateInputs(FlywheelsIOInputs inputs) {
+  public void updateInputs(PivotIOInputs inputs) {
     leftSim.update(Constants.loopPeriodSecs);
-    rightSim.update(Constants.loopPeriodSecs);
-    // control to setpoint
-    if (leftSetpointRpm != null && rightSetpointRpm != null) {
-      runVolts(
-          leftController.calculate(leftSim.getAngularVelocityRPM(), leftSetpointRpm)
-              + leftFeedforward,
-          rightController.calculate(rightSim.getAngularVelocityRPM(), rightSetpointRpm)
-              + rightFeedforward);
-    }
 
-    inputs.leftPositionRads +=
+
+    inputs.PositionRads +=
         Units.radiansToRotations(leftSim.getAngularVelocityRadPerSec() * Constants.loopPeriodSecs);
-    inputs.leftVelocityRpm = leftSim.getAngularVelocityRPM();
-    inputs.leftAppliedVolts = leftAppliedVolts;
-    inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
+    inputs.VelocityRpm = leftSim.getAngularVelocityRPM();
+    inputs.AppliedVolts = leftAppliedVolts;
+    inputs.SupplyCurrentAmps = leftSim.getCurrentDrawAmps();
 
-    inputs.rightPositionRads +=
-        Units.radiansToRotations(rightSim.getAngularVelocityRadPerSec() * Constants.loopPeriodSecs);
-    inputs.rightVelocityRpm = rightSim.getAngularVelocityRPM();
-    inputs.rightAppliedVolts = rightAppliedVolts;
-    inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
   }
 
   @Override
-  public void runVolts(double leftVolts, double rightVolts) {
+  public void runVolts(double angle) {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
-    leftAppliedVolts = MathUtil.clamp(leftVolts, -12.0, 12.0);
-    rightAppliedVolts = MathUtil.clamp(rightVolts, -12.0, 12.0);
+//    leftAppliedVolts = MathUtil.clamp(leftVolts, -12.0, 12.0);
+//    rightAppliedVolts = MathUtil.clamp(rightVolts, -12.0, 12.0);
     leftSim.setInputVoltage(leftAppliedVolts);
-    rightSim.setInputVoltage(rightAppliedVolts);
   }
 
   @Override
@@ -91,26 +74,25 @@ public class PivotSIMIO {
 
   @Override
   public void setPID(double kP, double kI, double kD) {
-    leftController.setPID(kP, kI, kD);
-    rightController.setPID(kP, kI, kD);
+    Controller.setPID(kP, kI, kD);
   }
 
   @Override
   public void stop() {
-    runVolts(0.0, 0.0);
+    runVolts( 0.0);
   }
 
   @Override
   public void runCharacterizationLeft(double input) {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
-    runVolts(input, 0.0);
+    runVolts( 0.0);
   }
 
   @Override
   public void runCharacterizationRight(double input) {
     leftSetpointRpm = null;
     rightSetpointRpm = null;
-    runVolts(0.0, input);
+    runVolts(0.0);
   }
 }
