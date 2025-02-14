@@ -33,12 +33,19 @@ public class DriveConstants {
   /**
    * Array of module constants for easy creation of the Drive subsystem. Taken from TunerConstants.
    */
-  public static final SwerveModuleConstants<?, ?, ?>[] moduleConstants = {
+  private static final SwerveModuleConstants<?, ?, ?>[] moduleConstants = {
     TunerConstants.FrontLeft,
     TunerConstants.FrontRight,
     TunerConstants.BackLeft,
     TunerConstants.BackRight
   };
+
+  /**
+   * Method to get module constants, because otherwise they would be mutable (because of the array)
+   */
+  public static SwerveModuleConstants<?, ?, ?>[] getModuleConstants() {
+    return moduleConstants;
+  }
 
   /** Constants for autonomous driving and line up of the robot. */
   public static final class PathConstants {

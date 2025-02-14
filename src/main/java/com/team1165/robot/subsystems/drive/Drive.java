@@ -23,6 +23,7 @@ import com.team1165.robot.subsystems.drive.constants.DriveConstants.PathConstant
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
+import com.team1165.robot.util.AllianceFlipUtil;
 import com.team1165.robot.util.LocalADStarAK;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
@@ -34,8 +35,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -68,7 +67,7 @@ public class Drive extends SubsystemBase {
             if (state) { // If trajectory is active, log trajectory (flipped for alliance)
               Logger.recordOutput(
                   "Drive/PathFollowing/Choreo/Trajectory",
-                  (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)
+                  (AllianceFlipUtil.shouldFlip()
                       ? trajectory.flipped().getPoses()
                       : trajectory.getPoses()));
             } else { // If trajectory is not active, clear outputs
