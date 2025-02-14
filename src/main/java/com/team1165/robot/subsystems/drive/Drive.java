@@ -139,7 +139,6 @@ public class Drive extends SubsystemBase {
   }
 
   // region Autonomous and path following
-
   /**
    * Method to follow a trajectory, typically from Choreo, using a provided {@link SwerveSample}. As
    * this will attempt to move the drivetrain, make sure this is called from a command.
@@ -202,7 +201,7 @@ public class Drive extends SubsystemBase {
             new InstantCommand(
                 () -> Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", true)))
         .finallyDo(
-            () -> { // Log that PathPlanner is not longer active, and clear setpoint
+            () -> { // Log that PathPlanner is no longer active, and clear setpoint
               Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", false);
               Logger.recordOutput(
                   "Drive/PathFollowing/PathPlanner/TrajectorySetpoint", new Pose2d[0]);
@@ -211,6 +210,7 @@ public class Drive extends SubsystemBase {
 
   // endregion
 
+  // region Getters (for rotation, pose, speeds, etc)
   /**
    * Get the current {@link Pose2d} of the drivetrain.
    *
@@ -245,8 +245,9 @@ public class Drive extends SubsystemBase {
     return inputs.Speeds;
   }
 
-  // region Default CTRE Methods
+  // endregion
 
+  // region Default CTRE Methods
   /**
    * Returns a command that applies the specified control request to this swerve drivetrain.
    *

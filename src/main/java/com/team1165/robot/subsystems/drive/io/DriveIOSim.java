@@ -7,6 +7,8 @@
 
 package com.team1165.robot.subsystems.drive.io;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -106,6 +108,6 @@ public class DriveIOSim extends DriveIOReal {
               // Use the measured time delta, get battery voltage from WPILib
               updateSimState(deltaTime, RobotController.getBatteryVoltage());
             });
-    simNotifier.startPeriodic(DriveConstants.simulationLoopPeriod);
+    simNotifier.startPeriodic(DriveConstants.simConfig.simLoopPeriod().in(Seconds));
   }
 }

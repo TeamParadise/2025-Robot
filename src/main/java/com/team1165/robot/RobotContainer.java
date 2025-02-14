@@ -7,20 +7,17 @@
 
 package com.team1165.robot;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.subsystems.drive.Drive;
+import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
-import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim.MapleSimConfig;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
@@ -30,7 +27,6 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVi
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -59,44 +55,30 @@ public class RobotContainer {
           .withRotationalDeadband(MaxAngularRate * 0.1)
           .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
     switch (Constants.robotMode) {
-      case REAL:
+      case REAL -> {
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
                 new DriveIOReal(
-                    TunerConstants.DrivetrainConstants,
-                    TunerConstants.FrontLeft,
-                    TunerConstants.FrontRight,
-                    TunerConstants.BackLeft,
-                    TunerConstants.BackRight));
+                    DriveConstants.drivetrainConstants, DriveConstants.moduleConstants));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
                 drive::getRotation,
                 new CameraConfig(new ATVisionIO() {}, new Transform3d()));
-        break;
+      }
 
-      case SIM:
+      case SIM -> {
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
                 new DriveIOMapleSim(
-                    TunerConstants.DrivetrainConstants,
-                    new MapleSimConfig(
-                        Seconds.of(0.002),
-                        Pounds.of(130),
-                        Inches.of(35.645),
-                        Inches.of(35.645),
-                        DCMotor.getKrakenX60Foc(1),
-                        DCMotor.getFalcon500(1),
-                        1.5),
-                    TunerConstants.FrontLeft,
-                    TunerConstants.FrontRight,
-                    TunerConstants.BackLeft,
-                    TunerConstants.BackRight));
+                    DriveConstants.drivetrainConstants,
+                    DriveConstants.simConfig,
+                    DriveConstants.moduleConstants));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -117,9 +99,9 @@ public class RobotContainer {
                     new Transform3d(
                         new Translation3d(0, 0, 0),
                         new Rotation3d(0, 0.0, Units.degreesToRadians(-30)))));
-        break;
+      }
 
-      default:
+      default -> {
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
         apriltagVision =
@@ -127,7 +109,7 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 drive::getRotation,
                 new CameraConfig(new ATVisionIO() {}, new Transform3d()));
-        break;
+      }
     }
 
     configureButtonBindings();
