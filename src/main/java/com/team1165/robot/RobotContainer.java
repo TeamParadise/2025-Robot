@@ -24,12 +24,12 @@ import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
+import com.team1165.robot.util.ChoreoTrajChooser;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -54,6 +54,7 @@ public class RobotContainer {
           .withDeadband(MaxSpeed * 0.1)
           .withRotationalDeadband(MaxAngularRate * 0.1)
           .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  private final ChoreoTrajChooser trajChooser;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -111,6 +112,9 @@ public class RobotContainer {
                 new CameraConfig(new ATVisionIO() {}, new Transform3d()));
       }
     }
+    trajChooser =
+        new ChoreoTrajChooser(
+            drive.getAutoFactory().newRoutine("Traj Testing"), "Testing Trajectory Chooser");
 
     configureButtonBindings();
     configureDefaultCommands();
@@ -131,6 +135,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return trajChooser.get(true);
   }
 }
