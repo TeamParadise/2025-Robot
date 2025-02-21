@@ -9,15 +9,12 @@ package com.team1165.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 
 public class FieldConstants {
-  public static final Pose2d[] centerFaces =
-      new Pose2d[6]; // Starting facing the driver station in clockwise order
-  public static final Pose2d[] scoringLocations = new Pose2d[12];
-
+  // region Actual "Field" constants (length, width, starting line)
   public static final Distance fieldLength = Units.Feet.of(57).plus(Units.Inches.of(6 + 7 / 8));
   public static final double fieldLengthMeters = fieldLength.in(Units.Meters);
   public static final Distance fieldWidth = Units.Feet.of(26).plus(Units.Inches.of(5));
@@ -25,12 +22,9 @@ public class FieldConstants {
   public static final Distance startingLineX =
       Units.Inches.of(299.438); // Measured from the inside of starting line
 
-  public static final double faceLength = Units.Inches.of(36.792600).in(Units.Meters);
-  public static final Translation2d center =
-      new Translation2d(Units.Inches.of(176.746).in(Units.Meters), fieldWidthMeters / 2.0);
-  public static final double faceToZoneLine =
-      Units.Inches.of(12).in(Units.Meters); // Side of the reef to the inside of the reef zone line
+  // endregion
 
+  /** Generic poses without any "fudge" factors or alliance switching. */
   private static class GenericPoses {
     private static final Pose2d reefA =
         new Pose2d(3.1886031999999997, 4.1902126, Rotation2d.fromDegrees(0));
@@ -66,12 +60,79 @@ public class FieldConstants {
             Rotation2d.fromRadians(-rightCoralStation.getRotation().getRadians()));
   }
 
-  public static Pose2d[] getAllPoses() {
-    System.out.println(GenericPoses.leftCoralStation.getX());
-    System.out.println(GenericPoses.leftCoralStation.getY());
-    System.out.println(GenericPoses.leftCoralStation.getRotation().getRadians());
-    return new Pose2d[] {
-      GenericPoses.leftCoralStation,
-    };
+  /**
+   * Fudge factors for changing constants based on differences between fields.
+   *
+   * <p>X value (first value) - Increase to move FORWARDS (robot-centric), decrease to move
+   * BACKWARDS (robot-centric)
+   *
+   * <p>Y value (second value) - Increase to move LEFT (robot-centric), decrease to move RIGHT
+   * (robot-centric)
+   */
+  private static class FudgeFactors {
+    // Fudge factors for reef scoring sides
+    private static final Transform2d reefA = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefB = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefC = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefD = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefE = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefF = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefG = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefH = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefI = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefJ = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefK = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefL = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+
+    // Fudge factors for coral station poses
+    private static final Transform2d rightCoralStation =
+        new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d leftCoralStation = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+  }
+
+  /** Alliance poses based off the generic poses combined with the fudge factors. */
+  private static class AlliancePoses {
+    private static class Blue {
+      private static final Pose2d reefA = GenericPoses.reefA.transformBy(FudgeFactors.reefA);
+      private static final Pose2d reefB = GenericPoses.reefB.transformBy(FudgeFactors.reefB);
+      private static final Pose2d reefC = GenericPoses.reefC.transformBy(FudgeFactors.reefC);
+      private static final Pose2d reefD = GenericPoses.reefD.transformBy(FudgeFactors.reefD);
+      private static final Pose2d reefE = GenericPoses.reefE.transformBy(FudgeFactors.reefE);
+      private static final Pose2d reefF = GenericPoses.reefF.transformBy(FudgeFactors.reefF);
+      private static final Pose2d reefG = GenericPoses.reefG.transformBy(FudgeFactors.reefG);
+      private static final Pose2d reefH = GenericPoses.reefH.transformBy(FudgeFactors.reefH);
+      private static final Pose2d reefI = GenericPoses.reefI.transformBy(FudgeFactors.reefI);
+      private static final Pose2d reefJ = GenericPoses.reefJ.transformBy(FudgeFactors.reefJ);
+      private static final Pose2d reefK = GenericPoses.reefK.transformBy(FudgeFactors.reefK);
+      private static final Pose2d reefL = GenericPoses.reefL.transformBy(FudgeFactors.reefL);
+    }
+
+    private static class Red {
+
+    }
+  }
+
+  public static final class Reef {
+    public enum Level {
+      L1,
+      L2,
+      L3,
+      L4;
+    }
+
+    public enum Location {
+      A,
+      B,
+      C,
+      D,
+      E,
+      F,
+      G,
+      H,
+      I,
+      J,
+      K,
+      L
+    }
   }
 }
