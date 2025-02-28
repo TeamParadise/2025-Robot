@@ -137,7 +137,7 @@ public class DriveIOMapleSim extends DriveIOReal {
           .withSteerMotorGains(
               moduleConstant
                   .SteerMotorGains
-                  .withKP(70) // Proportional gain
+                  .withKP(50) // Proportional gain
                   .withKD(4.5)) // Derivative gain
           // Adjust friction voltages
           .withDriveFrictionVoltage(Volts.of(0.1))
