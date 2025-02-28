@@ -7,6 +7,7 @@
 
 package com.team1165.robot;
 
+import com.team1165.robot.util.AllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -15,7 +16,8 @@ import edu.wpi.first.units.measure.Distance;
 
 public class FieldConstants {
   // region Actual "Field" constants (length, width, starting line)
-  public static final Distance fieldLength = Units.Feet.of(57).plus(Units.Inches.of(6.0 + 7.0 / 8.0));
+  public static final Distance fieldLength =
+      Units.Feet.of(57).plus(Units.Inches.of(6.0 + 7.0 / 8.0));
   public static final double fieldLengthMeters = fieldLength.in(Units.Meters);
   public static final Distance fieldWidth = Units.Feet.of(26).plus(Units.Inches.of(5));
   public static final double fieldWidthMeters = fieldWidth.in(Units.Meters);
@@ -60,9 +62,8 @@ public class FieldConstants {
             Rotation2d.fromRadians(-rightCoralStation.getRotation().getRadians()));
   }
 
-  /** Elevator heights for scoring on the Reef and intaking from the funnel. */
+  /** Elevator heights for scoring on the Reef. */
   private static class ElevatorHeights {
-    private static final double intake = 0.0;
     private static final double l1 = 0.0;
     private static final double l2 = 0.0;
     private static final double l3 = 0.0;
@@ -117,8 +118,10 @@ public class FieldConstants {
       private static final Pose2d reefL = GenericPoses.reefL.transformBy(FudgeFactors.reefL);
 
       // Coral station poses
-      private static final Pose2d rightCoralStation = GenericPoses.rightCoralStation.transformBy(FudgeFactors.rightCoralStation);
-      private static final Pose2d leftCoralStation = GenericPoses.leftCoralStation.transformBy(FudgeFactors.leftCoralStation);
+      private static final Pose2d rightCoralStation =
+          GenericPoses.rightCoralStation.transformBy(FudgeFactors.rightCoralStation);
+      private static final Pose2d leftCoralStation =
+          GenericPoses.leftCoralStation.transformBy(FudgeFactors.leftCoralStation);
     }
 
     private static class Red {
@@ -142,7 +145,29 @@ public class FieldConstants {
     }
 
     private static Pose2d flipPoseAlliance(Pose2d pose) {
-      return new Pose2d(fieldLengthMeters - pose.getX(), fieldWidthMeters - pose.getY(), pose.getRotation().rotateBy(Rotation2d.kPi));
+      return new Pose2d(
+          fieldLengthMeters - pose.getX(),
+          fieldWidthMeters - pose.getY(),
+          pose.getRotation().rotateBy(Rotation2d.kPi));
+    }
+
+    private static Pose2d getPose(Reef.Location level) {
+      boolean flip = AllianceFlipUtil.shouldFlip();
+
+      return switch (level) {
+        case A -> flip ? Red.reefA : Blue.reefA;
+        case B -> flip ? Red.reefB : Blue.reefB;
+        case C -> flip ? Red.reefC : Blue.reefC;
+        case D -> flip ? Red.reefD : Blue.reefD;
+        case E -> flip ? Red.reefE : Blue.reefE;
+        case F -> flip ? Red.reefF : Blue.reefF;
+        case G -> flip ? Red.reefG : Blue.reefG;
+        case H -> flip ? Red.reefH : Blue.reefH;
+        case I -> flip ? Red.reefI : Blue.reefI;
+        case J -> flip ? Red.reefJ : Blue.reefJ;
+        case K -> flip ? Red.reefK : Blue.reefK;
+        case L -> flip ? Red.reefL : Blue.reefL;
+      };
     }
   }
 
@@ -153,6 +178,15 @@ public class FieldConstants {
       L2,
       L3,
       L4;
+
+      public double getElevatorHeight() {
+        return switch (this) {
+          case L1 -> ElevatorHeights.l1;
+          case L2 -> ElevatorHeights.l2;
+          case L3 -> ElevatorHeights.l3;
+          case L4 -> ElevatorHeights.l4;
+        };
+      }
     }
 
     public enum Location {
@@ -167,7 +201,32 @@ public class FieldConstants {
       I,
       J,
       K,
-      L
+      L;
+
+      public Pose2d getPose() {
+        return AlliancePoses.getPose(this);
+      }
+    }
+  }
+
+  /** Simple enum to specify the coral station to score at. */
+  public enum CoralStationLocation {
+    /** The right coral station FROM THE DRIVER STATION PERSPECTIVE. */
+    RCS,
+    /** The left coral station FROM THE DRIVER STATION PERSPECTIVE. */
+    LCS;
+
+    public Pose2d getPose() {
+      return switch (this) {
+        case RCS ->
+            AllianceFlipUtil.shouldFlip()
+                ? AlliancePoses.Red.rightCoralStation
+                : AlliancePoses.Blue.rightCoralStation;
+        case LCS ->
+            AllianceFlipUtil.shouldFlip()
+                ? AlliancePoses.Red.leftCoralStation
+                : AlliancePoses.Blue.leftCoralStation;
+      };
     }
   }
 }
