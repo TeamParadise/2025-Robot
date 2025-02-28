@@ -64,7 +64,7 @@ public class RobotContainer {
         drive =
             new Drive(
                 new DriveIOReal(
-                    DriveConstants.drivetrainConstants, DriveConstants.moduleConstants));
+                    DriveConstants.drivetrainConstants, DriveConstants.getModuleConstants()));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -79,7 +79,7 @@ public class RobotContainer {
                 new DriveIOMapleSim(
                     DriveConstants.drivetrainConstants,
                     DriveConstants.simConfig,
-                    DriveConstants.moduleConstants));
+                    DriveConstants.getModuleConstants()));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
