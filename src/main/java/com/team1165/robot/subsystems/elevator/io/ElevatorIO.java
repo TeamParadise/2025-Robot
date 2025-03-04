@@ -8,8 +8,6 @@
 package com.team1165.robot.subsystems.elevator.io;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Distance;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ElevatorIO {

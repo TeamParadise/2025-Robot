@@ -7,6 +7,8 @@
 
 package com.team1165.robot.subsystems.elevator.constants;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -17,7 +19,12 @@ import edu.wpi.first.units.measure.Distance;
 public class ElevatorConstants {
   public static final String canBus = "canivore";
 
-  public static final double rotationsToInches = 1.0;
+  // General characteristics
+\\
+  public static final double gearRatio = 5.0;
+  public static final double sprocketRadiusInches = 0.8755;
+  public static final double minHeightInches = 0.0;
+  public static final double maxHeightInches = 40.872;
 
   public static final class LeftMotorConstants {
     public static final int canID = 14;
@@ -35,10 +42,10 @@ public class ElevatorConstants {
 
     ELEVATOR_CONFIG.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     ELEVATOR_CONFIG.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.Inches.of(66).in(Units.Inches);
+        Inches.of(66).in(Inches);
     ELEVATOR_CONFIG.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     ELEVATOR_CONFIG.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Units.Inches.of(0).in(Units.Inches);
+        Inches.of(0).in(Inches);
 
     ELEVATOR_CONFIG.Slot0.GravityType = GravityTypeValue.Elevator_Static;
     // Elevator motors will provide feedback in INCHES the carriage has moved

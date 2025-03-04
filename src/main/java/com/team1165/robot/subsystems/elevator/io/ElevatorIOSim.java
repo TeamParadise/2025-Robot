@@ -7,36 +7,25 @@
 
 package com.team1165.robot.subsystems.elevator.io;
 
+import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
 @Logged
 public class ElevatorIOSim implements ElevatorIO {
-  private static final double kMetersPerInch = 0.0254;
-  private static final double reduction = 32.0 / 10.0;
-  private static final double maxLengthMeters = inchesToMeters(40.872);
-  private static final double drumRadiusMeters = inchesToMeters(0.5);
-  private double lastDesiredPosition = 0.0;
-  Alert alert =
-      new Alert(
-          "Elevator",
-          "ElevatorSimIO",
-          AlertType.kError); // I saw u removed this, commented out logic until just in case,
-
+  private final DCMotor gearbox = DCMotor.getKrakenX60(2);
   private final ElevatorSim elevatorSim =
       new ElevatorSim(
-          DCMotor.getKrakenX60Foc(2),
-          5.0,
-          0.5,
-          drumRadiusMeters,
-          0.0,
-          maxLengthMeters,
+          gearbox,
+          ElevatorConstants.gearRatio,
+          2.0,
+          Units.inchesToMeters(ElevatorConstants.sprocketRadiusInches),
+          Units.inchesToMeters(ElevatorConstants.minHeightInches),
+          Units.inchesToMeters(ElevatorConstants.maxHeightInches),
           false,
           0.0);
 
@@ -45,11 +34,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
   private double leftAppliedVolts = 0.0;
   private double rightAppliedVolts = 0.0;
-
-  private Double leftSetpointRpm = null;
-  private Double rightSetpointRpm = null;
-  private double leftFeedforward = 0.0;
-  private double rightFeedforward = 0.0;
+  private boolean closedLoop = false;
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
@@ -69,7 +54,7 @@ public class ElevatorIOSim implements ElevatorIO {
     inputs.currentLeftPosition = Units.Inches.of(meterstoInches(leftSim.getPositionMeters()));
 
     inputs.leftAppliedVolts = leftAppliedVolts;
-    inputs.leftSupplyCurrentAmps = leftSim.getCurrentDrawAmps();
+    inputs.leftSupplyCurrentAmps = elevatorSim.
 
     inputs.currentRightPosition = Units.Inches.of(meterstoInches(rightSim.getPositionMeters()));
 
@@ -78,13 +63,18 @@ public class ElevatorIOSim implements ElevatorIO {
   }
 
   @Override
-  public void runVolts(double leftVolts, double rightVolts) {
-    leftSetpointRpm = null;
-    rightSetpointRpm = null;
-    leftAppliedVolts = leftVolts;
-    rightAppliedVolts = rightVolts;
-    leftSim.setInputVoltage(leftAppliedVolts);
-    rightSim.setInputVoltage(rightAppliedVolts);
+  public void stop() {
+    runVolts(0.0);
+  }
+
+  @Override
+  public void runCurrent(double current) {
+
+  }
+
+  @Override
+  public void runVolts(double volts) {
+    elevatorSim.setInputVoltage(volts);
   }
 
   @Override
@@ -99,23 +89,10 @@ public class ElevatorIOSim implements ElevatorIO {
     leftSim.setState(inchesToMeters(height), velocity);
   }
 
-  public static double inchesToMeters(double inches) {
-    return inches * kMetersPerInch;
-  }
-
-  public static double meterstoInches(double meters) {
-    return meters / kMetersPerInch;
-  }
-
   @Override
   public void setPID(double kP, double kI, double kD) {
     leftController.setPID(kP, kI, kD);
     rightController.setPID(kP, kI, kD);
-  }
-
-  @Override
-  public void stop() {
-    runVolts(0.0, 0.0);
   }
 
   public void setLastDesiredPosition(double lastDesiredPosition) {
