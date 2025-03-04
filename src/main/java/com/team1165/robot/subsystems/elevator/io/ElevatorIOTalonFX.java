@@ -96,13 +96,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 rightTempCelsius)
             .isOK();
 
-    inputs.leftPositionRotations = leftPosition.getValueAsDouble();
+    inputs.leftPositionInches = leftPosition.getValueAsDouble();
     inputs.leftVelocityRpm = leftVelocity.getValueAsDouble() * 60.0;
     inputs.leftAppliedVolts = leftAppliedVolts.getValueAsDouble();
     inputs.leftSupplyCurrentAmps = leftSupplyCurrent.getValueAsDouble();
     inputs.leftTempCelsius = leftTempCelsius.getValueAsDouble();
 
-    inputs.rightPositionRotations = rightPosition.getValueAsDouble();
+    inputs.rightPositionInches = rightPosition.getValueAsDouble();
     inputs.rightVelocityRpm = rightVelocity.getValueAsDouble() * 60.0;
     inputs.rightAppliedVolts = rightAppliedVolts.getValueAsDouble();
     inputs.rightSupplyCurrentAmps = rightSupplyCurrent.getValueAsDouble();
@@ -125,9 +125,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
-  public void runPosition(double positionRotations) {
+  public void runPosition(double positionInches) {
     // Set to just basic position control right now, likely will switch to motion magic
-    leftTalon.setControl(positionControl.withPosition(positionRotations));
+    leftTalon.setControl(positionControl.withPosition(positionInches));
   }
 
   @Override

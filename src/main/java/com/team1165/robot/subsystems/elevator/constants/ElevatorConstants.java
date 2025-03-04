@@ -20,7 +20,7 @@ public class ElevatorConstants {
   public static final String canBus = "canivore";
 
   // General characteristics
-\\
+
   public static final double gearRatio = 5.0;
   public static final double sprocketRadiusInches = 0.8755;
   public static final double minHeightInches = 0.0;
@@ -49,7 +49,7 @@ public class ElevatorConstants {
 
     ELEVATOR_CONFIG.Slot0.GravityType = GravityTypeValue.Elevator_Static;
     // Elevator motors will provide feedback in INCHES the carriage has moved
-    ELEVATOR_CONFIG.Feedback.SensorToMechanismRatio = 0.4545;
+    ELEVATOR_CONFIG.Feedback.SensorToMechanismRatio = (2 * Math.PI * (2 * sprocketRadiusInches)) / gearRatio; // TODO: Check and make sure this math is right!!!!
     ELEVATOR_CONFIG.Slot0.kG = 0.3;
     ELEVATOR_CONFIG.Slot0.kS = 0.4;
     // ELEVATOR_CONFIG.Slot0.kP = 1;
