@@ -30,6 +30,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -48,12 +49,12 @@ public class RobotContainer {
 
   // Testing, likely will be changed later
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+  private double MaxAngularRate = RotationsPerSecond.of(2).in(RadiansPerSecond);
   private final SwerveRequest.FieldCentric fieldCentric =
       new SwerveRequest.FieldCentric()
           .withDeadband(MaxSpeed * 0.1)
           .withRotationalDeadband(MaxAngularRate * 0.1)
-          .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+          .withDriveRequestType(DriveRequestType.Velocity);
   private final ChoreoTrajChooser trajChooser;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
@@ -121,7 +122,9 @@ public class RobotContainer {
   }
 
   /** Use this method to define your button->command mappings. */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    driverController.a().onTrue(new InstantCommand(drive::seedFieldCentric));
+  }
 
   /** Use this method to define default commands for subsystems. */
   private void configureDefaultCommands() {
