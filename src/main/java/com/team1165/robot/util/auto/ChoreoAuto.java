@@ -11,6 +11,8 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import choreo.trajectory.Trajectory;
+import com.team1165.robot.FieldConstants.*;
 import edu.wpi.first.units.measure.Time;
 
 public class ChoreoAuto {
@@ -37,8 +39,17 @@ public class ChoreoAuto {
   }
 
   public AutoRoutine buildAuto(AutoRoutine routine, boolean resetOdometry) {
-    for (AutoSegmentConfig segment : segments) {
-      AutoTrajectory movementToScore = routine.trajectory()
-    }
+    // Set up first auto segment manually
+    AutoTrajectory firstTraj = routine.trajectory()
+  }
+
+  public static AutoTrajectory buildSegment(AutoRoutine routine, AutoSegmentConfig autoSequence) {
+    // Get the flipped reef location, if we need to flip (for A, H, I, J, K, L)
+    Reef.Location flippedOverX = autoSequence.reefLocation().getFlippedReef();
+    boolean flipped = !(flippedOverX == autoSequence.reefLocation());
+    CoralStationLocation flippedCS =
+        flipped ? (autoSequence.coralStation() == CoralStationLocation.RCS ? CoralStationLocation.LCS : CoralStationLocation.RCS) : autoSequence.coralStation();
+
+    scoringTrajectory = routine.trajectory(new Trajectory<SampleType>())
   }
 }

@@ -7,6 +7,7 @@
 
 package com.team1165.robot;
 
+import com.team1165.robot.FieldConstants.Reef.Location;
 import com.team1165.robot.util.AllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -151,7 +152,7 @@ public class FieldConstants {
           pose.getRotation().rotateBy(Rotation2d.kPi));
     }
 
-    private static Pose2d getPose(Reef.Location level) {
+    private static Pose2d getPose(Location level) {
       boolean flip = AllianceFlipUtil.shouldFlip();
 
       return switch (level) {
@@ -205,6 +206,19 @@ public class FieldConstants {
 
       public Pose2d getPose() {
         return AlliancePoses.getPose(this);
+      }
+
+      /** Get the enum of the flipped reef over the x-axis (flipped on same alliance). Pretty much just used for Choreo autos.*/
+      public Location getFlippedReef() {
+        return switch(this) {
+          case A -> Location.B;
+          case B, C, D, E, F, G -> this;
+          case H -> Location.G;
+          case I -> Location.F;
+          case J -> Location.E;
+          case K -> Location.D;
+          case L -> Location.C;
+        };
       }
     }
   }
