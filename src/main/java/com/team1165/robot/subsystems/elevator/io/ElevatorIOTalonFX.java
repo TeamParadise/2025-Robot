@@ -5,9 +5,7 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems.elevator.io; /// *
-
-import static edu.wpi.first.units.Units.Inches;
+package com.team1165.robot.subsystems.elevator.io;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -32,7 +30,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final StatusSignal<Current> rightSupplyCurrent;
   private final StatusSignal<Temperature> rightTempCelsius;
   private final StatusSignal<Angle> rightPosition;
-  private final  StatusSignal<AngularVelocity> rightVelocity;
+  private final StatusSignal<AngularVelocity> rightVelocity;
 
   private final TalonFX leftTalon;
   private final TalonFX rightTalon;
@@ -45,7 +43,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final PositionVoltage positionControl = new PositionVoltage(0).withUpdateFreqHz(0.0);
 
   // Motion Magic control
-  private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0).withUpdateFreqHz(0.0);
+  private final MotionMagicVoltage motionMagicControl =
+      new MotionMagicVoltage(0).withUpdateFreqHz(0.0);
 
   public ElevatorIOTalonFX() {
     leftTalon = new TalonFX(ElevatorConstants.LeftMotorConstants.canID, ElevatorConstants.canBus);
@@ -81,6 +80,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         rightSupplyCurrent,
         rightTempCelsius);
   }
+
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
     inputs.leftMotorConnected =

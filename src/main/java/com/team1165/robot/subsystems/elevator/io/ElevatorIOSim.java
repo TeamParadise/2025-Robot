@@ -45,7 +45,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
     double appliedVolts = 0;
     if (positionSetpoint != null) {
-      appliedVolts = pidController.calculate(
+      appliedVolts =
+          pidController.calculate(
                   Units.metersToInches(elevatorSim.getPositionMeters()), positionSetpoint)
               + feedforwardController.calculate(
                   Units.metersToInches(elevatorSim.getVelocityMetersPerSecond()));

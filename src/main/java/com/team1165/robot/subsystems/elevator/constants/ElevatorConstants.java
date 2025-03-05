@@ -9,22 +9,31 @@ package com.team1165.robot.subsystems.elevator.constants;
 
 import static edu.wpi.first.units.Units.Inches;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Distance;
 
 public class ElevatorConstants {
   public static final String canBus = "canivore";
 
   // General characteristics
-
   public static final double gearRatio = 5.0;
   public static final double sprocketRadiusInches = 0.8755;
   public static final double minHeightInches = 0.0;
   public static final double maxHeightInches = 40.872;
+
+  // PID gains
+  public static final Slot0Configs gains =
+      new Slot0Configs()
+          .withKP(0.0)
+          .withKI(0.0)
+          .withKD(0.0)
+          .withKS(0.0)
+          .withKG(0.0)
+          .withKV(0.0)
+          .withKA(0.0);
 
   public static final class LeftMotorConstants {
     public static final int canID = 14;
@@ -41,15 +50,15 @@ public class ElevatorConstants {
     ELEVATOR_CONFIG.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     ELEVATOR_CONFIG.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    ELEVATOR_CONFIG.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Inches.of(66).in(Inches);
+    ELEVATOR_CONFIG.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Inches.of(66).in(Inches);
     ELEVATOR_CONFIG.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    ELEVATOR_CONFIG.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Inches.of(0).in(Inches);
+    ELEVATOR_CONFIG.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Inches.of(0).in(Inches);
 
     ELEVATOR_CONFIG.Slot0.GravityType = GravityTypeValue.Elevator_Static;
     // Elevator motors will provide feedback in INCHES the carriage has moved
-    ELEVATOR_CONFIG.Feedback.SensorToMechanismRatio = (2 * Math.PI * (2 * sprocketRadiusInches)) / gearRatio; // TODO: Check and make sure this math is right!!!!
+    ELEVATOR_CONFIG.Feedback.SensorToMechanismRatio =
+        (2 * Math.PI * (2 * sprocketRadiusInches))
+            / gearRatio; // TODO: Check and make sure this math is right!!!!
     ELEVATOR_CONFIG.Slot0.kG = 0.3;
     ELEVATOR_CONFIG.Slot0.kS = 0.4;
     // ELEVATOR_CONFIG.Slot0.kP = 1;
