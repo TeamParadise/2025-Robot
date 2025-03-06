@@ -40,6 +40,8 @@ public interface ElevatorIO {
 
   default void runPosition(double positionInches) {}
 
+  default void setBrakeMode(boolean enabled) {}
+
   /** Config PID values for both motors */
   default void setPID(Slot0Configs gains) {}
 }

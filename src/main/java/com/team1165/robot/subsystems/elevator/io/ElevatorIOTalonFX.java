@@ -12,6 +12,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -128,6 +129,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void runPosition(double positionInches) {
     // Set to just basic position control right now, likely will switch to motion magic
     leftTalon.setControl(positionControl.withPosition(positionInches));
+  }
+
+  @Override
+  public void setBrakeMode(boolean enabled) {
+    leftTalon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    rightTalon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
   }
 
   @Override

@@ -19,6 +19,10 @@ import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
+import com.team1165.robot.subsystems.elevator.Elevator;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIOSim;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
@@ -42,6 +46,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Elevator elevator;
   private final ATVision apriltagVision;
 
   // Driver Controllers
@@ -66,6 +71,7 @@ public class RobotContainer {
             new Drive(
                 new DriveIOReal(
                     DriveConstants.drivetrainConstants, DriveConstants.getModuleConstants()));
+        elevator = new Elevator(new ElevatorIOTalonFX());
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -81,6 +87,7 @@ public class RobotContainer {
                     DriveConstants.drivetrainConstants,
                     DriveConstants.simConfig,
                     DriveConstants.getModuleConstants()));
+        elevator = new Elevator(new ElevatorIOSim());
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -106,6 +113,7 @@ public class RobotContainer {
       default -> {
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
+        elevator = new Elevator(new ElevatorIO() {});
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,

@@ -7,11 +7,11 @@
 
 package com.team1165.robot.subsystems.elevator;
 
+import com.team1165.robot.FieldConstants.Reef;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOInputsAutoLogged;
 import com.team1165.robot.util.LoggedTunableNumber;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,6 +45,10 @@ public class Elevator extends SubsystemBase {
   private final Alert rightDisconnected =
       new Alert("Right ElevatorMotor disconnected!", AlertType.kError);
 
+  private double homePosition = 0.0;
+  private boolean emergencyStop = false;
+  private boolean brakeMode = false;
+
   public Elevator(ElevatorIO io) {
     this.io = io;
   }
@@ -59,38 +63,81 @@ public class Elevator extends SubsystemBase {
     rightDisconnected.set(!inputs.rightMotorConnected);
   }
 
-  public void resetSensorPosition(Distance setpoint) {
-    io.resetSensorPosition(setpoint);
-  }
-
-  /** Run both motors at voltage */
-  public void setPosition(Distance height) {
-    io.setPosition(height);
-  }
-
-  /** Stop both Elevator Motors */
   public void stop() {
     io.stop();
+    if (!emergencyStop) {
+      Logger.recordOutput("Elevator/RunningMode", "Stop");
+    }
   }
 
-  public void setPID(double kp, double ki, double kd) {
-    io.setPID(kp, ki, kd);
+  public void runAtPercent(double percent) {
+    if (!emergencyStop) {
+      Logger.recordOutput("Elevator/RunningMode", "BasicVoltage");
+      io.runVolts(percent * 12.0);
+    }
   }
 
-  public void runVolts(double leftVoltage, double rightVoltage) {
-    io.runVolts(leftVoltage, rightVoltage);
+  public void runVolts(double volts) {
+    if (!emergencyStop) {
+      Logger.recordOutput("Elevator/RunningMode", "BasicVoltage");
+      io.runVolts(volts);
+    }
   }
 
-  public void runVelocity(
-      double leftRpm, double rightRpm, double leftFeedforward, double rightFeedforward) {
-    io.runVelocity(leftRpm, rightRpm, leftFeedforward, rightFeedforward);
+  public void runPosition(double positionInches) {
+    if (!emergencyStop) {
+      Logger.recordOutput("Elevator/Setpoint", positionInches);
+      Logger.recordOutput("Elevator/RunningMode", "ManualPosition");
+      io.runPosition(positionInches + homePosition);
+    }
   }
 
-  public void setPosition(Double height, double velocity) {
-    io.setPosition(height, velocity);
+  public void runPosition(Reef.Level level) {
+    if (!emergencyStop) {
+      Logger.recordOutput("Elevator/Setpoint", level.getElevatorHeight());
+      Logger.recordOutput("Elevator/RunningMode", "Coral " + level.name());
+      io.runPosition(level.getElevatorHeight() + homePosition);
+    }
   }
 
-  public double getLastDesiredPosition() {
-    return io.getLastDesiredPosition();
+  public void runToIntakePosition() {
+    if (!emergencyStop) {
+      Logger.recordOutput("Elevator/Setpoint", ElevatorConstants.intakePosition);
+      Logger.recordOutput("Elevator/RunningMode", "Intake");
+      io.runPosition(ElevatorConstants.intakePosition + homePosition);
+    }
+  }
+
+  public void setBrakeMode(boolean enabled) {
+    if (!emergencyStop) {
+      brakeMode = enabled;
+      io.setBrakeMode(enabled);
+    }
+  }
+
+  /**
+   * Emergency stop the elevator, immediately stop motors and set to brake mode. Run methods will
+   * not do anything.
+   */
+  public void setEmergencyStop(boolean enabled) {
+    if (enabled) {
+      Logger.recordOutput("Elevator/RunningMode", "EmergencyStop");
+      emergencyStop = true;
+      io.stop();
+      io.setBrakeMode(false);
+    } else {
+      Logger.recordOutput("Elevator/RunningMode", "Stop");
+      emergencyStop = false;
+      io.setBrakeMode(brakeMode);
+    }
+  }
+
+  public void setHomePosition(double homePositionInches) {
+    homePosition = homePositionInches;
+  }
+
+  public boolean getAtPosition(double positionInches, double tolerance) {
+    var currentPosition = inputs.leftPositionInches + homePosition;
+    return (positionInches - tolerance < currentPosition) && (positionInches + tolerance > currentPosition);
   }
 }
