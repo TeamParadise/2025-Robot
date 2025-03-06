@@ -8,6 +8,11 @@
 package com.team1165.robot;
 
 public class Constants {
+  /** Basic constants and tolerances for the autonomous period. */
+  public static class Auto {
+
+  }
+
   /** The running mode of the robot (REAL, SIM, or REPLAY). By default, set to REAL. */
   public static Mode robotMode = Mode.REAL;
 
