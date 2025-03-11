@@ -31,7 +31,7 @@ import com.team1165.robot.subsystems.elevator.io.ElevatorSimIO;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
 import com.team1165.robot.subsystems.flywheels.Flywheels.Goal;
 import com.team1165.robot.subsystems.flywheels.FlywheelsIOSparkMax;
-import com.team1165.robot.subsystems.flywheels.TwoNeoSubsystem;
+import com.team1165.robot.subsystems.flywheels.Funnel;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton.ATVisionIOPhotonConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
@@ -57,7 +57,7 @@ public class RobotContainer {
   // Driver Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   public static Elevator elevator = new Elevator(new ElevatorSimIO());
-  public static TwoNeoSubsystem neoSubsystem = new TwoNeoSubsystem(8, 9);
+  public static Funnel neoSubsystem = new Funnel(8, 9);
   public static Flywheels flywheels = new Flywheels(new FlywheelsIOSparkMax());
 
   // Testing, likely will be changed later

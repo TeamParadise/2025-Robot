@@ -8,52 +8,67 @@
 package com.team1165.robot.subsystems.flywheels;
 
 import com.revrobotics.*;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// THIS IS TEMPORARY IN PLACE OF THE ACTUAL SUBSYSTEM.
 
-public class TwoNeoSubsystem extends SubsystemBase {
+public class Funnel extends SubsystemBase {
 
   private final SparkMax neo1;
   private final SparkMax neo2;
 
   /** Creates a new TwoNeoSubsystem. */
-  public TwoNeoSubsystem(int neo1ID, int neo2ID) { // Pass in CAN IDs
+  public Funnel(int neo1ID, int neo2ID) { // Pass in CAN IDs
     neo1 = new SparkMax(neo1ID, MotorType.kBrushless);
     neo2 = new SparkMax(neo2ID, MotorType.kBrushless);
 
-    //  Initialize or configure the NEOs here if needed.  For example:
-    // neo1.setSmartCurrentLimit(someLimit);
-    // neo2.setOpenLoopRampRate(someRampRate);
+
+    SparkMaxConfig followerConfig = new SparkMaxConfig();
+    followerConfig.follow(neo1, true); // Make neo2 follow neo1
+    followerConfig.smartCurrentLimit(40);
+    followerConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
+
+    neo2.configure(followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    SparkMaxConfig leaderConfig = new SparkMaxConfig();
+    leaderConfig.smartCurrentLimit(40);
+    leaderConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
+
+    neo1.configure(followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
-  public void runNeo1(double speed) {
-    neo1.set(speed);
-  }
 
-  public void runNeo2(double speed) {
-    neo2.set(speed);
-  }
+
 
   public void runBothNeos(double speed1, double speed2) {
     neo1.set(speed1);
-    neo2.set(speed2);
   }
 
-  public void stopNeo1() {
-    neo1.set(0);
-  }
-
-  public void stopNeo2() {
-    neo2.set(0);
-  }
 
   public void stopBothNeos() {
     neo1.set(0);
-    neo2.set(0);
+  }
+
+  //instead of time I would like a boolean function that checks if if its in the shooter.
+  public SequentialCommandGroup runNeosFor3Seconds(double speed) {
+    Timer timer = new Timer();
+    return new SequentialCommandGroup(
+        new RunCommand(() -> {neo1.set(speed);}, this).beforeStarting(() -> timer.start()),
+        new RunCommand(() -> {}, this).until(() -> timer.get() >= 3.0).finallyDo((interrupted) -> {
+          neo1.set(0);
+          timer.stop();
+          timer.reset();
+        })
+    );
   }
 
   @Override
