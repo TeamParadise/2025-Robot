@@ -7,10 +7,16 @@
 
 package com.team1165.robot.subsystems.flywheels;
 
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L1_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L2_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L3_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L4_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.getHeight;
 import static com.team1165.robot.subsystems.flywheels.FlywheelConstants.*;
 
 import com.team1165.robot.Constants;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -213,10 +219,28 @@ public class Flywheels extends SubsystemBase {
   }
 
   public Command shootCommand() {
-    return startEnd(
-            () -> runVolts(Goal.SHOOT.getLeftGoal(), Goal.SHOOT.rightGoal),
-            () -> runVolts(Goal.IDLE.getLeftGoal(), Goal.IDLE.rightGoal))
-        .withName("Flywheels Shoot");
+    Distance height = getHeight();
+    if (height == CORAL_L1_HEIGHT) {
+      return startEnd(
+              () -> runVolts(Goal.SHOOT.getLeftGoal(), -Goal.SHOOT.rightGoal),
+              () -> runVolts(Goal.IDLE.getLeftGoal(), Goal.IDLE.rightGoal))
+          .withName("Flywheels Shoot L1");
+    } else if (height == CORAL_L2_HEIGHT || height == CORAL_L3_HEIGHT) {
+      return startEnd(
+              () -> runVolts(Goal.SHOOT.getLeftGoal(), Goal.SHOOT.rightGoal),
+              () -> runVolts(Goal.IDLE.getLeftGoal(), Goal.IDLE.rightGoal))
+          .withName("Flywheels Shoot L2 or L3");
+    } else if (height == CORAL_L4_HEIGHT) {
+      return startEnd(
+              () -> runVolts(5000, 5000),
+              () -> runVolts(Goal.IDLE.getLeftGoal(), Goal.IDLE.rightGoal))
+          .withName("Flywheels Shoot L4");
+    } else {
+      return startEnd(
+              () -> runVolts(Goal.SHOOT.getLeftGoal(), Goal.SHOOT.rightGoal),
+              () -> runVolts(Goal.IDLE.getLeftGoal(), Goal.IDLE.rightGoal))
+          .withName("Flywheels Shoot");
+    }
   }
 
   public Command intakeCommand() {

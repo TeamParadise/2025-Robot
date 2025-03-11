@@ -29,7 +29,6 @@ import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorSimIO;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
-import com.team1165.robot.subsystems.flywheels.Flywheels.Goal;
 import com.team1165.robot.subsystems.flywheels.FlywheelsIOSparkMax;
 import com.team1165.robot.subsystems.flywheels.Funnel;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
@@ -38,7 +37,6 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 

@@ -21,6 +21,8 @@ public class ElevatorConstants {
   public static final Distance CORAL_L3_HEIGHT = Units.Inches.of(33.742188);
   public static final Distance CORAL_L4_HEIGHT = Units.Inches.of(58.888916);
 
+  public static Distance Coral_Height = Units.Inches.of(0);
+
   public static final double SimCORAL_L1_HEIGHT = 9.039062;
   public static final double SimCORAL_L2_HEIGHT = 17.946289;
   public static final double SimCORAL_L3_HEIGHT = 33.742188;
@@ -58,6 +60,19 @@ public class ElevatorConstants {
     ELEVATOR_CONFIG.CurrentLimits.SupplyCurrentLimitEnable = true;
     ELEVATOR_CONFIG.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     ELEVATOR_CONFIG.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  }
+
+  public static Distance getHeight() {
+    return Coral_Height;
+  }
+
+  // 1 for l1, 2 for l2, 3 for l3, 4 for l4
+  public static void setCoralHeight(int num) {
+    if (num == 0) Coral_Height = Units.Inches.of(0);
+    else if (num == 1) Coral_Height = CORAL_L1_HEIGHT;
+    else if (num == 2) Coral_Height = CORAL_L2_HEIGHT;
+    else if (num == 3) Coral_Height = CORAL_L3_HEIGHT;
+    else if (num == 4) Coral_Height = CORAL_L4_HEIGHT;
   }
 
   //  public static final ElevatorConfig elevatorConfig =

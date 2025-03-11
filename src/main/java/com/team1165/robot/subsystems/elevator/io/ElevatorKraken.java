@@ -7,6 +7,11 @@
 
 package com.team1165.robot.subsystems.elevator.io; /// *
 
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L1_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L2_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L3_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.CORAL_L4_HEIGHT;
+import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants.setCoralHeight;
 import static edu.wpi.first.units.Units.Inches;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -153,6 +158,13 @@ public class ElevatorKraken implements ElevatorIO {
     rightTalon.setControl(new PositionVoltage(height.in(Units.Inches)));
     leftTalon.setControl(new Follower(rightTalon.getDeviceID(), true));
     lastDesiredPosition = height;
+
+    // updating values for flywheels
+    if (height == CORAL_L1_HEIGHT) setCoralHeight(1);
+    else if (height == CORAL_L2_HEIGHT) setCoralHeight(2);
+    else if (height == CORAL_L3_HEIGHT) setCoralHeight(3);
+    else if (height == CORAL_L4_HEIGHT) setCoralHeight(4);
+    else setCoralHeight(0);
   }
 
   @Override

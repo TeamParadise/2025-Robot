@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 public class Funnel extends SubsystemBase {
 
   private final SparkMax neo1;
@@ -31,44 +30,48 @@ public class Funnel extends SubsystemBase {
     neo1 = new SparkMax(neo1ID, MotorType.kBrushless);
     neo2 = new SparkMax(neo2ID, MotorType.kBrushless);
 
-
     SparkMaxConfig followerConfig = new SparkMaxConfig();
     followerConfig.follow(neo1, true); // Make neo2 follow neo1
     followerConfig.smartCurrentLimit(40);
     followerConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
 
-    neo2.configure(followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    neo2.configure(
+        followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     SparkMaxConfig leaderConfig = new SparkMaxConfig();
     leaderConfig.smartCurrentLimit(40);
     leaderConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
 
-    neo1.configure(followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    neo1.configure(
+        followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
-
-
-
 
   public void runBothNeos(double speed1, double speed2) {
     neo1.set(speed1);
   }
 
-
   public void stopBothNeos() {
     neo1.set(0);
   }
 
-  //instead of time I would like a boolean function that checks if if its in the shooter.
+  // instead of time I would like a boolean function that checks if if its in the shooter.
   public SequentialCommandGroup runNeosFor3Seconds(double speed) {
     Timer timer = new Timer();
     return new SequentialCommandGroup(
-        new RunCommand(() -> {neo1.set(speed);}, this).beforeStarting(() -> timer.start()),
-        new RunCommand(() -> {}, this).until(() -> timer.get() >= 3.0).finallyDo((interrupted) -> {
-          neo1.set(0);
-          timer.stop();
-          timer.reset();
-        })
-    );
+        new RunCommand(
+                () -> {
+                  neo1.set(speed);
+                },
+                this)
+            .beforeStarting(() -> timer.start()),
+        new RunCommand(() -> {}, this)
+            .until(() -> timer.get() >= 3.0)
+            .finallyDo(
+                (interrupted) -> {
+                  neo1.set(0);
+                  timer.stop();
+                  timer.reset();
+                }));
   }
 
   @Override
