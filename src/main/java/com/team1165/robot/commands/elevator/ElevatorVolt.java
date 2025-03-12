@@ -11,11 +11,11 @@ import com.team1165.robot.subsystems.elevator.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.DoubleSupplier;
 
-public class ElevatorPosition extends Command {
+public class ElevatorVolt extends Command {
   private final Elevator elevator;
   private final DoubleSupplier position;
 
-  public ElevatorPosition(Elevator elevator, DoubleSupplier position) {
+  public ElevatorVolt(Elevator elevator, DoubleSupplier position) {
     this.elevator = elevator;
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
@@ -28,7 +28,7 @@ public class ElevatorPosition extends Command {
 
   @Override
   public void execute() {
-    elevator.runPosition(position.getAsDouble());
+    elevator.runVolts(position.getAsDouble());
   }
 
   @Override

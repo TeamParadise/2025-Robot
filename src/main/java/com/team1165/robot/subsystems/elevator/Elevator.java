@@ -7,6 +7,7 @@
 
 package com.team1165.robot.subsystems.elevator;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.team1165.robot.FieldConstants.Reef;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
@@ -57,6 +58,26 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            io.setPID(
+                new Slot0Configs()
+                    .withKP(kP.get())
+                    .withKI(kI.get())
+                    .withKD(kD.get())
+                    .withKG(kG.get())
+                    .withKS(kS.get())
+                    .withKV(kV.get())
+                    .withKA(kA.get())),
+        kP,
+        kI,
+        kD,
+        kG,
+        kS,
+        kV,
+        kA);
 
     // Set alerts
     leftDisconnected.set(!inputs.leftMotorConnected);
@@ -138,6 +159,7 @@ public class Elevator extends SubsystemBase {
 
   public boolean getAtPosition(double positionInches, double tolerance) {
     var currentPosition = inputs.leftPositionInches + homePosition;
-    return (positionInches - tolerance < currentPosition) && (positionInches + tolerance > currentPosition);
+    return (positionInches - tolerance < currentPosition)
+        && (positionInches + tolerance > currentPosition);
   }
 }

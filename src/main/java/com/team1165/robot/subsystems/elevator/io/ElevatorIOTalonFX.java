@@ -9,9 +9,11 @@ package com.team1165.robot.subsystems.elevator.io;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import edu.wpi.first.units.measure.Angle;
@@ -55,6 +57,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // Apply configs
     rightTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG, 1);
     leftTalon.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG, 1);
+    leftTalon
+        .getConfigurator()
+        .apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
     leftAppliedVolts = leftTalon.getMotorVoltage();
     leftSupplyCurrent = leftTalon.getSupplyCurrent();
@@ -128,7 +133,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void runPosition(double positionInches) {
     // Set to just basic position control right now, likely will switch to motion magic
-    leftTalon.setControl(positionControl.withPosition(positionInches));
+    leftTalon.setControl(motionMagicControl.withPosition(positionInches));
   }
 
   @Override

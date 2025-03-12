@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 public class ElevatorConstants {
   public static final String canBus = "canivore";
@@ -30,11 +31,11 @@ public class ElevatorConstants {
   // PID gains
   public static final Slot0Configs gains =
       new Slot0Configs()
-          .withKP(0.0)
+          .withKP(10.0)
           .withKI(0.0)
           .withKD(0.0)
-          .withKS(0.0)
-          .withKG(0.0)
+          .withKS(0.22)
+          .withKG(0.33)
           .withKV(0.0)
           .withKA(0.0);
 
@@ -58,6 +59,7 @@ public class ElevatorConstants {
     ELEVATOR_CONFIG.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Inches.of(0).in(Inches);
 
     ELEVATOR_CONFIG.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    ELEVATOR_CONFIG.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
     // Elevator motors will provide feedback in INCHES the carriage has moved
     ELEVATOR_CONFIG.Feedback.SensorToMechanismRatio =
         (2 * Math.PI * (2 * sprocketRadiusInches))
