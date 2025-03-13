@@ -15,6 +15,7 @@ import com.team1165.robot.subsystems.elevator.io.ElevatorIOInputsAutoLogged;
 import com.team1165.robot.util.LoggedTunableNumber;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -127,6 +128,29 @@ public class Elevator extends SubsystemBase {
       Logger.recordOutput("Elevator/RunningMode", "Intake");
       io.runPosition(ElevatorConstants.intakePosition + homePosition);
     }
+  }
+
+  public Command runToNextPosition() {
+    return startRun(
+        () -> {
+          if (!emergencyStop) {
+            if (Math.abs(ElevatorConstants.intakePosition - inputs.leftPositionInches) > 0.2) {
+              io.runPosition(Reef.Level.L1.getElevatorHeight());
+            } else if (Math.abs(Reef.Level.L1.getElevatorHeight() - inputs.leftPositionInches)
+                > 0.2) {
+              io.runPosition(Reef.Level.L2.getElevatorHeight());
+            } else if (Math.abs(Reef.Level.L2.getElevatorHeight() - inputs.leftPositionInches)
+                > 0.2) {
+              io.runPosition(Reef.Level.L3.getElevatorHeight());
+            } else if (Math.abs(Reef.Level.L3.getElevatorHeight() - inputs.leftPositionInches)
+                > 0.2) {
+              io.runPosition(Reef.Level.L4.getElevatorHeight());
+            } else {
+              io.runPosition(ElevatorConstants.intakePosition);
+            }
+          }
+        },
+        () -> {});
   }
 
   public void setBrakeMode(boolean enabled) {

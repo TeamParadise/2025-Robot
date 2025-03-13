@@ -5,27 +5,27 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.team1165.robot.subsystems.flywheels;
+package com.team1165.robot.subsystems.funnel;
 
-import com.team1165.robot.subsystems.flywheels.io.FlywheelsIO;
-import com.team1165.robot.subsystems.flywheels.io.FlywheelsIOInputsAutoLogged;
+import com.team1165.robot.subsystems.funnel.io.FunnelIO;
+import com.team1165.robot.subsystems.funnel.io.FunnelIOInputsAutoLogged;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
-public class Flywheels extends SubsystemBase {
-  private final FlywheelsIO io;
-  private final FlywheelsIOInputsAutoLogged inputs = new FlywheelsIOInputsAutoLogged();
+public class Funnel extends SubsystemBase {
+  private final FunnelIO io;
+  private final FunnelIOInputsAutoLogged inputs = new FunnelIOInputsAutoLogged();
 
-  public Flywheels(FlywheelsIO io) {
+  public Funnel(FunnelIO io) {
     this.io = io;
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Flywheels", inputs);
+    Logger.processInputs("Funnel", inputs);
   }
 
   public Command percentCommand(DoubleSupplier percent) {
@@ -51,7 +51,8 @@ public class Flywheels extends SubsystemBase {
     io.stop();
   }
 
-  public boolean isDrawingHighCurrent() {
-    return Math.abs(inputs.leftSupplyCurrentAmps) > 15.0;
+  private boolean isDrawingHighCurrent() {
+    return Math.abs(inputs.leftSupplyCurrentAmps) > 50.0
+        || Math.abs(inputs.rightSupplyCurrentAmps) > 50.0;
   }
 }

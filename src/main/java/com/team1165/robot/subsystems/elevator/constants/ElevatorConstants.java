@@ -7,20 +7,13 @@
 
 package com.team1165.robot.subsystems.elevator.constants;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 public class ElevatorConstants {
   public static final String canBus = "canivore";
 
   // Intake position
-  public static final double intakePosition = 0.0;
+  public static final double intakePosition = 1.3;
 
   // General characteristics
   public static final double gearRatio = 5.0;

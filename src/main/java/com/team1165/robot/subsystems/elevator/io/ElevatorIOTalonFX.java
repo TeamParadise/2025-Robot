@@ -12,6 +12,7 @@ import static com.team1165.robot.subsystems.elevator.constants.ElevatorConstants
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -81,6 +82,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     leftTalon
         .getConfigurator()
         .apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+    leftTalon.getConfigurator().apply(ElevatorConstants.gains);
+    leftTalon
+        .getConfigurator()
+        .apply(
+            new MotionMagicConfigs()
+                .withMotionMagicCruiseVelocity(5)
+                .withMotionMagicAcceleration(10));
 
     leftAppliedVolts = leftTalon.getMotorVoltage();
     leftSupplyCurrent = leftTalon.getSupplyCurrent();

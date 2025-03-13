@@ -13,7 +13,10 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.team1165.robot.commands.elevator.ElevatorPosition;
+import com.team1165.robot.commands.Intake;
+import com.team1165.robot.commands.elevator.ElevatorNextPosition;
+import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
+import com.team1165.robot.commands.funnel.FunnelPercent;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
@@ -24,6 +27,12 @@ import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOSim;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
+import com.team1165.robot.subsystems.flywheels.Flywheels;
+import com.team1165.robot.subsystems.flywheels.io.FlywheelsIO;
+import com.team1165.robot.subsystems.flywheels.io.FlywheelsIOSparkMax;
+import com.team1165.robot.subsystems.funnel.Funnel;
+import com.team1165.robot.subsystems.funnel.io.FunnelIO;
+import com.team1165.robot.subsystems.funnel.io.FunnelIOSparkMax;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
@@ -34,6 +43,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -48,6 +58,8 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Elevator elevator;
+  private final Flywheels flywheels;
+  private final Funnel funnel;
   private final ATVision apriltagVision;
 
   // Driver Controllers
@@ -73,6 +85,8 @@ public class RobotContainer {
                 new DriveIOReal(
                     DriveConstants.drivetrainConstants, DriveConstants.getModuleConstants()));
         elevator = new Elevator(new ElevatorIOTalonFX());
+        flywheels = new Flywheels(new FlywheelsIOSparkMax());
+        funnel = new Funnel(new FunnelIOSparkMax());
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -89,6 +103,8 @@ public class RobotContainer {
                     DriveConstants.simConfig,
                     DriveConstants.getModuleConstants()));
         elevator = new Elevator(new ElevatorIOSim());
+        flywheels = new Flywheels(new FlywheelsIO() {});
+        funnel = new Funnel(new FunnelIO() {});
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -115,6 +131,8 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        flywheels = new Flywheels(new FlywheelsIO() {});
+        funnel = new Funnel(new FunnelIO() {});
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -133,6 +151,12 @@ public class RobotContainer {
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
     driverController.a().onTrue(new InstantCommand(drive::seedFieldCentric));
+    driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
+    driverController.rightTrigger(0.5).whileTrue(new FlywheelsPercenmt(flywheels, () -> 0.3));
+    driverController.leftTrigger(0.5).whileTrue(new FlywheelsPercenmt(flywheels, () -> -0.3));
+    driverController.rightBumper().whileTrue(new FunnelPercent(funnel, () -> 0.3));
+    driverController.leftBumper().whileTrue(new FunnelPercent(funnel, () -> -0.3));
+    driverController.povUp().whileTrue(new ElevatorNextPosition(elevator));
   }
 
   /** Use this method to define default commands for subsystems. */
@@ -144,8 +168,9 @@ public class RobotContainer {
                     .withVelocityX(-driverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
-
-    elevator.setDefaultCommand(new ElevatorPosition(elevator, () -> 5));
+    SmartDashboard.putNumber("Elevator Position", 0);
+    // elevator.setDefaultCommand(
+    //    new ElevatorPosition(elevator, () -> SmartDashboard.getNumber("Elevator Position", 0)));
   }
 
   public Command getAutonomousCommand() {

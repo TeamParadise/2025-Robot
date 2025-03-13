@@ -64,10 +64,10 @@ public class FieldConstants {
 
   /** Elevator heights for scoring on the Reef. */
   private static class ElevatorHeights {
-    private static final double l1 = 0.0;
-    private static final double l2 = 0.0;
-    private static final double l3 = 0.0;
-    private static final double l4 = 0.0;
+    private static final double l1 = 2.0;
+    private static final double l2 = 3.0;
+    private static final double l3 = 7.0;
+    private static final double l4 = 12.5;
   }
 
   /**
