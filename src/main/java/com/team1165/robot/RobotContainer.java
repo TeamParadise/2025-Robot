@@ -38,7 +38,6 @@ import com.team1165.robot.subsystems.funnel.io.FunnelIOSparkMax;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
-import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import com.team1165.robot.util.ChoreoTrajChooser;
@@ -158,8 +157,12 @@ public class RobotContainer {
   private void configureButtonBindings() {
     driverController.a().onTrue(new InstantCommand(drive::seedFieldCentric));
     driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
-    driverController.x().whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
-    driverController.y().whileTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
+    driverController
+        .x()
+        .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
+    driverController
+        .y()
+        .whileTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
     driverController.rightTrigger(0.5).whileTrue(new FlywheelsPercenmt(flywheels, () -> 0.3));
     driverController.leftTrigger(0.5).whileTrue(new FlywheelsPercenmt(flywheels, () -> -0.3));
     driverController.rightBumper().whileTrue(new FunnelPercent(funnel, () -> 0.3));
@@ -177,10 +180,13 @@ public class RobotContainer {
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
     SmartDashboard.putNumber("Elevator Position", 0);
-    elevator.setDefaultCommand(new ElevatorPosition(elevator, () -> SmartDashboard.getNumber("Elevator Position", 0.5)));
+    elevator.setDefaultCommand(
+        new ElevatorPosition(elevator, () -> SmartDashboard.getNumber("Elevator Position", 0.5)));
   }
 
   public Command getAutonomousCommand() {
-    return drive.applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(1.5)).withTimeout(0.5);
+    return drive
+        .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(1.5))
+        .withTimeout(0.5);
   }
 }

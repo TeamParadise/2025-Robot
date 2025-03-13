@@ -7,9 +7,9 @@
 
 package com.team1165.robot.commands.drivetrain;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.math.geometry.Pose2d;
 import com.team1165.robot.subsystems.drive.Drive;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 
 public class DriveToPose extends Command {

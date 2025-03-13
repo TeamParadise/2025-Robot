@@ -170,12 +170,10 @@ public class Drive extends SubsystemBase {
         new ChassisSpeeds(
             xController.calculate(inputs.Pose.getX(), pose.getX()),
             yController.calculate(inputs.Pose.getY(), pose.getY()),
-            rotationController.calculate(inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians())
-        );
+            rotationController.calculate(
+                inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians()));
 
-    io.setControl(
-        applyFieldSpeeds.withSpeeds(speeds)
-    );
+    io.setControl(applyFieldSpeeds.withSpeeds(speeds));
   }
 
   /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */

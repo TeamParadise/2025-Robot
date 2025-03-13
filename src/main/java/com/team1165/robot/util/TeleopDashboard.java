@@ -7,17 +7,16 @@
 
 package com.team1165.robot.util;
 
-import com.team1165.robot.FieldConstants.Reef;
 import com.team1165.robot.FieldConstants.Reef.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
 public class TeleopDashboard {
   private static TeleopDashboard instance;
   private static final LoggedNetworkString reef = new LoggedNetworkString("Teleop Reef", "A");
-  private static final LoggedDashboardChooser<Level> level = new LoggedDashboardChooser<Level>("Teleop Level", new SendableChooser<Level>());
+  private static final LoggedDashboardChooser<Level> level =
+      new LoggedDashboardChooser<Level>("Teleop Level", new SendableChooser<Level>());
 
   private TeleopDashboard() {
     level.addDefaultOption("L1", Level.L1);
