@@ -17,7 +17,7 @@ public class Intake extends Command {
   private final Elevator elevator;
   private final Flywheels flywheels;
   private final Funnel funnel;
-  private final double elapsedTime = 0.13;
+  private final double elapsedTime = 0.10;
 
   private double lastTimestamp = 0.0;
   private double timeElapsed = 0.0;

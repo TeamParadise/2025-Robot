@@ -7,6 +7,7 @@
 
 package com.team1165.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -38,6 +39,7 @@ import com.team1165.robot.subsystems.funnel.io.FunnelIOSparkMax;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
+import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import com.team1165.robot.util.ChoreoTrajChooser;
@@ -96,7 +98,20 @@ public class RobotContainer {
             new ATVision(
                 drive::addVisionMeasurement,
                 drive::getRotation,
-                new CameraConfig(new ATVisionIO() {}, new Transform3d()));
+                new CameraConfig(
+                    new ATVisionIOPhoton("Left Camera"),
+                    new Transform3d(
+                        0.197,
+                        0.286,
+                        0.0,
+                        new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(-10)))),
+                new CameraConfig(
+                    new ATVisionIOPhoton("Right Camera"),
+                    new Transform3d(
+                        0.197,
+                        -0.286,
+                        0.0,
+                        new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(10)))));
       }
 
       case SIM -> {
