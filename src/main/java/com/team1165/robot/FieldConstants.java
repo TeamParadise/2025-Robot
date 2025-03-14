@@ -45,13 +45,13 @@ public class FieldConstants {
     private static final Pose2d reefH =
         new Pose2d(5.7900936000000005, 4.1902126, Rotation2d.fromDegrees(360 - 180));
     private static final Pose2d reefI =
-        new Pose2d(4.9974221142381285, 5.234534687050671, Rotation2d.fromDegrees(360 - 120));
-    private static final Pose2d reefJ =
         new Pose2d(5.282019885761871, 5.070222087050671, Rotation2d.fromDegrees(360 - 120));
+    private static final Pose2d reefJ =
+        new Pose2d(4.9974221142381285, 5.234534687050671, Rotation2d.fromDegrees(360 - 120));
     private static final Pose2d reefK =
-        new Pose2d(3.6966769142381293, 5.070222087050671, Rotation2d.fromDegrees(360 - 60));
-    private static final Pose2d reefL =
         new Pose2d(3.9812746857618713, 5.234534687050671, Rotation2d.fromDegrees(360 - 60));
+    private static final Pose2d reefL =
+        new Pose2d(3.6966769142381293, 5.070222087050671, Rotation2d.fromDegrees(360 - 60));
 
     public static final Pose2d rightCoralStation =
         new Pose2d(1.5270318162817094, 0.7215220217145688, Rotation2d.fromDegrees(54.011));
