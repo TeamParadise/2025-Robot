@@ -27,6 +27,7 @@ import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
 import com.team1165.robot.subsystems.elevator.Elevator;
+import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOSim;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
@@ -52,6 +53,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -73,13 +75,9 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   // Testing, likely will be changed later
-  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-  private double MaxAngularRate = RotationsPerSecond.of(2).in(RadiansPerSecond);
-  private final SwerveRequest.FieldCentric fieldCentric =
-      new SwerveRequest.FieldCentric()
-          .withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1)
-          .withDriveRequestType(DriveRequestType.Velocity);
+  private final DoubleSupplier MaxSpeed;
+  private final DoubleSupplier MaxAngularRate;
+  private final SwerveRequest.FieldCentric fieldCentric;
   private final ChoreoTrajChooser trajChooser;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
@@ -164,13 +162,36 @@ public class RobotContainer {
         new ChoreoTrajChooser(
             drive.getAutoFactory().newRoutine("Traj Testing"), "Testing Trajectory Chooser");
 
+    MaxSpeed =
+        () ->
+            elevator.getPosition() >= 6.5
+                ? TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4
+                : TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    MaxAngularRate =
+        () ->
+            elevator.getPosition() >= 6.5
+                ? RotationsPerSecond.of(2).in(RadiansPerSecond) / 4
+                : RotationsPerSecond.of(2).in(RadiansPerSecond);
+
+    fieldCentric =
+        new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed.getAsDouble() * 0.1)
+            .withRotationalDeadband(MaxAngularRate.getAsDouble() * 0.1)
+            .withDriveRequestType(DriveRequestType.Velocity);
+
     configureButtonBindings();
     configureDefaultCommands();
   }
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    driverController.a().onTrue(new InstantCommand(drive::seedFieldCentric));
+    // New mappings
+    driverController.start().onTrue(new InstantCommand(drive::seedFieldCentric));
+    driverController.leftTrigger().whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
+    driverController.rightTrigger().onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
+    driverController.rightBumper().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.05));
+    driverController.leftBumper().onTrue(new Intake(elevator, flywheels, funnel));
+
     driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
     driverController
         .x()
@@ -191,12 +212,10 @@ public class RobotContainer {
         drive.applyRequest(
             () ->
                 fieldCentric
-                    .withVelocityX(-driverController.getLeftY() * MaxSpeed)
-                    .withVelocityY(-driverController.getLeftX() * MaxSpeed)
-                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate)));
-    SmartDashboard.putNumber("Elevator Position", 0);
-    elevator.setDefaultCommand(
-        new ElevatorPosition(elevator, () -> SmartDashboard.getNumber("Elevator Position", 0.5)));
+                    .withVelocityX(-driverController.getLeftY() * MaxSpeed.getAsDouble())
+                    .withVelocityY(-driverController.getLeftX() * MaxSpeed.getAsDouble())
+                    .withRotationalRate(
+                        -driverController.getRightX() * MaxAngularRate.getAsDouble())));
   }
 
   public Command getAutonomousCommand() {

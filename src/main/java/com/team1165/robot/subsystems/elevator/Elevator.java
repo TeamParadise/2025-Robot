@@ -186,4 +186,8 @@ public class Elevator extends SubsystemBase {
     return (positionInches - tolerance < currentPosition)
         && (positionInches + tolerance > currentPosition);
   }
+
+  public double getPosition() {
+    return inputs.leftPositionInches;
+  }
 }
