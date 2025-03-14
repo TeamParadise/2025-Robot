@@ -199,10 +199,6 @@ public class RobotContainer {
     driverController
         .y()
         .whileTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
-    driverController.rightTrigger(0.5).whileTrue(new FlywheelsPercenmt(flywheels, () -> 0.3));
-    driverController.leftTrigger(0.5).whileTrue(new FlywheelsPercenmt(flywheels, () -> -0.3));
-    driverController.rightBumper().whileTrue(new FunnelPercent(funnel, () -> 0.3));
-    driverController.leftBumper().whileTrue(new FunnelPercent(funnel, () -> -0.3));
     driverController.povUp().whileTrue(new ElevatorNextPosition(elevator));
   }
 
