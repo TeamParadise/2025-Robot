@@ -165,6 +165,17 @@ public class Drive extends SubsystemBase {
         new Pose2d[] {new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading))});
   }
 
+  public void goToPose(Pose2d pose) {
+    ChassisSpeeds speeds =
+        new ChassisSpeeds(
+            xController.calculate(inputs.Pose.getX(), pose.getX()),
+            yController.calculate(inputs.Pose.getY(), pose.getY()),
+            rotationController.calculate(
+                inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians()));
+
+    io.setControl(applyFieldSpeeds.withSpeeds(speeds));
+  }
+
   /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */
   public AutoFactory getAutoFactory() {
     return autoFactory;

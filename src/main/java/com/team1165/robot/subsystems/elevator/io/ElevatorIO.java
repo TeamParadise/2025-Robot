@@ -16,13 +16,13 @@ public interface ElevatorIO {
     public boolean leftMotorConnected = true;
     public boolean rightMotorConnected = true;
 
-    public double leftPositionRotations = 0.0;
+    public double leftPositionInches = 0.0;
     public double leftVelocityRpm = 0.0;
     public double leftAppliedVolts = 0.0;
     public double leftSupplyCurrentAmps = 0.0;
     public double leftTempCelsius = 0.0;
 
-    public double rightPositionRotations = 0.0;
+    public double rightPositionInches = 0.0;
     public double rightVelocityRpm = 0.0;
     public double rightAppliedVolts = 0.0;
     public double rightSupplyCurrentAmps = 0.0;
@@ -38,7 +38,9 @@ public interface ElevatorIO {
 
   default void runVolts(double volts) {}
 
-  default void runPosition(double positionRotations) {}
+  default void runPosition(double positionInches) {}
+
+  default void setBrakeMode(boolean enabled) {}
 
   /** Config PID values for both motors */
   default void setPID(Slot0Configs gains) {}

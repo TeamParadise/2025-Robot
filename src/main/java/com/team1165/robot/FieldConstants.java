@@ -7,6 +7,7 @@
 
 package com.team1165.robot;
 
+import com.team1165.robot.FieldConstants.Reef.Location;
 import com.team1165.robot.util.AllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -33,25 +34,25 @@ public class FieldConstants {
     private static final Pose2d reefB =
         new Pose2d(3.1886031999999997, 3.8615874000000003, Rotation2d.fromDegrees(0));
     private static final Pose2d reefC =
-        new Pose2d(3.9812746857618713, 5.234534687050671, Rotation2d.fromDegrees(360 - 60));
+        new Pose2d(3.6966769142381293, 2.9815779129493296, Rotation2d.fromDegrees(60));
     private static final Pose2d reefD =
-        new Pose2d(3.6966769142381293, 5.070222087050671, Rotation2d.fromDegrees(360 - 60));
+        new Pose2d(3.9812746857618713, 2.81726531294933, Rotation2d.fromDegrees(60));
     private static final Pose2d reefE =
-        new Pose2d(5.282019885761871, 5.070222087050671, Rotation2d.fromDegrees(360 - 120));
+        new Pose2d(4.9974221142381285, 2.81726531294933, Rotation2d.fromDegrees(120));
     private static final Pose2d reefF =
-        new Pose2d(4.9974221142381285, 5.234534687050671, Rotation2d.fromDegrees(360 - 120));
+        new Pose2d(5.282019885761871, 2.9815779129493296, Rotation2d.fromDegrees(120));
     private static final Pose2d reefG =
         new Pose2d(5.7900936000000005, 3.8615874, Rotation2d.fromDegrees(360 - 180));
     private static final Pose2d reefH =
         new Pose2d(5.7900936000000005, 4.1902126, Rotation2d.fromDegrees(360 - 180));
     private static final Pose2d reefI =
-        new Pose2d(4.9974221142381285, 2.81726531294933, Rotation2d.fromDegrees(120));
+        new Pose2d(5.282019885761871, 5.070222087050671, Rotation2d.fromDegrees(360 - 120));
     private static final Pose2d reefJ =
-        new Pose2d(5.282019885761871, 2.9815779129493296, Rotation2d.fromDegrees(120));
+        new Pose2d(4.9974221142381285, 5.234534687050671, Rotation2d.fromDegrees(360 - 120));
     private static final Pose2d reefK =
-        new Pose2d(3.6966769142381293, 2.9815779129493296, Rotation2d.fromDegrees(60));
+        new Pose2d(3.9812746857618713, 5.234534687050671, Rotation2d.fromDegrees(360 - 60));
     private static final Pose2d reefL =
-        new Pose2d(3.9812746857618713, 2.81726531294933, Rotation2d.fromDegrees(60));
+        new Pose2d(3.6966769142381293, 5.070222087050671, Rotation2d.fromDegrees(360 - 60));
 
     public static final Pose2d rightCoralStation =
         new Pose2d(1.5270318162817094, 0.7215220217145688, Rotation2d.fromDegrees(54.011));
@@ -64,10 +65,10 @@ public class FieldConstants {
 
   /** Elevator heights for scoring on the Reef. */
   private static class ElevatorHeights {
-    private static final double l1 = 0.0;
-    private static final double l2 = 0.0;
-    private static final double l3 = 0.0;
-    private static final double l4 = 0.0;
+    private static final double l1 = 2.0;
+    private static final double l2 = 3.5;
+    private static final double l3 = 7.0;
+    private static final double l4 = 12.5;
   }
 
   /**
@@ -151,7 +152,7 @@ public class FieldConstants {
           pose.getRotation().rotateBy(Rotation2d.kPi));
     }
 
-    private static Pose2d getPose(Reef.Location level) {
+    private static Pose2d getPose(Location level) {
       boolean flip = AllianceFlipUtil.shouldFlip();
 
       return switch (level) {
@@ -205,6 +206,22 @@ public class FieldConstants {
 
       public Pose2d getPose() {
         return AlliancePoses.getPose(this);
+      }
+
+      /**
+       * Get the enum of the flipped reef over the x-axis (flipped on same alliance). Pretty much
+       * just used for Choreo autos.
+       */
+      public Location getFlippedReef() {
+        return switch (this) {
+          case A -> Location.B;
+          case B, C, D, E, F, G -> this;
+          case H -> Location.G;
+          case I -> Location.F;
+          case J -> Location.E;
+          case K -> Location.D;
+          case L -> Location.C;
+        };
       }
     }
   }

@@ -7,15 +7,15 @@
 
 package com.team1165.robot.subsystems.elevator.io;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
-import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
-@Logged
 public class ElevatorIOSim implements ElevatorIO {
   private final DCMotor gearbox = DCMotor.getKrakenX60(2);
   private final ElevatorSim elevatorSim =
@@ -29,78 +29,62 @@ public class ElevatorIOSim implements ElevatorIO {
           false,
           0.0);
 
-  private final PIDController leftController = new PIDController((12.0 / 483.0) * 3, 0.0, 0.0);
-  private final PIDController rightController = new PIDController((12.0 / 483.0) * 3, 0.0, 0.0);
+  private final PIDController pidController = new PIDController((12.0 / 483.0) * 3, 0.0, 0.0);
+  private final ElevatorFeedforward feedforwardController =
+      new ElevatorFeedforward(0.0, 0.0, 0.0, 0.0);
 
-  private double leftAppliedVolts = 0.0;
-  private double rightAppliedVolts = 0.0;
-  private boolean closedLoop = false;
+  private Double positionSetpoint = null;
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
     if (DriverStation.isDisabled()) {
       stop();
     }
-    leftSim.update(0.02);
-    rightSim.update(0.02);
 
-    if (leftSetpointRpm != null && rightSetpointRpm != null) {
-      runVolts(
-          leftController.calculate(leftSim.getVelocityMetersPerSecond(), leftSetpointRpm)
-              + leftFeedforward,
-          rightController.calculate(rightSim.getVelocityMetersPerSecond(), rightSetpointRpm)
-              + rightFeedforward); // probs wrong
+    elevatorSim.update(0.02);
+
+    double appliedVolts = 0;
+    if (positionSetpoint != null) {
+      appliedVolts =
+          pidController.calculate(
+                  Units.metersToInches(elevatorSim.getPositionMeters()), positionSetpoint)
+              + feedforwardController.calculate(
+                  Units.metersToInches(elevatorSim.getVelocityMetersPerSecond()));
+      elevatorSim.setInputVoltage(appliedVolts);
     }
-    inputs.currentLeftPosition = Units.Inches.of(meterstoInches(leftSim.getPositionMeters()));
 
-    inputs.leftAppliedVolts = leftAppliedVolts;
-    inputs.leftSupplyCurrentAmps = elevatorSim.
+    inputs.leftPositionInches = Units.metersToInches(elevatorSim.getPositionMeters());
+    inputs.leftVelocityRpm = Units.metersToInches(elevatorSim.getVelocityMetersPerSecond());
+    inputs.leftAppliedVolts = appliedVolts;
 
-    inputs.currentRightPosition = Units.Inches.of(meterstoInches(rightSim.getPositionMeters()));
-
-    inputs.rightAppliedVolts = rightAppliedVolts;
-    inputs.rightSupplyCurrentAmps = rightSim.getCurrentDrawAmps();
+    inputs.rightPositionInches = Units.metersToInches(elevatorSim.getPositionMeters());
+    inputs.rightVelocityRpm = Units.metersToInches(elevatorSim.getVelocityMetersPerSecond());
+    inputs.rightAppliedVolts = appliedVolts;
   }
 
   @Override
   public void stop() {
+    positionSetpoint = null;
     runVolts(0.0);
   }
 
   @Override
-  public void runCurrent(double current) {
-
-  }
-
-  @Override
   public void runVolts(double volts) {
+    positionSetpoint = null;
     elevatorSim.setInputVoltage(volts);
   }
 
   @Override
-  public void setPosition(double height, double velocity) {
-
-    //    double error = height - rightSim.getPositionMeters();
-    //    double kP = 10.0; // Tune this value
-    //    double voltage = MathUtil.clamp(error * kP, -12.0, 12.0);
-    //    runVolts(voltage, voltage);
-    rightSim.setState(inchesToMeters(height), velocity);
-
-    leftSim.setState(inchesToMeters(height), velocity);
+  public void runPosition(double positionInches) {
+    positionSetpoint = positionInches;
   }
 
   @Override
-  public void setPID(double kP, double kI, double kD) {
-    leftController.setPID(kP, kI, kD);
-    rightController.setPID(kP, kI, kD);
-  }
-
-  public void setLastDesiredPosition(double lastDesiredPosition) {
-    this.lastDesiredPosition = lastDesiredPosition;
-  }
-
-  @Override
-  public double getLastDesiredPosition() {
-    return meterstoInches(leftSim.getPositionMeters());
+  public void setPID(Slot0Configs gains) {
+    pidController.setPID(gains.kP, gains.kI, gains.kD);
+    feedforwardController.setKs(gains.kS);
+    feedforwardController.setKg(gains.kG);
+    feedforwardController.setKv(gains.kV);
+    feedforwardController.setKa(gains.kA);
   }
 }
