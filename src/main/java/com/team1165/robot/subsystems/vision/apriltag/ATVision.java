@@ -82,7 +82,7 @@ public class ATVision extends SubsystemBase {
       cameraTransforms[i] = config[i].robotToCamera();
 
       // Activate single-tag trig by default
-      io[i].setSingleTagTrig(true);
+      io[i].setSingleTagTrig(false);
 
       // Create the alert that will be sent if the camera is disconnected
       disconnectedAlerts[i] =

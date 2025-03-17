@@ -12,11 +12,17 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
+import com.team1165.robot.FieldConstants.Reef.Level;
+import com.team1165.robot.FieldConstants.Reef.Location;
 import com.team1165.robot.commands.Intake;
+import com.team1165.robot.commands.IntakeNoElevator;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
-import com.team1165.robot.commands.elevator.ElevatorNextPosition;
 import com.team1165.robot.commands.elevator.ElevatorPosition;
 import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
 import com.team1165.robot.commands.funnel.FunnelPercent;
@@ -27,7 +33,6 @@ import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
 import com.team1165.robot.subsystems.elevator.Elevator;
-import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOSim;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
@@ -51,7 +56,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import java.util.function.DoubleSupplier;
 
@@ -78,7 +85,15 @@ public class RobotContainer {
   private final DoubleSupplier MaxSpeed;
   private final DoubleSupplier MaxAngularRate;
   private final SwerveRequest.FieldCentric fieldCentric;
+  private final SwerveRequest.SwerveDriveBrake brake;
   private final ChoreoTrajChooser trajChooser;
+
+  private final AutoRoutine leftSide3Coral;
+  private final AutoRoutine rightSide3Coral;
+  private final AutoRoutine center1Coral;
+  private final AutoChooser autoChooser = new AutoChooser();
+
+  private double manualPosition = 0.0;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -165,12 +180,12 @@ public class RobotContainer {
     MaxSpeed =
         () ->
             elevator.getPosition() >= 6.5
-                ? TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4
+                ? TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3
                 : TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     MaxAngularRate =
         () ->
             elevator.getPosition() >= 6.5
-                ? RotationsPerSecond.of(2).in(RadiansPerSecond) / 4
+                ? RotationsPerSecond.of(2).in(RadiansPerSecond) / 3
                 : RotationsPerSecond.of(2).in(RadiansPerSecond);
 
     fieldCentric =
@@ -178,6 +193,16 @@ public class RobotContainer {
             .withDeadband(MaxSpeed.getAsDouble() * 0.1)
             .withRotationalDeadband(MaxAngularRate.getAsDouble() * 0.1)
             .withDriveRequestType(DriveRequestType.Velocity);
+
+    brake = new SwerveDriveBrake();
+
+    leftSide3Coral = drive.getAutoFactory().newRoutine("Left 3 Coral");
+    rightSide3Coral = drive.getAutoFactory().newRoutine("Right 3 Coral");
+    center1Coral = drive.getAutoFactory().newRoutine("Center 1 Coral");
+    autoChooser.addRoutine("Left 3 Coral", () -> leftSide3Coral);
+    autoChooser.addRoutine("Right 3 Coral", () -> rightSide3Coral);
+    autoChooser.addRoutine("Center 1 Coral", () -> center1Coral);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
     configureButtonBindings();
     configureDefaultCommands();
@@ -187,19 +212,31 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // New mappings
     driverController.start().onTrue(new InstantCommand(drive::seedFieldCentric));
-    driverController.leftTrigger().whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
-    driverController.rightTrigger().onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
-    driverController.rightBumper().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.05));
-    driverController.leftBumper().onTrue(new Intake(elevator, flywheels, funnel));
-
-    driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
     driverController
-        .x()
+        .leftTrigger()
         .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
     driverController
-        .y()
-        .whileTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
-    driverController.povUp().whileTrue(new ElevatorNextPosition(elevator));
+        .rightTrigger()
+        .onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
+    driverController.rightBumper().whileTrue(drive.applyRequest(() -> brake));
+    driverController.leftBumper().onTrue(new Intake(elevator, flywheels, funnel));
+
+    driverController.b().onTrue(new InstantCommand(elevator::stop));
+    driverController.y().onTrue(new IntakeNoElevator(flywheels, funnel));
+    driverController
+        .x()
+        .whileTrue(
+            new InstantCommand(() -> manualPosition += 0.1)
+                .andThen(new ElevatorPosition(elevator, () -> manualPosition)));
+    driverController
+        .a()
+        .whileTrue(
+            new InstantCommand(() -> manualPosition -= 0.1)
+                .andThen(new ElevatorPosition(elevator, () -> manualPosition)));
+    driverController.povLeft().onTrue(new FunnelPercent(funnel, () -> -0.3));
+    driverController.povRight().onTrue(new FunnelPercent(funnel, () -> 0.3));
+    driverController.povUp().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3));
+    driverController.povDown().onTrue(new FlywheelsPercenmt(flywheels, () -> -0.3));
   }
 
   /** Use this method to define default commands for subsystems. */
@@ -212,6 +249,44 @@ public class RobotContainer {
                     .withVelocityY(-driverController.getLeftX() * MaxSpeed.getAsDouble())
                     .withRotationalRate(
                         -driverController.getRightX() * MaxAngularRate.getAsDouble())));
+  }
+
+  private void createAutoRoutines() {
+    // region Center 1 coral
+    AutoTrajectory scoreCenter = center1Coral.trajectory("SL to G");
+
+    center1Coral.active().onTrue(Commands.sequence(scoreCenter.resetOdometry(), scoreCenter.cmd()));
+
+    scoreCenter
+        .done()
+        .onTrue(
+            new DriveToPose(drive, Location.G::getPose)
+                .withTimeout(0.30)
+                .andThen(
+                    new ElevatorPosition(elevator, Level.L4::getElevatorHeight)
+                        .alongWith(
+                            new WaitCommand(3.0)
+                                .andThen(
+                                    new FlywheelsPercenmt(flywheels, () -> 0.3)
+                                        .withTimeout(0.5)))));
+    // endregion
+
+    AutoTrajectory scoreRight = rightSide3Coral.trajectory("SL to E");
+    rightSide3Coral
+        .active()
+        .onTrue(Commands.sequence(scoreRight.resetOdometry(), scoreRight.cmd()));
+    scoreCenter
+        .done()
+        .onTrue(
+            new DriveToPose(drive, Location.E::getPose)
+                .withTimeout(0.30)
+                .andThen(
+                    new ElevatorPosition(elevator, Level.L4::getElevatorHeight)
+                        .alongWith(
+                            new WaitCommand(3.0)
+                                .andThen(
+                                    new FlywheelsPercenmt(flywheels, () -> 0.3)
+                                        .withTimeout(0.5)))));
   }
 
   public Command getAutonomousCommand() {

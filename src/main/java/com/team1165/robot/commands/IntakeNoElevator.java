@@ -7,14 +7,12 @@
 
 package com.team1165.robot.commands;
 
-import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
 import com.team1165.robot.subsystems.funnel.Funnel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class Intake extends Command {
-  private final Elevator elevator;
+public class IntakeNoElevator extends Command {
   private final Flywheels flywheels;
   private final Funnel funnel;
   private final double elapsedTime = 0.13;
@@ -24,13 +22,12 @@ public class Intake extends Command {
   private boolean didDrawHighCurrent = false;
   private boolean endCommand = false;
 
-  public Intake(Elevator elevator, Flywheels flywheels, Funnel funnel) {
-    this.elevator = elevator;
+  public IntakeNoElevator(Flywheels flywheels, Funnel funnel) {
     this.flywheels = flywheels;
     this.funnel = funnel;
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
-    addRequirements(this.elevator, this.flywheels, this.funnel);
+    addRequirements(this.flywheels, this.funnel);
   }
 
   @Override
@@ -57,8 +54,7 @@ public class Intake extends Command {
     lastTimestamp = Timer.getTimestamp();
 
     flywheels.runPercent(0.2);
-    funnel.runPercent(0.3);
-    elevator.runToIntakePosition();
+    funnel.runPercent(0.4);
   }
 
   @Override

@@ -69,7 +69,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         (2 * Math.PI * (2 * sprocketRadiusInches))
             / gearRatio; // TODO: Check and make sure this math is right!!!!
 
-    ELEVATOR_CONFIG.CurrentLimits.SupplyCurrentLimit = 80;
+    ELEVATOR_CONFIG.CurrentLimits.SupplyCurrentLimit = 60;
     ELEVATOR_CONFIG.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     leftTalon = new TalonFX(ElevatorConstants.LeftMotorConstants.canID, ElevatorConstants.canBus);
@@ -88,7 +88,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         .apply(
             new MotionMagicConfigs()
                 .withMotionMagicCruiseVelocity(12)
-                .withMotionMagicAcceleration(19));
+                .withMotionMagicAcceleration(27));
 
     leftAppliedVolts = leftTalon.getMotorVoltage();
     leftSupplyCurrent = leftTalon.getSupplyCurrent();

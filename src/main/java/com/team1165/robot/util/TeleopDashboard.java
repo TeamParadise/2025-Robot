@@ -14,9 +14,10 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
 public class TeleopDashboard {
   private static TeleopDashboard instance;
-  private static final LoggedNetworkString reef = new LoggedNetworkString("Teleop Reef", "A");
+  private static final LoggedNetworkString reef =
+      new LoggedNetworkString("Teleop/Teleop Reef", "A");
   private static final LoggedDashboardChooser<Level> level =
-      new LoggedDashboardChooser<Level>("Teleop Level", new SendableChooser<Level>());
+      new LoggedDashboardChooser<Level>("Teleop/Teleop Level", new SendableChooser<Level>());
 
   private TeleopDashboard() {
     level.addDefaultOption("L1", Level.L1);
