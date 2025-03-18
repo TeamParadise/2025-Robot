@@ -86,7 +86,7 @@ public class ChoreoAutoBuilder {
   public Command buildAutoCommand(Drive drive) {
     if (justLeave.get()) {
       return drive
-          .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(1.5))
+          .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
           .withTimeout(0.75);
     }
 
