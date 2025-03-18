@@ -16,6 +16,7 @@ import com.team1165.robot.FieldConstants.Reef.Location;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class ChoreoAuto {
   private final Time delayBeforeStart;
@@ -41,8 +42,43 @@ public class ChoreoAuto {
   }
 
   public Command getAutoCommand(AutoRoutine routine) {
-    var traj1 = buildScoring(routine, CoralStationLocation.LCS, segments[1]);
-    routine.active().onTrue(Commands.sequence(traj1.resetOdometry(), traj1.cmd()));
+    // Get the flipped reef location, if we need to flip (for A, H, I, J, K, L)
+    Location flippedOverX = segments[0].reefLocation().getFlippedReef();
+    boolean flipped = !(flippedOverX == segments[0].reefLocation());
+
+    AutoTrajectory scoringTrajectory =
+        flipped
+            ? routine.trajectory(
+                ChoreoUtils.flipOverX(
+                    routine.trajectory("SL to " + flippedOverX.name()).getRawTrajectory(),
+                    "SL to " + segments[0].reefLocation().name()))
+            : routine.trajectory("SL to " + flippedOverX.name());
+
+    AutoTrajectory coralStationTrajectory = buildCoralStation(routine, segments[0]);
+
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+                scoringTrajectory.resetOdometry(),
+                new WaitCommand(delayBeforeStart),
+                scoringTrajectory.cmd()));
+
+    scoringTrajectory
+        .done()
+        .onTrue(
+            new WaitCommand(segments[0].delayAfterScoring()).andThen(coralStationTrajectory.cmd()));
+    coralStationTrajectory.done().onTrue(new WaitCommand(segments[0].delayAfterIntake()));
+
+    var lastTraj = coralStationTrajectory;
+    for (int i = 1; i < segments.length; i++) {
+      var newTraj = buildScoring(routine, segments[i - 1].coralStation(), segments[i]);
+      var newCs = buildCoralStation(routine, segments[i]);
+      lastTraj.done().onTrue(newTraj.cmd());
+      newTraj.done().onTrue(newCs.cmd());
+      lastTraj = newCs;
+    }
+
     return routine.cmd();
   }
 
@@ -72,6 +108,14 @@ public class ChoreoAuto {
             : routine.trajectory(flippedStartingCs.name() + " to " + flippedOverX.name());
     // endregion
 
+    return scoringTrajectory;
+  }
+
+  public static AutoTrajectory buildCoralStation(
+      AutoRoutine routine, AutoSegmentConfig mainSequence) {
+    Location flippedOverX = mainSequence.reefLocation().getFlippedReef();
+    boolean flipped = !(flippedOverX == mainSequence.reefLocation());
+
     // region Create the coral station trajectory and commands
     CoralStationLocation flippedCs =
         flipped
@@ -80,18 +124,14 @@ public class ChoreoAuto {
                 : CoralStationLocation.RCS)
             : mainSequence.coralStation();
 
-    AutoTrajectory coralStationTrajectory =
-        flipped
-            ? routine.trajectory(
-                ChoreoUtils.flipOverX(
-                    routine
-                        .trajectory(flippedOverX.name() + " to " + flippedCs.name())
-                        .getRawTrajectory(),
-                    mainSequence.reefLocation().name() + " to " + mainSequence.coralStation()))
-            : routine.trajectory(flippedOverX.name() + " to " + flippedCs.name());
+    return flipped
+        ? routine.trajectory(
+            ChoreoUtils.flipOverX(
+                routine
+                    .trajectory(flippedOverX.name() + " to " + flippedCs.name())
+                    .getRawTrajectory(),
+                mainSequence.reefLocation().name() + " to " + mainSequence.coralStation()))
+        : routine.trajectory(flippedOverX.name() + " to " + flippedCs.name());
     // endregion
-
-    scoringTrajectory.done().onTrue(coralStationTrajectory.cmd());
-    return scoringTrajectory;
   }
 }

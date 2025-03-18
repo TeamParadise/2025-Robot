@@ -92,7 +92,7 @@ public class ChoreoAutoBuilder {
 
     var numberOfSegments = (int) Math.round(sequencesToRun.get());
     var segments = new AutoSegmentConfig[numberOfSegments];
-    for (int i = 0; i < numberOfSegments - 1; i++) {
+    for (int i = 0; i < numberOfSegments; i++) {
       if (i == 0) {
         segments[i] =
             new AutoSegmentConfig(
