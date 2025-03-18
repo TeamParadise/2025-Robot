@@ -15,6 +15,7 @@ import com.team1165.robot.FieldConstants.*;
 import com.team1165.robot.FieldConstants.Reef.Location;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class ChoreoAuto {
   private final Time delayBeforeStart;
@@ -40,10 +41,12 @@ public class ChoreoAuto {
   }
 
   public Command getAutoCommand(AutoRoutine routine) {
-    return buildScoring(routine, CoralStationLocation.LCS, segments[1]);
+    var traj1 = buildScoring(routine, CoralStationLocation.LCS, segments[1]);
+    routine.active().onTrue(Commands.sequence(traj1.resetOdometry(), traj1.cmd()));
+    return routine.cmd();
   }
 
-  public static Command buildScoring(
+  public static AutoTrajectory buildScoring(
       AutoRoutine routine,
       CoralStationLocation startingCoralStation,
       AutoSegmentConfig mainSequence) {
@@ -59,12 +62,14 @@ public class ChoreoAuto {
             : startingCoralStation;
 
     AutoTrajectory scoringTrajectory =
-        routine.trajectory(
-            ChoreoUtils.flipOverX(
-                routine
-                    .trajectory(flippedStartingCs.name() + " to " + flippedOverX.name())
-                    .getRawTrajectory(),
-                startingCoralStation.name() + " to " + mainSequence.reefLocation().name()));
+        flipped
+            ? routine.trajectory(
+                ChoreoUtils.flipOverX(
+                    routine
+                        .trajectory(flippedStartingCs.name() + " to " + flippedOverX.name())
+                        .getRawTrajectory(),
+                    startingCoralStation.name() + " to " + mainSequence.reefLocation().name()))
+            : routine.trajectory(flippedStartingCs.name() + " to " + flippedOverX.name());
     // endregion
 
     // region Create the coral station trajectory and commands
@@ -76,15 +81,17 @@ public class ChoreoAuto {
             : mainSequence.coralStation();
 
     AutoTrajectory coralStationTrajectory =
-        routine.trajectory(
-            ChoreoUtils.flipOverX(
-                routine
-                    .trajectory(flippedOverX.name() + " to " + flippedCs.name())
-                    .getRawTrajectory(),
-                mainSequence.reefLocation().name() + " to " + mainSequence.coralStation()));
+        flipped
+            ? routine.trajectory(
+                ChoreoUtils.flipOverX(
+                    routine
+                        .trajectory(flippedOverX.name() + " to " + flippedCs.name())
+                        .getRawTrajectory(),
+                    mainSequence.reefLocation().name() + " to " + mainSequence.coralStation()))
+            : routine.trajectory(flippedOverX.name() + " to " + flippedCs.name());
     // endregion
 
     scoringTrajectory.done().onTrue(coralStationTrajectory.cmd());
-    return scoringTrajectory.cmd();
+    return scoringTrajectory;
   }
 }

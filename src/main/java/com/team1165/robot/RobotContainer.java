@@ -12,14 +12,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoRoutine;
-import choreo.auto.AutoTrajectory;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
-import com.team1165.robot.FieldConstants.Reef.Level;
-import com.team1165.robot.FieldConstants.Reef.Location;
 import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.IntakeNoElevator;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
@@ -48,17 +43,12 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
-import com.team1165.robot.util.ChoreoTrajChooser;
 import com.team1165.robot.util.TeleopDashboard;
+import com.team1165.robot.util.auto.ChoreoAutoBuilder;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import java.util.function.DoubleSupplier;
 
@@ -86,12 +76,7 @@ public class RobotContainer {
   private final DoubleSupplier MaxAngularRate;
   private final SwerveRequest.FieldCentric fieldCentric;
   private final SwerveRequest.SwerveDriveBrake brake;
-  private final ChoreoTrajChooser trajChooser;
-
-  private final AutoRoutine leftSide3Coral;
-  private final AutoRoutine rightSide3Coral;
-  private final AutoRoutine center1Coral;
-  private final AutoChooser autoChooser = new AutoChooser();
+  private final ChoreoAutoBuilder autoBuilder;
 
   private double manualPosition = 0.0;
 
@@ -112,19 +97,12 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 drive::getRotation,
                 new CameraConfig(
-                    new ATVisionIOPhoton("Left Camera"),
-                    new Transform3d(
-                        0.197,
-                        0.286,
-                        0.0,
-                        new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(-10)))),
-                new CameraConfig(
                     new ATVisionIOPhoton("Right Camera"),
                     new Transform3d(
                         0.197,
                         -0.286,
-                        0.0,
-                        new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(10)))));
+                        0.2,
+                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(10)))));
       }
 
       case SIM -> {
@@ -149,15 +127,20 @@ public class RobotContainer {
                                 960,
                                 720,
                                 new Transform3d(
-                                    new Translation3d(0, 0, 0),
-                                    new Rotation3d(0, 0.0, Units.degreesToRadians(-30))))
+                                    0.197,
+                                    0.286,
+                                    0.2,
+                                    new Rotation3d(
+                                        Degrees.zero(), Degrees.of(-20), Degrees.of(-10))))
                             .withCalibError(0.15, 0.1)
                             .withLatency(0, 0)
                             .withFPS(150),
                         drive::getSimulationPose),
                     new Transform3d(
-                        new Translation3d(0, 0, 0),
-                        new Rotation3d(0, 0.0, Units.degreesToRadians(-30)))));
+                        0.197,
+                        0.286,
+                        0.2,
+                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(-10)))));
       }
 
       default -> {
@@ -173,9 +156,6 @@ public class RobotContainer {
                 new CameraConfig(new ATVisionIO() {}, new Transform3d()));
       }
     }
-    trajChooser =
-        new ChoreoTrajChooser(
-            drive.getAutoFactory().newRoutine("Traj Testing"), "Testing Trajectory Chooser");
 
     MaxSpeed =
         () ->
@@ -196,13 +176,7 @@ public class RobotContainer {
 
     brake = new SwerveDriveBrake();
 
-    leftSide3Coral = drive.getAutoFactory().newRoutine("Left 3 Coral");
-    rightSide3Coral = drive.getAutoFactory().newRoutine("Right 3 Coral");
-    center1Coral = drive.getAutoFactory().newRoutine("Center 1 Coral");
-    autoChooser.addRoutine("Left 3 Coral", () -> leftSide3Coral);
-    autoChooser.addRoutine("Right 3 Coral", () -> rightSide3Coral);
-    autoChooser.addRoutine("Center 1 Coral", () -> center1Coral);
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+    autoBuilder = ChoreoAutoBuilder.getInstance();
 
     configureButtonBindings();
     configureDefaultCommands();
@@ -251,47 +225,7 @@ public class RobotContainer {
                         -driverController.getRightX() * MaxAngularRate.getAsDouble())));
   }
 
-  private void createAutoRoutines() {
-    // region Center 1 coral
-    AutoTrajectory scoreCenter = center1Coral.trajectory("SL to G");
-
-    center1Coral.active().onTrue(Commands.sequence(scoreCenter.resetOdometry(), scoreCenter.cmd()));
-
-    scoreCenter
-        .done()
-        .onTrue(
-            new DriveToPose(drive, Location.G::getPose)
-                .withTimeout(0.30)
-                .andThen(
-                    new ElevatorPosition(elevator, Level.L4::getElevatorHeight)
-                        .alongWith(
-                            new WaitCommand(3.0)
-                                .andThen(
-                                    new FlywheelsPercenmt(flywheels, () -> 0.3)
-                                        .withTimeout(0.5)))));
-    // endregion
-
-    AutoTrajectory scoreRight = rightSide3Coral.trajectory("SL to E");
-    rightSide3Coral
-        .active()
-        .onTrue(Commands.sequence(scoreRight.resetOdometry(), scoreRight.cmd()));
-    scoreCenter
-        .done()
-        .onTrue(
-            new DriveToPose(drive, Location.E::getPose)
-                .withTimeout(0.30)
-                .andThen(
-                    new ElevatorPosition(elevator, Level.L4::getElevatorHeight)
-                        .alongWith(
-                            new WaitCommand(3.0)
-                                .andThen(
-                                    new FlywheelsPercenmt(flywheels, () -> 0.3)
-                                        .withTimeout(0.5)))));
-  }
-
   public Command getAutonomousCommand() {
-    return drive
-        .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(1.5))
-        .withTimeout(0.5);
+    return autoBuilder.buildAutoCommand(drive);
   }
 }
