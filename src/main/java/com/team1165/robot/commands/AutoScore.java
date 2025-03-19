@@ -29,7 +29,7 @@ public class AutoScore extends Command {
     this.flywheels = flywheels;
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
-    addRequirements(this.drive, this.elevator, this.flywheels);
+    addRequirements(this.elevator, this.flywheels);
   }
 
   @Override
