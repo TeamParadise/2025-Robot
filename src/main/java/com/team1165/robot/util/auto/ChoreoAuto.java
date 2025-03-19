@@ -14,19 +14,23 @@ import choreo.auto.AutoTrajectory;
 import com.team1165.robot.FieldConstants.*;
 import com.team1165.robot.FieldConstants.Reef.Location;
 import com.team1165.robot.commands.AutoScore;
+import com.team1165.robot.commands.Intake;
+import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
+import com.team1165.robot.subsystems.funnel.Funnel;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
+/** Class that represents a full Choreo auto. */
 public class ChoreoAuto {
   private final Time delayBeforeStart;
   private final boolean pushPartner;
   private final AutoSegmentConfig[] segments;
-  private static final double translationToleranceBeforeScoring = 0.2;
+  private static final double translationToleranceBeforeScoring = 0.4;
   private static final double rotationToleranceBeforeScoring = 0.78539816339;
 
   public ChoreoAuto(Time delayBeforeStart, boolean pushPartner, AutoSegmentConfig... segments) {
@@ -47,16 +51,19 @@ public class ChoreoAuto {
     this(Seconds.zero(), false, segments);
   }
 
-  public Command getAutoCommand(Drive drive, Elevator elevator, Flywheels flywheels) {
+  public Command getAutoCommand(
+      Drive drive, Elevator elevator, Flywheels flywheels, Funnel funnel) {
+    // Check to make sure there are actually segments in this auto
     if (segments.length != 0) {
+      // Create the routine to be used with this auto
       AutoRoutine routine =
           drive.getAutoFactory().newRoutine("Starting at " + segments[0].reefLocation());
 
-      // Get the flipped reef location, if we need to flip (for A, H, I, J, K, L)
+      // Get the starting, flipped reef location, if we need to flip (for A, H, I, J, K, L)
       Location flippedOverX = segments[0].reefLocation().getFlippedReef();
       boolean flipped = !(flippedOverX == segments[0].reefLocation());
 
-      // region Create trajectories and initialize first trajectory
+      // Create the initial scoring trajectory (from the starting line), with flip and push partner
       AutoTrajectory scoringTrajectory =
           flipped
               ? routine.trajectory(
@@ -67,56 +74,50 @@ public class ChoreoAuto {
                       "SL to " + segments[0].reefLocation().name() + (pushPartner ? " Push" : "")))
               : routine.trajectory("SL to " + flippedOverX.name() + (pushPartner ? " Push" : ""));
 
+      // Create the coral station trajectory
       AutoTrajectory coralStationTrajectory = buildCoralStation(routine, segments[0]);
 
+      // Create the full trajectory, will be reassigned later to add more commands onto the schedule
+      Command lastFullTrajectory =
+          buildFullTrajectory(
+              drive,
+              elevator,
+              flywheels,
+              funnel,
+              scoringTrajectory,
+              coralStationTrajectory,
+              segments[0]);
+
+      // Loop through the rest of the segments
+      for (int i = 1; i < segments.length; i++) {
+        // Create the new scoring trajectory, with flipping as necessary
+        var newTraj =
+            buildBaseScoringTrajectory(routine, segments[i - 1].coralStation(), segments[i]);
+        // Create the new coral station trajectory, with flipping as necessary
+        var newCsTraj = buildCoralStation(routine, segments[i]);
+        // Add the new trajectory onto the last trajectory that ran
+        lastFullTrajectory =
+            lastFullTrajectory.andThen(
+                buildFullTrajectory(
+                    drive, elevator, flywheels, funnel, newTraj, newCsTraj, segments[i]));
+      }
+
+      // Start the routine and trajectory
       routine
           .active()
           .onTrue(
               Commands.sequence(
                   scoringTrajectory.resetOdometry(),
                   new WaitCommand(delayBeforeStart),
-                  scoringTrajectory.cmd()));
-      // endregion
-
-      // region Run scoring commands
-      var finalPose = scoringTrajectory.getFinalPose();
-      var autoScore =
-          new AutoScore(
-              segments[0].reefLocation(), segments[0].reefLevel(), drive, elevator, flywheels);
-
-      finalPose.ifPresent(
-          pose2d ->
-              scoringTrajectory
-                  .atPose(pose2d, translationToleranceBeforeScoring, rotationToleranceBeforeScoring)
-                  .onTrue(autoScore));
-
-      scoringTrajectory
-          .done()
-          .onTrue(
-              new WaitCommand(segments[0].delayAfterScoring())
-                  .andThen(coralStationTrajectory.cmd()));
-      coralStationTrajectory.done().onTrue(new WaitCommand(segments[0].delayAfterIntake()));
-
-      var lastTraj = coralStationTrajectory;
-      for (int i = 1; i < segments.length; i++) {
-        var newTraj = buildScoring(routine, segments[i - 1].coralStation(), segments[i]);
-        var newCs = buildCoralStation(routine, segments[i]);
-        lastTraj
-            .done()
-            .onTrue(new WaitCommand(segments[i - 1].delayAfterIntake()).andThen(newTraj.cmd()));
-        newTraj
-            .done()
-            .onTrue(new WaitCommand(segments[i].delayAfterScoring()).andThen(newCs.cmd()));
-        lastTraj = newCs;
-      }
+                  lastFullTrajectory));
 
       return routine.cmd();
     } else {
-      return Commands.none();
+      return Commands.none(); // If no segments, just don't do anything.
     }
   }
 
-  public static AutoTrajectory buildScoring(
+  public static AutoTrajectory buildBaseScoringTrajectory(
       AutoRoutine routine,
       CoralStationLocation startingCoralStation,
       AutoSegmentConfig mainSequence) {
@@ -132,7 +133,7 @@ public class ChoreoAuto {
                 : CoralStationLocation.RCS)
             : startingCoralStation;
 
-    // Create and return trajectory
+    // Create and return trajectory, with flipping as needed
     return flipped
         ? routine.trajectory(
             ChoreoUtils.flipOverX(
@@ -143,8 +144,56 @@ public class ChoreoAuto {
         : routine.trajectory(flippedStartingCs.name() + " to " + flippedOverX.name());
   }
 
+  public static Command buildFullTrajectory(
+      Drive drive,
+      Elevator elevator,
+      Flywheels flywheels,
+      Funnel funnel,
+      AutoTrajectory scoringTrajectory,
+      AutoTrajectory coralStationTrajectory,
+      AutoSegmentConfig mainSequence) {
+    // Get final poses, auto score command, and intake command
+    var scoringFinalPose = scoringTrajectory.getRawTrajectory().getFinalPose(false);
+    var coralFinalPose = coralStationTrajectory.getRawTrajectory().getFinalPose(false);
+    var autoScore =
+        new AutoScore(
+                mainSequence.reefLocation(), mainSequence.reefLevel(), drive, elevator, flywheels)
+            .andThen(new WaitCommand(mainSequence.delayAfterScoring()));
+    var intake =
+        new Intake(elevator, flywheels, funnel)
+            .andThen(new WaitCommand(mainSequence.delayAfterIntake()));
+
+    // Run the scoring command when close to final location, and run basic PID to pose after the
+    // trajectory ends to ensure alignment. Also run coral station trajectory once done.
+    scoringFinalPose.ifPresent(
+        pose2d -> {
+          scoringTrajectory
+              .atPose(pose2d, translationToleranceBeforeScoring, rotationToleranceBeforeScoring)
+              .onTrue(autoScore);
+          scoringTrajectory
+              .done()
+              .onTrue(
+                  new DriveToPose(drive, () -> mainSequence.reefLocation().getPose())
+                      .until(autoScore::isFinished)
+                      .andThen(coralStationTrajectory.cmd()));
+        });
+
+    coralFinalPose.ifPresent(
+        pose2d -> {
+          coralStationTrajectory.atPose(pose2d, 0.7, 1).onTrue(intake);
+          coralStationTrajectory
+              .done()
+              .onTrue(
+                  new DriveToPose(drive, () -> mainSequence.coralStation().getPose())
+                      .until(intake::isFinished));
+        });
+
+    return scoringTrajectory.cmd().until(intake::isFinished);
+  }
+
   public static AutoTrajectory buildCoralStation(
       AutoRoutine routine, AutoSegmentConfig mainSequence) {
+    // Get the flipped reef location
     Location flippedOverX = mainSequence.reefLocation().getFlippedReef();
     boolean flipped = !(flippedOverX == mainSequence.reefLocation());
 
@@ -156,6 +205,7 @@ public class ChoreoAuto {
                 : CoralStationLocation.RCS)
             : mainSequence.coralStation();
 
+    // Create the trajectory, flipped if required
     return flipped
         ? routine.trajectory(
             ChoreoUtils.flipOverX(
