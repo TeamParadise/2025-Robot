@@ -2,7 +2,7 @@
 plugins {
     id "java"
     id "idea"
-    id "edu.wpi.first.GradleRIO" version "2025.3.1"
+    id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.diffplug.spotless" version "6.25.0"
     id "com.peterabeles.gversion" version "1.10.3"
     id "net.ltgt.errorprone" version "4.1.0"
@@ -258,7 +258,7 @@ spotless {
     json {
         target fileTree(".") {
             include "**/*.json"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", "**/vision_backup/**"
         }
         gson().indentWithSpaces(2)
     }
