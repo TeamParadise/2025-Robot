@@ -13,6 +13,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.FieldConstants.CoralStationLocation;
 import com.team1165.robot.FieldConstants.Reef;
 import com.team1165.robot.subsystems.drive.Drive;
+import com.team1165.robot.subsystems.elevator.Elevator;
+import com.team1165.robot.subsystems.flywheels.Flywheels;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -83,7 +85,7 @@ public class ChoreoAutoBuilder {
     csChooser.addOption("RCS", CoralStationLocation.RCS);
   }
 
-  public Command buildAutoCommand(Drive drive) {
+  public Command buildAutoCommand(Drive drive, Elevator elevator, Flywheels flywheels) {
     if (justLeave.get()) {
       return drive
           .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
@@ -124,7 +126,7 @@ public class ChoreoAutoBuilder {
 
     var choreoAuto =
         new ChoreoAuto(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
-    return choreoAuto.getAutoCommand(autoRoutine);
+    return choreoAuto.getAutoCommand(drive, elevator, flywheels);
   }
 
   public static ChoreoAutoBuilder getInstance() {

@@ -54,7 +54,7 @@ public class IntakeNoElevator extends Command {
     lastTimestamp = Timer.getTimestamp();
 
     flywheels.runPercent(0.2);
-    funnel.runPercent(0.4);
+    funnel.runPercent(0.15);
   }
 
   @Override

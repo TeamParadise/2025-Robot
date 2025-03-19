@@ -49,7 +49,8 @@ public class ChoreoAuto {
 
   public Command getAutoCommand(Drive drive, Elevator elevator, Flywheels flywheels) {
     if (segments.length != 0) {
-      AutoRoutine routine = drive.getAutoFactory().newRoutine("Starting at " + segments[0].reefLocation());
+      AutoRoutine routine =
+          drive.getAutoFactory().newRoutine("Starting at " + segments[0].reefLocation());
 
       // Get the flipped reef location, if we need to flip (for A, H, I, J, K, L)
       Location flippedOverX = segments[0].reefLocation().getFlippedReef();
@@ -77,11 +78,17 @@ public class ChoreoAuto {
                   scoringTrajectory.cmd()));
       // endregion
 
-      //region Run scoring commands
+      // region Run scoring commands
       var finalPose = scoringTrajectory.getFinalPose();
-      var autoScore = new AutoScore(segments[0].reefLocation(), segments[0].reefLevel(), drive, elevator, flywheels);
+      var autoScore =
+          new AutoScore(
+              segments[0].reefLocation(), segments[0].reefLevel(), drive, elevator, flywheels);
 
-      finalPose.ifPresent(pose2d -> scoringTrajectory.atPose(pose2d, translationToleranceBeforeScoring, rotationToleranceBeforeScoring).onTrue(autoScore));
+      finalPose.ifPresent(
+          pose2d ->
+              scoringTrajectory
+                  .atPose(pose2d, translationToleranceBeforeScoring, rotationToleranceBeforeScoring)
+                  .onTrue(autoScore));
 
       scoringTrajectory
           .done()

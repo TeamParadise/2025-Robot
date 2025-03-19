@@ -226,6 +226,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoBuilder.buildAutoCommand(drive);
+    return autoBuilder.buildAutoCommand(drive, elevator, flywheels);
   }
 }

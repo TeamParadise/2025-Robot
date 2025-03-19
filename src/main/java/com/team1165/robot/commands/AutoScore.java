@@ -18,7 +18,12 @@ public class AutoScore extends Command {
   private final Elevator elevator;
   private final Flywheels flywheels;
 
-  public AutoScore(Reef.Location reefLocation, Reef.Level reefLevel, Drive drive, Elevator elevator, Flywheels flywheels) {
+  public AutoScore(
+      Reef.Location reefLocation,
+      Reef.Level reefLevel,
+      Drive drive,
+      Elevator elevator,
+      Flywheels flywheels) {
     this.drive = drive;
     this.elevator = elevator;
     this.flywheels = flywheels;
