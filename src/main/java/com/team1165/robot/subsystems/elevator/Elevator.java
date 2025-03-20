@@ -190,4 +190,8 @@ public class Elevator extends SubsystemBase {
   public double getPosition() {
     return inputs.leftPositionInches;
   }
+
+  public boolean getEmergencyStopState() {
+    return emergencyStop;
+  }
 }

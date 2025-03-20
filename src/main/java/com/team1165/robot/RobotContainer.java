@@ -15,9 +15,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
-import com.team1165.robot.commands.Intake;
-import com.team1165.robot.commands.IntakeNoElevator;
-import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.commands.elevator.ElevatorPosition;
 import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
 import com.team1165.robot.commands.funnel.FunnelPercent;
@@ -45,8 +42,15 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import com.team1165.robot.util.TeleopDashboard;
 import com.team1165.robot.util.auto.ChoreoAutoBuilder;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -168,11 +172,7 @@ public class RobotContainer {
                 ? RotationsPerSecond.of(2).in(RadiansPerSecond) / 3
                 : RotationsPerSecond.of(2).in(RadiansPerSecond);
 
-    fieldCentric =
-        new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed.getAsDouble() * 0.1)
-            .withRotationalDeadband(MaxAngularRate.getAsDouble() * 0.1)
-            .withDriveRequestType(DriveRequestType.Velocity);
+    fieldCentric = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.Velocity);
 
     brake = new SwerveDriveBrake();
 
@@ -184,45 +184,67 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    // New mappings
-    driverController.start().onTrue(new InstantCommand(drive::seedFieldCentric));
+    // Bumpers
     driverController
-        .leftTrigger()
-        .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
+        .leftBumper()
+        .onTrue(
+            new FunnelPercent(funnel, () -> -0.15)
+                .alongWith(new FlywheelsPercenmt(flywheels, () -> -0.15)));
     driverController
-        .rightTrigger()
-        .onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
-    driverController.rightBumper().whileTrue(drive.applyRequest(() -> brake));
-    driverController.leftBumper().onTrue(new Intake(elevator, flywheels, funnel));
+        .rightBumper()
+        .onTrue(
+            new FunnelPercent(funnel, () -> 0.15)
+                .alongWith(new FlywheelsPercenmt(flywheels, () -> 0.15)));
 
-    driverController.b().onTrue(new InstantCommand(elevator::stop));
-    driverController.y().onTrue(new IntakeNoElevator(flywheels, funnel));
+    // Center buttons
+    driverController.start().onTrue(new InstantCommand(() -> drive.seedFieldCentric()));
     driverController
-        .x()
-        .whileTrue(
-            new InstantCommand(() -> manualPosition += 0.1)
-                .andThen(new ElevatorPosition(elevator, () -> manualPosition)));
-    driverController
-        .a()
-        .whileTrue(
-            new InstantCommand(() -> manualPosition -= 0.1)
-                .andThen(new ElevatorPosition(elevator, () -> manualPosition)));
-    driverController.povLeft().onTrue(new FunnelPercent(funnel, () -> -0.3));
-    driverController.povRight().onTrue(new FunnelPercent(funnel, () -> 0.3));
-    driverController.povUp().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3));
-    driverController.povDown().onTrue(new FlywheelsPercenmt(flywheels, () -> -0.3));
+        .back()
+        .onTrue(
+            new InstantCommand(() -> elevator.setEmergencyStop(!elevator.getEmergencyStopState())));
+
+    // ABXY
+    driverController.a().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.05));
+    driverController.x().onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
   }
 
   /** Use this method to define default commands for subsystems. */
   private void configureDefaultCommands() {
     drive.setDefaultCommand(
-        drive.applyRequest(
-            () ->
-                fieldCentric
-                    .withVelocityX(-driverController.getLeftY() * MaxSpeed.getAsDouble())
-                    .withVelocityY(-driverController.getLeftX() * MaxSpeed.getAsDouble())
-                    .withRotationalRate(
-                        -driverController.getRightX() * MaxAngularRate.getAsDouble())));
+        drive.run(
+            () -> {
+              var joystickX = -driverController.getLeftY();
+              var joystickY = -driverController.getLeftX();
+              var joystickRotation =
+                  (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis());
+
+              // Apply deadband
+              double linearMagnitude =
+                  MathUtil.applyDeadband(Math.hypot(joystickX, joystickY), 0.05);
+              Rotation2d linearDirection =
+                  new Rotation2d(Math.atan2(joystickX, joystickY))
+                      .plus(
+                          DriverStation.getAlliance().isPresent()
+                                  && DriverStation.getAlliance().get() == Alliance.Red
+                              ? Rotation2d.kPi
+                              : Rotation2d.kZero);
+
+              linearMagnitude = linearMagnitude * linearMagnitude;
+
+              // Return new linear velocity
+              Translation2d linearVelocity =
+                  new Pose2d(Translation2d.kZero, linearDirection)
+                      .transformBy(new Transform2d(linearMagnitude, 0.0, Rotation2d.kZero))
+                      .getTranslation();
+
+              drive.setControl(
+                  fieldCentric
+                      .withVelocityX(linearVelocity.getY() * MaxSpeed.getAsDouble())
+                      .withVelocityY(linearVelocity.getX() * MaxSpeed.getAsDouble())
+                      .withRotationalRate(
+                          MathUtil.applyDeadband(joystickRotation, 0.05)
+                              * MaxAngularRate.getAsDouble()));
+            }));
   }
 
   public Command getAutonomousCommand() {

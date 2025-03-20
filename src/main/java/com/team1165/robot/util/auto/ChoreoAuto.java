@@ -157,8 +157,7 @@ public class ChoreoAuto {
     var coralFinalPose = coralStationTrajectory.getRawTrajectory().getFinalPose(false);
     var autoScore =
         new AutoScore(
-                mainSequence.reefLocation(), mainSequence.reefLevel(), drive, elevator, flywheels)
-            .andThen(new WaitCommand(mainSequence.delayAfterScoring()));
+            mainSequence.reefLocation(), mainSequence.reefLevel(), drive, elevator, flywheels);
     var intake =
         new Intake(elevator, flywheels, funnel)
             .andThen(new WaitCommand(mainSequence.delayAfterIntake()));
@@ -175,8 +174,12 @@ public class ChoreoAuto {
               .onTrue(
                   new DriveToPose(drive, () -> mainSequence.reefLocation().getPose())
                       .until(autoScore::isFinished)
-                      .andThen(coralStationTrajectory.cmd()));
+                      .andThen(
+                          new WaitCommand(mainSequence.delayAfterScoring())
+                              .andThen(coralStationTrajectory.cmd())));
         });
+
+    System.out.println(mainSequence.delayAfterScoring().in(Seconds));
 
     coralFinalPose.ifPresent(
         pose2d -> {
