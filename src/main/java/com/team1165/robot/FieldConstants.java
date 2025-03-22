@@ -66,8 +66,8 @@ public class FieldConstants {
   /** Elevator heights for scoring on the Reef. */
   private static class ElevatorHeights {
     private static final double l1 = 2.0;
-    private static final double l2 = 3.5;
-    private static final double l3 = 7.0;
+    private static final double l2 = 3.63;
+    private static final double l3 = 7.1;
     private static final double l4 = 12.5;
   }
 
@@ -82,18 +82,18 @@ public class FieldConstants {
    */
   private static class FudgeFactors {
     // Fudge factors for reef scoring sides
-    private static final Transform2d reefA = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefB = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefC = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefD = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefE = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefF = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefG = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefH = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefI = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefJ = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefK = new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d reefL = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefA = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefB = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefC = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefD = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefE = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefF = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefG = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefH = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefI = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefJ = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefK = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
+    private static final Transform2d reefL = new Transform2d(-0.04, 0.0, Rotation2d.kZero);
 
     // Fudge factors for coral station poses
     private static final Transform2d rightCoralStation =

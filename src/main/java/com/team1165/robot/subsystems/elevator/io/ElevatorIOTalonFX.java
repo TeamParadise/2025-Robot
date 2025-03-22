@@ -87,8 +87,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         .getConfigurator()
         .apply(
             new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(12)
-                .withMotionMagicAcceleration(27));
+                .withMotionMagicCruiseVelocity(15)
+                .withMotionMagicAcceleration(30));
 
     leftAppliedVolts = leftTalon.getMotorVoltage();
     leftSupplyCurrent = leftTalon.getSupplyCurrent();

@@ -17,10 +17,10 @@ public class Intake extends Command {
   private final Elevator elevator;
   private final Flywheels flywheels;
   private final Funnel funnel;
-  private final double elapsedTime = 0.13;
+  private final Timer timer = new Timer();
+  private final double elapsedTime = 0.08;
 
-  private double lastTimestamp = 0.0;
-  private double timeElapsed = 0.0;
+  private double startingTimestampCurrent = 0.0;
   private boolean didDrawHighCurrent = false;
   private boolean endCommand = false;
 
@@ -35,29 +35,33 @@ public class Intake extends Command {
 
   @Override
   public void initialize() {
-    timeElapsed = 0.0;
+    timer.restart();
+    startingTimestampCurrent = 0.0;
     didDrawHighCurrent = false;
     endCommand = false;
   }
 
   @Override
   public void execute() {
-    if (flywheels.isDrawingHighCurrent()) {
-      didDrawHighCurrent = true;
-      timeElapsed += Timer.getTimestamp() - lastTimestamp;
-      if (timeElapsed > elapsedTime) {
-        endCommand = true;
-        flywheels.stop();
-        funnel.stop();
+    if (timer.hasElapsed(0.1165)) {
+      if (flywheels.isDrawingHighCurrent() && !didDrawHighCurrent) {
+        startingTimestampCurrent = timer.get();
+        didDrawHighCurrent = true;
       }
-    } else if (!flywheels.isDrawingHighCurrent() && didDrawHighCurrent) {
-      didDrawHighCurrent = false;
-      timeElapsed = 0;
+      if (flywheels.isDrawingHighCurrent()) {
+        didDrawHighCurrent = true;
+        if (timer.get() - startingTimestampCurrent > elapsedTime) {
+          endCommand = true;
+          flywheels.stop();
+          funnel.stop();
+        }
+      } else if (!flywheels.isDrawingHighCurrent() && didDrawHighCurrent) {
+        didDrawHighCurrent = false;
+      }
     }
-    lastTimestamp = Timer.getTimestamp();
 
-    flywheels.runPercent(0.2);
-    funnel.runPercent(0.3);
+    flywheels.runPercent(0.25);
+    funnel.runPercent(0.15);
     elevator.runToIntakePosition();
   }
 

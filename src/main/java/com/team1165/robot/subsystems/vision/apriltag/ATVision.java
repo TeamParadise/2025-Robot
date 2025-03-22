@@ -209,7 +209,8 @@ public class ATVision extends SubsystemBase {
             // Calculate standard deviations
             double linearStdDev =
                 linearStdDevSingleTagBaseline * Math.pow(poseObservation.averageTagDistance(), 2.0);
-            double angularStdDev = Double.POSITIVE_INFINITY;
+            double angularStdDev =
+                angularStdDevBaseline * Math.pow(poseObservation.averageTagDistance(), 2.0);
 
             // Send vision observation
             globalConsumer.accept(
@@ -317,6 +318,12 @@ public class ATVision extends SubsystemBase {
         "AprilTagVision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
         "AprilTagVision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+  }
+
+  public void enableSingleTagTrig() {
+    for (int i = 0; i < io.length; i++) {
+      io[i].setSingleTagTrig(true);
+    }
   }
 
   @FunctionalInterface

@@ -49,7 +49,7 @@ public class DriveConstants {
 
   /** Constants for autonomous driving and line up of the robot. */
   public static final class PathConstants {
-    public static final PIDConstants translation = new PIDConstants(10, 0, 0);
+    public static final PIDConstants translation = new PIDConstants(4, 0, 0);
     public static final PIDConstants rotation = new PIDConstants(7, 0, 0);
     public static final PPHolonomicDriveController ppDriveController =
         new PPHolonomicDriveController(translation, rotation);

@@ -7,6 +7,8 @@
 
 package com.team1165.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.Utils;
@@ -20,6 +22,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants.PathConstants;
+import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
@@ -166,10 +169,20 @@ public class Drive extends SubsystemBase {
   }
 
   public void goToPose(Pose2d pose) {
+    double xVelocity = xController.calculate(inputs.Pose.getX(), pose.getX());
+    double yVelocity = yController.calculate(inputs.Pose.getY(), pose.getY());
     ChassisSpeeds speeds =
         new ChassisSpeeds(
-            xController.calculate(inputs.Pose.getX(), pose.getX()),
-            yController.calculate(inputs.Pose.getY(), pose.getY()),
+            Math.copySign(
+                Math.min(
+                    Math.abs(xController.calculate(inputs.Pose.getX(), pose.getX())),
+                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4),
+                xVelocity),
+            Math.copySign(
+                Math.min(
+                    Math.abs(yController.calculate(inputs.Pose.getY(), pose.getY())),
+                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4),
+                yVelocity),
             rotationController.calculate(
                 inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians()));
 

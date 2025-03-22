@@ -14,17 +14,20 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.team1165.robot.subsystems.flywheels.constants.FlywheelConstants;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class FlywheelsIOSparkMax implements FlywheelsIO {
   private final SparkMax leftMotor;
   private final SparkMax rightMotor;
   private final RelativeEncoder leftEncoder;
   private final RelativeEncoder rightEncoder;
+  private final DigitalInput beamBreak;
 
   public FlywheelsIOSparkMax() {
     // Init Hardware
     leftMotor = new SparkMax(FlywheelConstants.leftID, MotorType.kBrushless);
     rightMotor = new SparkMax(FlywheelConstants.rightID, MotorType.kBrushless);
+    beamBreak = new DigitalInput(1);
 
     // Configure motors
     leftMotor.configure(
@@ -53,6 +56,8 @@ public class FlywheelsIOSparkMax implements FlywheelsIO {
     inputs.rightAppliedVolts = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
     inputs.rightSupplyCurrentAmps = rightMotor.getOutputCurrent();
     inputs.rightTempCelsius = rightMotor.getMotorTemperature();
+
+    inputs.beamBreakStatus = beamBreak.get();
   }
 
   @Override

@@ -15,6 +15,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
+import com.team1165.robot.commands.Intake;
+import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.commands.elevator.ElevatorPosition;
 import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
 import com.team1165.robot.commands.funnel.FunnelPercent;
@@ -54,6 +56,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -106,7 +109,14 @@ public class RobotContainer {
                         0.197,
                         -0.286,
                         0.2,
-                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(10)))));
+                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(10)))),
+                new CameraConfig(
+                    new ATVisionIOPhoton("Left Camera"),
+                    new Transform3d(
+                        0.197,
+                        0.286,
+                        0.2,
+                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(-10)))));
       }
 
       case SIM -> {
@@ -132,19 +142,19 @@ public class RobotContainer {
                                 720,
                                 new Transform3d(
                                     0.197,
-                                    0.286,
+                                    -0.286,
                                     0.2,
                                     new Rotation3d(
-                                        Degrees.zero(), Degrees.of(-20), Degrees.of(-10))))
+                                        Degrees.zero(), Degrees.of(-20), Degrees.of(10))))
                             .withCalibError(0.15, 0.1)
                             .withLatency(0, 0)
                             .withFPS(150),
                         drive::getSimulationPose),
                     new Transform3d(
                         0.197,
-                        0.286,
+                        -0.286,
                         0.2,
-                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(-10)))));
+                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(10)))));
       }
 
       default -> {
@@ -187,17 +197,17 @@ public class RobotContainer {
     // Bumpers
     driverController
         .leftBumper()
-        .onTrue(
+        .whileTrue(
             new FunnelPercent(funnel, () -> -0.15)
                 .alongWith(new FlywheelsPercenmt(flywheels, () -> -0.15)));
     driverController
         .rightBumper()
-        .onTrue(
+        .whileTrue(
             new FunnelPercent(funnel, () -> 0.15)
                 .alongWith(new FlywheelsPercenmt(flywheels, () -> 0.15)));
 
     // Center buttons
-    driverController.start().onTrue(new InstantCommand(() -> drive.seedFieldCentric()));
+    driverController.start().onTrue(new InstantCommand(drive::seedFieldCentric));
     driverController
         .back()
         .onTrue(
@@ -205,7 +215,15 @@ public class RobotContainer {
 
     // ABXY
     driverController.a().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.05));
-    driverController.x().onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
+    driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
+    driverController
+        .y()
+        .onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
+    driverController
+        .x()
+        .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
+
+    RobotModeTriggers.teleop().onTrue(new InstantCommand(apriltagVision::enableSingleTagTrig));
   }
 
   /** Use this method to define default commands for subsystems. */

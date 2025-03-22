@@ -23,6 +23,8 @@ public interface FlywheelsIO {
     public double rightAppliedVolts = 0.0;
     public double rightSupplyCurrentAmps = 0.0;
     public double rightTempCelsius = 0.0;
+
+    public boolean beamBreakStatus = false;
   }
 
   /** Update inputs */

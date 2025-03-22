@@ -16,10 +16,14 @@ import com.team1165.robot.FieldConstants.Reef.Location;
 import com.team1165.robot.commands.AutoScore;
 import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
+import com.team1165.robot.commands.elevator.ElevatorPosition;
+import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
 import com.team1165.robot.subsystems.funnel.Funnel;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -117,6 +121,39 @@ public class ChoreoAuto {
     }
   }
 
+  public Command getSimpleAutoCommand(
+      Drive drive, Elevator elevator, Flywheels flywheels, Funnel funnel) {
+    var initialDriveCommand =
+        new DriveToPose(
+            drive,
+            () ->
+                segments[0]
+                    .reefLocation()
+                    .getPose()
+                    .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)));
+    var nextDriveCommand = new DriveToPose(drive, () -> segments[0].reefLocation().getPose());
+
+    return new ElevatorPosition(elevator, () -> segments[0].reefLevel().getElevatorHeight())
+        .alongWith(
+            initialDriveCommand
+                .until(() -> elevator.getAtPosition(12.5, 1))
+                .andThen(
+                    nextDriveCommand
+                        .alongWith(
+                            new WaitCommand(2).andThen(new FlywheelsPercenmt(flywheels, () -> 0.3)))
+                        .withTimeout(3)))
+        .withTimeout(10)
+        .andThen(
+            new DriveToPose(
+                    drive,
+                    () ->
+                        segments[0]
+                            .reefLocation()
+                            .getPose()
+                            .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)))
+                .alongWith(new ElevatorPosition(elevator, () -> 0)));
+  }
+
   public static AutoTrajectory buildBaseScoringTrajectory(
       AutoRoutine routine,
       CoralStationLocation startingCoralStation,
@@ -161,29 +198,16 @@ public class ChoreoAuto {
     var intake =
         new Intake(elevator, flywheels, funnel)
             .andThen(new WaitCommand(mainSequence.delayAfterIntake()));
+    var moveElevatorUp =
+        new ElevatorPosition(elevator, () -> mainSequence.reefLevel().getElevatorHeight());
 
     // Run the scoring command when close to final location, and run basic PID to pose after the
     // trajectory ends to ensure alignment. Also run coral station trajectory once done.
-    scoringFinalPose.ifPresent(
-        pose2d -> {
-          scoringTrajectory
-              .atPose(pose2d, translationToleranceBeforeScoring, rotationToleranceBeforeScoring)
-              .onTrue(autoScore);
-          scoringTrajectory
-              .done()
-              .onTrue(
-                  new DriveToPose(drive, () -> mainSequence.reefLocation().getPose())
-                      .until(autoScore::isFinished)
-                      .andThen(
-                          new WaitCommand(mainSequence.delayAfterScoring())
-                              .andThen(coralStationTrajectory.cmd())));
-        });
-
-    System.out.println(mainSequence.delayAfterScoring().in(Seconds));
+    scoringFinalPose.ifPresent(pose2d -> {});
 
     coralFinalPose.ifPresent(
         pose2d -> {
-          coralStationTrajectory.atPose(pose2d, 0.7, 1).onTrue(intake);
+          coralStationTrajectory.atPose(pose2d, 0.7, 3).onTrue(intake);
           coralStationTrajectory
               .done()
               .onTrue(
@@ -191,7 +215,23 @@ public class ChoreoAuto {
                       .until(intake::isFinished));
         });
 
-    return scoringTrajectory.cmd().until(intake::isFinished);
+    return scoringTrajectory
+        .cmd()
+        .andThen(
+            moveElevatorUp.alongWith(
+                new WaitCommand(0.7)
+                    .andThen(
+                        new DriveToPose(drive, () -> mainSequence.reefLocation().getPose())
+                            .withTimeout(1.10)
+                            .andThen(
+                                new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.5)))))
+        .withTimeout(4)
+        .andThen(
+            new ElevatorPosition(elevator, () -> 0)
+                .alongWith(new DriveToPose(drive, () -> scoringTrajectory.getFinalPose().get()))
+                .withTimeout(0.5))
+        .andThen(coralStationTrajectory.cmd())
+        .until(intake::isFinished);
   }
 
   public static AutoTrajectory buildCoralStation(
