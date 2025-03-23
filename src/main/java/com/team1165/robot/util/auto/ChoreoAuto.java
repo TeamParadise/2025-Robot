@@ -132,22 +132,59 @@ public class ChoreoAuto {
                     .getPose()
                     .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)));
     var nextDriveCommand = new DriveToPose(drive, () -> segments[0].reefLocation().getPose());
+    var secondLineupCommand =
+        new DriveToPose(
+            drive,
+            () ->
+                segments[1]
+                    .reefLocation()
+                    .getPose()
+                    .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)));
+    var secondScoreCommand = new DriveToPose(drive, () -> segments[1].reefLocation().getPose());
+    var intake = new Intake(elevator, flywheels, funnel);
 
     return new ElevatorPosition(elevator, () -> segments[0].reefLevel().getElevatorHeight())
         .alongWith(
             initialDriveCommand
-                .until(() -> elevator.getAtPosition(12.5, 1))
+                .until(() -> elevator.getAtPosition(segments[0].reefLevel().getElevatorHeight(), 1))
                 .andThen(
                     nextDriveCommand
                         .alongWith(
                             new WaitCommand(2).andThen(new FlywheelsPercenmt(flywheels, () -> 0.3)))
                         .withTimeout(3)))
-        .withTimeout(10)
+        .withTimeout(5)
         .andThen(
             new DriveToPose(
                     drive,
                     () ->
                         segments[0]
+                            .reefLocation()
+                            .getPose()
+                            .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)))
+                .withTimeout(0.75)
+                .andThen(new DriveToPose(drive, () -> segments[0].coralStation().getPose()))
+                .alongWith(intake))
+        .until(intake::isFinished)
+        .andThen(
+            new ElevatorPosition(elevator, () -> segments[1].reefLevel().getElevatorHeight())
+                .alongWith(
+                    secondLineupCommand
+                        .until(
+                            () ->
+                                elevator.getAtPosition(
+                                    segments[1].reefLevel().getElevatorHeight(), 1))
+                        .andThen(
+                            secondScoreCommand
+                                .alongWith(
+                                    new WaitCommand(2.3)
+                                        .andThen(new FlywheelsPercenmt(flywheels, () -> 0.3)))
+                                .withTimeout(3)))
+                .withTimeout(4))
+        .andThen(
+            new DriveToPose(
+                    drive,
+                    () ->
+                        segments[1]
                             .reefLocation()
                             .getPose()
                             .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)))

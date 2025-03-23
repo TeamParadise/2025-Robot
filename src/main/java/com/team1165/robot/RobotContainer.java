@@ -266,6 +266,13 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoBuilder.buildAutoCommand(drive, elevator, flywheels, funnel);
+    return new InstantCommand(
+            () ->
+                drive.resetRotation(
+                    DriverStation.getAlliance().isPresent()
+                            && DriverStation.getAlliance().get() == Alliance.Red
+                        ? Rotation2d.kZero
+                        : Rotation2d.kPi))
+        .andThen(autoBuilder.buildAutoCommand(drive, elevator, flywheels, funnel));
   }
 }

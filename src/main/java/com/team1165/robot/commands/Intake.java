@@ -43,7 +43,7 @@ public class Intake extends Command {
 
   @Override
   public void execute() {
-    if (timer.hasElapsed(0.1165)) {
+    if (timer.hasElapsed(0.07)) {
       if (flywheels.isDrawingHighCurrent() && !didDrawHighCurrent) {
         startingTimestampCurrent = timer.get();
         didDrawHighCurrent = true;
@@ -60,7 +60,7 @@ public class Intake extends Command {
       }
     }
 
-    flywheels.runPercent(0.25);
+    flywheels.runPercent(0.22);
     funnel.runPercent(0.15);
     elevator.runToIntakePosition();
   }

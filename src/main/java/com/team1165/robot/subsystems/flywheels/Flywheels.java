@@ -52,7 +52,7 @@ public class Flywheels extends SubsystemBase {
   }
 
   public boolean isDrawingHighCurrent() {
-    return Math.abs(inputs.leftSupplyCurrentAmps) > 15.0;
+    return Math.abs(inputs.leftSupplyCurrentAmps) > 14.3;
   }
 
   public boolean beamBreakTriggered() {

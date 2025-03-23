@@ -176,12 +176,12 @@ public class Drive extends SubsystemBase {
             Math.copySign(
                 Math.min(
                     Math.abs(xController.calculate(inputs.Pose.getX(), pose.getX())),
-                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4),
+                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3),
                 xVelocity),
             Math.copySign(
                 Math.min(
                     Math.abs(yController.calculate(inputs.Pose.getY(), pose.getY())),
-                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 4),
+                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3),
                 yVelocity),
             rotationController.calculate(
                 inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians()));

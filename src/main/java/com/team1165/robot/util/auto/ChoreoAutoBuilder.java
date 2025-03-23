@@ -128,7 +128,7 @@ public class ChoreoAutoBuilder {
 
     var choreoAuto =
         new ChoreoAuto(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
-    return choreoAuto.getAutoCommand(drive, elevator, flywheels, funnel);
+    return choreoAuto.getSimpleAutoCommand(drive, elevator, flywheels, funnel);
   }
 
   public static ChoreoAutoBuilder getInstance() {
