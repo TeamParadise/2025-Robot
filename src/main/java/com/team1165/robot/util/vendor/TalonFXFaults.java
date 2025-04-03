@@ -8,11 +8,10 @@
 package com.team1165.robot.util.vendor;
 
 public record TalonFXFaults(
-  boolean anyFaultActive,
-  boolean temperature,
-  boolean overCurrent,
-  boolean sensor,
-  boolean stall,
-  boolean gateDriver,
-  boolean other
-) {}
+    boolean anyFaultActive,
+    boolean temperature,
+    boolean overCurrent,
+    boolean sensor,
+    boolean stall,
+    boolean gateDriver,
+    boolean other) {}

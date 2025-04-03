@@ -9,6 +9,7 @@ package com.team1165.robot.util.logging;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.Faults;
 import com.team1165.robot.util.vendor.rev.SparkUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import org.littletonrobotics.junction.LogTable;
@@ -57,12 +58,25 @@ public class MotorData {
   public void updateFromSpark(SparkBase spark, RelativeEncoder encoder) {
     var appliedOutput = spark.getAppliedOutput();
 
-    appliedVolts = SparkUtil.ifOkOrDefault(spark, () -> spark.getBusVoltage() * appliedOutput, appliedVolts);
+    appliedVolts =
+        SparkUtil.ifOkOrDefault(spark, () -> spark.getBusVoltage() * appliedOutput, appliedVolts);
     faultActive = SparkUtil.ifOkOrDefault(spark, spark::hasActiveFault, faultActive);
-    // faults =
+    if (faultActive) {
+      Faults sparkFaults = spark.getFaults();
+      faults =
+          (sparkFaults.other ? "other" : "")
+              + (sparkFaults.motorType ? "motorType" : "")
+              + (sparkFaults.sensor ? "sensor" : "")
+              + (sparkFaults.can ? "can" : "")
+              + (sparkFaults.temperature ? "temperature" : "")
+              + (sparkFaults.gateDriver ? "gateDriver" : "")
+              + (sparkFaults.escEeprom ? "escEeprom" : "")
+              + (sparkFaults.firmware ? "firmware" : "");
+    }
     outputCurrentAmps = SparkUtil.ifOkOrDefault(spark, spark::getOutputCurrent, outputCurrentAmps);
     positionRotations = SparkUtil.ifOkOrDefault(spark, encoder::getPosition, positionRotations);
     supplyCurrentAmps = outputCurrentAmps * appliedOutput;
-    temperatureCelsius = SparkUtil.ifOkOrDefault(spark, spark::getMotorTemperature, temperatureCelsius);
+    temperatureCelsius =
+        SparkUtil.ifOkOrDefault(spark, spark::getMotorTemperature, temperatureCelsius);
   }
 }
