@@ -8,7 +8,8 @@
 package com.team1165.robot.subsystems.roller.io;
 
 import com.team1165.robot.util.logging.MotorData;
-import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
  * A "software" interface/implementation layer for a basic wheel/roller subsystem powered by two
@@ -17,13 +18,32 @@ import org.littletonrobotics.junction.AutoLog;
  */
 public interface RollerIO {
   /** Class used to store the IO values of a basic roller subsystem. */
-  @AutoLog
-  class RollerIOInputs {
+  class RollerIOInputs implements LoggableInputs, Cloneable {
     /** Data from the primary motor of the subsystem. */
-    public MotorData primaryMotor = MotorData.empty;
+    public MotorData primaryMotor = new MotorData();
 
     /** Data from the secondary motor of the subsystem. */
-    public MotorData secondaryMotor = MotorData.empty;
+    public MotorData secondaryMotor = new MotorData();
+
+    @Override
+    public void toLog(LogTable table) {
+      primaryMotor.toLog(table, "Primary");
+      secondaryMotor.toLog(table, "Secondary");
+    }
+
+    @Override
+    public void fromLog(LogTable table) {
+      primaryMotor.fromLog(table, "Primary");
+      secondaryMotor.fromLog(table, "Secondary");
+    }
+
+    @Override
+    public RollerIOInputs clone() {
+      RollerIOInputs copy = new RollerIOInputs();
+      copy.primaryMotor = this.primaryMotor;
+      copy.secondaryMotor = this.secondaryMotor;
+      return copy;
+    }
   }
 
   /**

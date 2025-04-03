@@ -1,4 +1,6 @@
 /*
+ * File originally made by: Mechanical Advantage - FRC 6328
+ * Copyright (c) 2025 Team 6328 (https://github.com/Mechanical-Advantage)
  * Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
  *
  * Use of this source code is governed by the MIT License, which can be found in the LICENSE file at
@@ -9,6 +11,7 @@ package com.team1165.robot.util.vendor.rev;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
@@ -55,29 +58,22 @@ public class SparkUtil {
     }
   }
 
-  /**
-   * Return a processed set of values from a Spark (or the default if one of the values is invalid).
-   */
-  public static double ifOkOrDefault(
-      SparkBase spark,
-      DoubleSupplier[] suppliers,
-      Function<Double[], Double> transformer,
-      double defaultValue) {
-    Double[] values = new Double[suppliers.length];
-    for (int i = 0; i < suppliers.length; i++) {
-      values[i] = suppliers[i].getAsDouble();
-      if (spark.getLastError() != REVLibError.kOk) {
-        sparkStickyFault = true;
-        return defaultValue;
-      }
+  /** Return a value from a Spark (or the default if the value is invalid). */
+  public static boolean ifOkOrDefault(
+      SparkBase spark, BooleanSupplier supplier, boolean defaultValue) {
+    boolean value = supplier.getAsBoolean();
+    if (spark.getLastError() == REVLibError.kOk) {
+      return value;
+    } else {
+      sparkStickyFault = true;
+      return defaultValue;
     }
-    return transformer.apply(values);
   }
 
   /** Attempts to run the command until no error is produced. */
-  public static void tryUntilOk(SparkBase spark, int maxAttempts, Function<SparkBase, REVLibError> command) {
+  public static void tryUntilOk(int maxAttempts, Supplier<REVLibError> command) {
     for (int i = 0; i < maxAttempts; i++) {
-      var error = command.apply(spark);
+      var error = command.get();
       if (error == REVLibError.kOk) {
         break;
       } else {
