@@ -12,14 +12,17 @@ import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
- * A "software" interface/implementation layer for a basic wheel/roller subsystem powered by two
+ * A hardware interface/implementation layer for a basic wheel/roller subsystem powered by two
  * motors. These two motors are usually controlled together, but they can be controlled separately
  * if needed.
  */
 public interface RollerIO {
   /** Class used to store the IO values of a basic roller subsystem. */
   class RollerIOInputs implements LoggableInputs, Cloneable {
-    /** Data from the primary motor of the subsystem. */
+    /**
+     * Data from the primary motor of the subsystem. Most of the time, any data needed should be
+     * grabbed from here.
+     */
     public MotorData primaryMotor = new MotorData();
 
     /** Data from the secondary motor of the subsystem. */
