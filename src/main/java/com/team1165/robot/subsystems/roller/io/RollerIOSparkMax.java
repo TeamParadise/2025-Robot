@@ -25,7 +25,7 @@ public class RollerIOSparkMax implements RollerIO {
   private final RelativeEncoder primaryEncoder;
   private final RelativeEncoder secondaryEncoder;
 
-  private final Debouncer primaryConnectedDebouncer = new Debouncer(0.5);
+  private final Debouncer connectedDebouncer = new Debouncer(0.5);
   private final Debouncer secondaryConnectedDebouncer = new Debouncer(0.5);
 
   public RollerIOSparkMax(SparkFullConfig primaryFullConfig, SparkFullConfig secondaryFullConfig) {
@@ -38,8 +38,8 @@ public class RollerIOSparkMax implements RollerIO {
     secondaryEncoder = secondaryMotor.getEncoder();
 
     // Configure the motors
-    SparkUtil.tryUntilOk(primaryMotor, 5, spark -> spark.configure(primaryFullConfig.config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-    SparkUtil.tryUntilOk(secondaryMotor, 5, spark -> spark.configure(secondaryFullConfig.config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    SparkUtil.tryUntilOk(5, () -> primaryMotor.configure(primaryFullConfig.config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    SparkUtil.tryUntilOk(5, () -> secondaryMotor.configure(secondaryFullConfig.config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
   }
 
   /**
