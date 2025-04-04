@@ -75,8 +75,6 @@ public class SparkUtil {
       var error = command.get();
       if (error == REVLibError.kOk) {
         break;
-      } else {
-        sparkStickyFault = true;
       }
     }
   }

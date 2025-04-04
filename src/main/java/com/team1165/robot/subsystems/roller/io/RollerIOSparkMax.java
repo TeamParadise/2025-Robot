@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.team1165.robot.util.logging.MotorData.SparkMotorData;
 import com.team1165.robot.util.vendor.rev.SparkFullConfigs.SparkFullConfig;
 import com.team1165.robot.util.vendor.rev.SparkModel;
 import com.team1165.robot.util.vendor.rev.SparkUtil;
@@ -29,8 +30,9 @@ public class RollerIOSparkMax implements RollerIO {
   private final SparkBase secondaryMotor;
   private final SparkBaseConfig primaryConfig;
   private final SparkBaseConfig secondaryConfig;
-  private final RelativeEncoder primaryEncoder;
-  private final RelativeEncoder secondaryEncoder;
+
+  private final SparkMotorData primaryMotorData;
+  private final SparkMotorData secondaryMotorData;
 
   public RollerIOSparkMax(SparkFullConfig primaryFullConfig, SparkFullConfig secondaryFullConfig) {
     // Assign motor variables
@@ -43,13 +45,12 @@ public class RollerIOSparkMax implements RollerIO {
             ? new SparkFlex(secondaryFullConfig.canId, secondaryFullConfig.motorType)
             : new SparkMax(secondaryFullConfig.canId, secondaryFullConfig.motorType);
 
-    // Get the encoders from the motors and store them
-    primaryEncoder = primaryMotor.getEncoder();
-    secondaryEncoder = secondaryMotor.getEncoder();
-
     // Assign the configurations to variables
     primaryConfig = primaryFullConfig.config;
     secondaryConfig = secondaryFullConfig.config;
+
+    primaryMotorData = new SparkMotorData(primaryMotor);
+    secondaryMotorData = new SparkMotorData(secondaryMotor);
 
     // Configure the motors
     SparkUtil.tryUntilOk(
@@ -71,9 +72,13 @@ public class RollerIOSparkMax implements RollerIO {
    */
   @Override
   public void updateInputs(RollerIOInputs inputs) {
-    // Update the motor data inputs with the debouncers passed in to check connection status
-    inputs.primaryMotor.updateFromSpark(primaryMotor, primaryEncoder);
-    inputs.secondaryMotor.updateFromSpark(secondaryMotor, secondaryEncoder);
+    // Update the motor data
+    primaryMotorData.update();
+    secondaryMotorData.update();
+
+    // Put the motor data values in inputs
+    inputs.primaryMotor = primaryMotorData;
+    inputs.secondaryMotor = secondaryMotorData;
   }
 
   /**
