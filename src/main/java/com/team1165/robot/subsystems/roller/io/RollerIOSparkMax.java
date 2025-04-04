@@ -7,7 +7,6 @@
 
 package com.team1165.robot.subsystems.roller.io;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -26,11 +25,13 @@ import com.team1165.robot.util.vendor.rev.SparkUtil;
  * together, but they can be controlled separately if needed.
  */
 public class RollerIOSparkMax implements RollerIO {
+  // Save motors and configs, configs are saved for brake mode configuration later
   private final SparkBase primaryMotor;
   private final SparkBase secondaryMotor;
   private final SparkBaseConfig primaryConfig;
   private final SparkBaseConfig secondaryConfig;
 
+  // Motor data to log
   private final SparkMotorData primaryMotorData;
   private final SparkMotorData secondaryMotorData;
 
@@ -49,6 +50,7 @@ public class RollerIOSparkMax implements RollerIO {
     primaryConfig = primaryFullConfig.config;
     secondaryConfig = secondaryFullConfig.config;
 
+    // Create MotorData instances to log motors
     primaryMotorData = new SparkMotorData(primaryMotor);
     secondaryMotorData = new SparkMotorData(secondaryMotor);
 
@@ -119,19 +121,23 @@ public class RollerIOSparkMax implements RollerIO {
    */
   @Override
   public void setBrakeMode(boolean enabled) {
-    SparkUtil.tryUntilOk(
-        5,
-        () ->
-            primaryMotor.configure(
-                primaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
-                ResetMode.kNoResetSafeParameters,
-                PersistMode.kNoPersistParameters));
-    SparkUtil.tryUntilOk(
-        5,
-        () ->
-            secondaryMotor.configure(
-                secondaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
-                ResetMode.kNoResetSafeParameters,
-                PersistMode.kNoPersistParameters));
+    new Thread(
+            () -> {
+              SparkUtil.tryUntilOk(
+                  5,
+                  () ->
+                      primaryMotor.configure(
+                          primaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                          ResetMode.kNoResetSafeParameters,
+                          PersistMode.kNoPersistParameters));
+              SparkUtil.tryUntilOk(
+                  5,
+                  () ->
+                      secondaryMotor.configure(
+                          secondaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                          ResetMode.kNoResetSafeParameters,
+                          PersistMode.kNoPersistParameters));
+            })
+        .start();
   }
 }
