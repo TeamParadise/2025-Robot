@@ -5,13 +5,6 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.util.vendor;
+package com.team1165.robot.subsystems.roller.constants;
 
-public record TalonFXFaults(
-    boolean anyFaultActive,
-    boolean temperature,
-    boolean overCurrent,
-    boolean sensor,
-    boolean stall,
-    boolean gateDriver,
-    boolean other) {}
+public class FunnelConstants {}

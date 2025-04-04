@@ -26,7 +26,8 @@ public class RollerIOSim implements RollerIO {
 
   private RollerIOSim(DCMotor motor, double moi) {
     gearbox = motor;
-    primarySim = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1)));
+    primarySim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, 1, moi), motor);
+    secondarySim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, 1, moi), motor);
   }
 
   /**
@@ -48,7 +49,7 @@ public class RollerIOSim implements RollerIO {
    */
   @Override
   public void runVolts(double primaryVoltage, double secondaryVoltage) {
-    primaryAppliedVoltage = MathUtil.clamp(primaryVoltage, -12.0)
+    primaryAppliedVoltage = MathUtil.clamp(primaryVoltage, -12.0, 12.0);
     primarySim.setInputVoltage(primaryVoltage);
     secondarySim.setInputVoltage(secondaryVoltage);
   }
