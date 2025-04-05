@@ -7,8 +7,10 @@
 
 package com.team1165.robot.subsystems.roller;
 
+import com.team1165.robot.subsystems.roller.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
+import com.team1165.robot.util.LoggedTunableNumber;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Funnel extends SubsystemBase {
@@ -16,11 +18,16 @@ public class Funnel extends SubsystemBase {
   private final RollerIOInputs inputs = new RollerIOInputs();
   private final FunnelState currentState = FunnelState.IDLE;
 
+  private final LoggedTunableNumber intakeVoltage = new LoggedTunableNumber("Funnel/Speeds/Intake", FunnelConstants.Voltages.intake);
+  private final LoggedTunableNumber manualForwardVoltage = new LoggedTunableNumber("Funnel/Speeds/ManualForward", FunnelConstants.Voltages.manualForward);
+  private final LoggedTunableNumber manualReverseVoltage = new LoggedTunableNumber("Funnel/Speeds/ManualReverse", FunnelConstants.Voltages.manualReverse);
+
   public enum FunnelState {
     IDLE,
     INTAKE,
     MANUAL_FORWARD,
-    MANUAL_REVERSE
+    MANUAL_REVERSE,
+    CUSTOM_MANUAL
   }
 
   public Funnel(RollerIO io) {

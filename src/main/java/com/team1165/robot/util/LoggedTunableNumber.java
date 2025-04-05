@@ -49,7 +49,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
   }
 
   /**
-   * Set the default value of the number. The default value can only be set once.
+   * Set the current value of the number, if it is
    *
    * @param defaultValue The default value
    */
@@ -60,6 +60,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
       if (Constants.tuningMode) {
         dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
       }
+    } else {
+
     }
   }
 
