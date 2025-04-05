@@ -127,7 +127,7 @@ public class ChoreoAutoBuilder {
     var autoRoutine = drive.getAutoFactory().newRoutine("Auto Builder");
 
     var choreoAuto =
-        new ChoreoAuto(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
+        new AutoRoutine(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
     return choreoAuto.getSimpleAutoCommand(drive, elevator, flywheels, funnel);
   }
 
