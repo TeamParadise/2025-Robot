@@ -43,7 +43,7 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhoton;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import com.team1165.robot.util.TeleopDashboard;
-import com.team1165.robot.util.auto.ChoreoAutoBuilder;
+import com.team1165.robot.util.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -83,7 +83,7 @@ public class RobotContainer {
   private final DoubleSupplier MaxAngularRate;
   private final SwerveRequest.FieldCentric fieldCentric;
   private final SwerveRequest.SwerveDriveBrake brake;
-  private final ChoreoAutoBuilder autoBuilder;
+  private final AutoBuilder autoBuilder;
 
   private double manualPosition = 0.0;
 
@@ -186,7 +186,7 @@ public class RobotContainer {
 
     brake = new SwerveDriveBrake();
 
-    autoBuilder = ChoreoAutoBuilder.getInstance();
+    autoBuilder = AutoBuilder.getInstance();
 
     configureButtonBindings();
     configureDefaultCommands();

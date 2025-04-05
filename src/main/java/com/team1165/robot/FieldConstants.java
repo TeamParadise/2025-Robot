@@ -207,22 +207,6 @@ public class FieldConstants {
       public Pose2d getPose() {
         return AlliancePoses.getPose(this);
       }
-
-      /**
-       * Get the enum of the flipped reef over the x-axis (flipped on same alliance). Pretty much
-       * just used for Choreo autos.
-       */
-      public Location getFlippedReef() {
-        return switch (this) {
-          case A -> Location.B;
-          case B, C, D, E, F, G -> this;
-          case H -> Location.G;
-          case I -> Location.F;
-          case J -> Location.E;
-          case K -> Location.D;
-          case L -> Location.C;
-        };
-      }
     }
   }
 

@@ -9,8 +9,6 @@ package com.team1165.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import choreo.auto.AutoFactory;
-import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -26,7 +24,6 @@ import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
-import com.team1165.robot.util.AllianceFlipUtil;
 import com.team1165.robot.util.LocalADStarAK;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
@@ -58,35 +55,13 @@ public class Drive extends SubsystemBase {
   private final DriveIO io;
   private final DriveIOInputs inputs = new DriveIOInputs();
 
-  // Create auto factory to easily make auto commands
-  private final AutoFactory autoFactory =
-      new AutoFactory(
-          () -> inputs.Pose, // Current robot pose
-          this::resetPose, // Method to reset pose
-          this::followTrajectory, // Method to control the drivetrain
-          true, // Enable alliance flipping
-          this, // Require this subsystem
-          (trajectory, state) -> { // Log through AdvantageKit
-            if (state) { // If trajectory is active, log trajectory (flipped for alliance)
-              Logger.recordOutput(
-                  "Drive/PathFollowing/Choreo/Trajectory",
-                  (AllianceFlipUtil.shouldFlip()
-                      ? trajectory.flipped().getPoses()
-                      : trajectory.getPoses()));
-            } else { // If trajectory is not active, clear outputs
-              Logger.recordOutput("Drive/PathFollowing/Choreo/Trajectory", new Pose2d[0]);
-              Logger.recordOutput("Drive/PathFollowing/Choreo/TrajectorySetpoint", new Pose2d[0]);
-            }
-            Logger.recordOutput("Drive/PathFollowing/Choreo/Active", state);
-          });
-
-  // Create robot speed SwerveRequest for path following
+  // Create robot speed SwerveRequest for path following/drive to pose
   private final SwerveRequest.ApplyRobotSpeeds applyRobotSpeeds =
       new SwerveRequest.ApplyRobotSpeeds().withDriveRequestType(DriveRequestType.Velocity);
   private final SwerveRequest.ApplyFieldSpeeds applyFieldSpeeds =
       new SwerveRequest.ApplyFieldSpeeds().withDriveRequestType(DriveRequestType.Velocity);
 
-  // Create PID controllers for path following and alignment
+  // Create PID controllers for path following and drive to pose
   private final PIDController xController =
       new PIDController(
           PathConstants.translation.kP, PathConstants.translation.kI, PathConstants.translation.kD);
@@ -140,34 +115,7 @@ public class Drive extends SubsystemBase {
     field.setRobotPose(inputs.Pose);
   }
 
-  // region Autonomous and path following
-  /**
-   * Method to follow a trajectory, typically from Choreo, using a provided {@link SwerveSample}. As
-   * this will attempt to move the drivetrain, make sure this is called from a command.
-   */
-  public void followTrajectory(SwerveSample sample) {
-    // Create the speeds using the provided sample and the current pose
-    ChassisSpeeds speeds =
-        new ChassisSpeeds(
-            sample.vx + xController.calculate(inputs.Pose.getX(), sample.x),
-            sample.vy + yController.calculate(inputs.Pose.getY(), sample.y),
-            sample.omega
-                + rotationController.calculate(
-                    inputs.Pose.getRotation().getRadians(), sample.heading));
-
-    // Set the control of the drivetrain
-    io.setControl(
-        applyFieldSpeeds
-            .withSpeeds(speeds)
-            .withWheelForceFeedforwardsX(sample.moduleForcesX())
-            .withWheelForceFeedforwardsY(sample.moduleForcesY()));
-
-    // Log the setpoint pose (using an array to clear and hide from AdvantageScope)
-    Logger.recordOutput(
-        "Drive/PathFollowing/Choreo/TrajectorySetpoint",
-        new Pose2d[] {new Pose2d(sample.x, sample.y, new Rotation2d(sample.heading))});
-  }
-
+  // region Automation and path following
   public void goToPose(Pose2d pose) {
     double xVelocity = xController.calculate(inputs.Pose.getX(), pose.getX());
     double yVelocity = yController.calculate(inputs.Pose.getY(), pose.getY());
@@ -187,11 +135,6 @@ public class Drive extends SubsystemBase {
                 inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians()));
 
     io.setControl(applyFieldSpeeds.withSpeeds(speeds));
-  }
-
-  /** Get the {@link AutoFactory} of this drivetrain in order to create Choreo autos. */
-  public AutoFactory getAutoFactory() {
-    return autoFactory;
   }
 
   /**
