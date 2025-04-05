@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 /**
  * A hardware interface/implementation layer for a basic wheel/roller subsystem powered by two
- * simulated motors. These two motors are usually controlled
- * together, but they can be controlled separately if needed.
+ * simulated motors. These two motors are usually controlled together, but they can be controlled
+ * separately if needed.
  */
 public class RollerIOSim implements RollerIO {
   private final DCMotor gearbox;
