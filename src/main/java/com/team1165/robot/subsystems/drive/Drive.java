@@ -24,7 +24,7 @@ import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
-import com.team1165.robot.util.LocalADStarAK;
+import com.team1165.robot.util.auto.LocalADStarAK;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;

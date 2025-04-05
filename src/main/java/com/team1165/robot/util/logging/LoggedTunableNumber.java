@@ -1,11 +1,13 @@
-// Copyright (c) 2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
+/*
+ * File originally made by: Mechanical Advantage - FRC 6328
+ * Copyright (c) 2025 Team 6328 (https://github.com/Mechanical-Advantage)
+ * Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
+ *
+ * Use of this source code is governed by the MIT License, which can be found in the LICENSE file at
+ * the root directory of this project.
+ */
 
-package com.team1165.robot.util;
+package com.team1165.robot.util.logging;
 
 import com.team1165.robot.Constants;
 import java.util.Arrays;

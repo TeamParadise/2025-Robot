@@ -12,7 +12,7 @@ import com.team1165.robot.FieldConstants.Reef;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOInputsAutoLogged;
-import com.team1165.robot.util.LoggedTunableNumber;
+import com.team1165.robot.util.logging.LoggedTunableNumber;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
