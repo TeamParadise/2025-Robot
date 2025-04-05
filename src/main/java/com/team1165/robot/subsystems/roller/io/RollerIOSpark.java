@@ -24,7 +24,7 @@ import com.team1165.robot.util.vendor.rev.SparkUtil;
  * motors attached to SPARK MAX/FLEX motor controllers. These two motors are usually controlled
  * together, but they can be controlled separately if needed.
  */
-public class RollerIOSparkMax implements RollerIO {
+public class RollerIOSpark implements RollerIO {
   // Save motors and configs, configs are saved for brake mode configuration later
   private final SparkBase primaryMotor;
   private final SparkBase secondaryMotor;
@@ -35,7 +35,7 @@ public class RollerIOSparkMax implements RollerIO {
   private final SparkMotorData primaryMotorData;
   private final SparkMotorData secondaryMotorData;
 
-  public RollerIOSparkMax(SparkFullConfig primaryFullConfig, SparkFullConfig secondaryFullConfig) {
+  public RollerIOSpark(SparkFullConfig primaryFullConfig, SparkFullConfig secondaryFullConfig) {
     // Assign motor variables
     primaryMotor =
         primaryFullConfig.model == SparkModel.SparkFlex
