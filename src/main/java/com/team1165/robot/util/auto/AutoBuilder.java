@@ -23,8 +23,8 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
-public class ChoreoAutoBuilder {
-  private static ChoreoAutoBuilder instance;
+public class AutoBuilder {
+  private static AutoBuilder instance;
 
   private static final LoggedNetworkString reef1 =
       new LoggedNetworkString("Auto/Score/FirstLocation", "A");
@@ -65,7 +65,7 @@ public class ChoreoAutoBuilder {
   private static final LoggedNetworkNumber sequencesToRun =
       new LoggedNetworkNumber("Auto/SequencesToRun", 3);
 
-  private ChoreoAutoBuilder() {
+  private AutoBuilder() {
     addLevelOptions(level1);
     addLevelOptions(level2);
     addLevelOptions(level3);
@@ -124,16 +124,14 @@ public class ChoreoAutoBuilder {
       }
     }
 
-    var autoRoutine = drive.getAutoFactory().newRoutine("Auto Builder");
-
-    var choreoAuto =
-        new ChoreoAuto(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
-    return choreoAuto.getSimpleAutoCommand(drive, elevator, flywheels, funnel);
+    var autoRoutine =
+        new AutoRoutine(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
+    return autoRoutine.getAutoCommand(drive, elevator, flywheels, funnel);
   }
 
-  public static ChoreoAutoBuilder getInstance() {
+  public static AutoBuilder getInstance() {
     if (instance == null) {
-      instance = new ChoreoAutoBuilder();
+      instance = new AutoBuilder();
     }
 
     return instance;
