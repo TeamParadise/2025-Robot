@@ -62,7 +62,7 @@ public class SparkFullConfigs {
      * @param motorType The type of motor (brushless/brushed) connected to the SPARK MAX.
      * @param config The configuration to apply to the SPARK MAX.
      */
-    public SparkMaxFullConfig(int canId, MotorType motorType, SparkMaxConfig config) {
+    public SparkMaxFullConfig(int canId, MotorType motorType, SparkBaseConfig config) {
       super(SparkModel.SparkMax, canId, motorType, config);
     }
   }
@@ -79,7 +79,7 @@ public class SparkFullConfigs {
      * @param motorType The type of motor (brushless/brushed) connected to the SPARK FLEX.
      * @param config The configuration to apply to the SPARK FLEX.
      */
-    public SparkFlexFullConfig(int canId, MotorType motorType, SparkMaxConfig config) {
+    public SparkFlexFullConfig(int canId, MotorType motorType, SparkBaseConfig config) {
       super(SparkModel.SparkFlex, canId, motorType, config);
     }
   }
