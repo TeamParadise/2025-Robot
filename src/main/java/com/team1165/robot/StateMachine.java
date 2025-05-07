@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -32,15 +33,19 @@ import org.littletonrobotics.junction.Logger;
  */
 public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   private S currentState;
-  private double lastTransitionTimestamp = Timer.getTimestamp();
+  private double lastTransitionTimestamp = 0.0;
 
   /**
-   * Creates a new state machine subsystem.
+   * Creates a new subsystem with a state machine implementation.
    *
    * @param initialState The initial/default state of the subsystem.
+   * @see StateMachine
    */
   protected StateMachine(S initialState) {
     currentState = initialState;
+
+    // Start a transition to the initial state
+    startTransition();
   }
 
   /**
@@ -57,6 +62,23 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     setState(getNextState());
   }
 
+  protected boolean atGoal(S goalState) {
+    return goalState == currentState;
+  }
+
+  /**
+   * Returns if the subsystem has fully reached it's current state, if it's goal has been reached.
+   * This can be used to check to see if a subsystem has reached the current state's position,
+   * speed, etc.
+   *
+   * <p>By default, this returns true, and will only return other values if overridden.
+   *
+   * @return If the subsystem is at the state's goal.
+   */
+  public boolean atGoal() {
+    return atGoal(currentState);
+  }
+
   /**
    * Creates a command that finishes once this subsystem is in the given state.
    *
@@ -64,11 +86,21 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    * @return A command that finishes once the current state is equal to the goal state.
    */
   public Command waitForState(S goalState) {
-    return Commands.waitUntil(() -> this.currentState == goalState);
+    return Commands.waitUntil(() -> currentState == goalState);
   }
 
-  public Command waitUntilGoalReached() {
-    return Commands.waitUntil(this::atGoal);
+  /**
+   * Creates a command that waits until this state machine is in any of the given states.
+   *
+   * @param goalStates A set of the states to wait for.
+   * @return A command that waits until the state is equal to any of the goal states.
+   */
+  public Command waitForStates(Set<S> goalStates) {
+    return Commands.waitUntil(() -> goalStates.contains(currentState));
+  }
+
+  public Command waitUntilGoalReached(S goalState) {
+    return Commands.waitUntil(() -> currentState == goalState && atGoal());
   }
 
   /**
@@ -78,15 +110,6 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   public S getCurrentState() {
     return currentState;
-  }
-
-  /** Returns if the subsystem has fully reached it's current state, if it's goal has been reached. This can be used to check to see if a subsystem has reached the current state's position, speed, etc.
-   *
-   * <p>By default, this returns true, and will only return other values if overridden.
-   * @return If the subsystem is at the state's goal.
-   */
-  protected boolean atGoal() {
-    return true;
   }
 
   protected S getNextState() {
@@ -112,6 +135,19 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    * class.
    */
   protected void updateInputs() {}
+
+  /**
+   * Checks if the current state has been in for longer than the given duration. Used for having
+   * timeout logic in state transitions.
+   *
+   * @param duration The timeout duration (in seconds) to use.
+   * @return Whether the current state has been active for longer than the given duration.
+   */
+  public boolean timeout(double duration) {
+    var currentStateDuration = Timer.getFPGATimestamp() - lastTransitionTimestamp;
+
+    return currentStateDuration > duration;
+  }
 
   /**
    * Start a transition to the new current state. This method will save the current timestamp at the
