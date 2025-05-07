@@ -5,18 +5,18 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems.roller;
+package com.team1165.robot.subsystems.roller.funnel;
 
-import com.team1165.robot.subsystems.roller.constants.FunnelConstants;
+import com.team1165.robot.StateMachine;
+import com.team1165.robot.subsystems.roller.funnel.FunnelState;
+import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Funnel extends SubsystemBase {
+public class Funnel extends StateMachine<FunnelState> {
   private final RollerIO io;
   private final RollerIOInputs inputs = new RollerIOInputs();
-  private final FunnelState currentState = FunnelState.IDLE;
 
   private final LoggedTunableNumber intakeVoltage =
       new LoggedTunableNumber("Funnel/Speeds/Intake", FunnelConstants.Voltages.intake);
@@ -27,26 +27,27 @@ public class Funnel extends SubsystemBase {
       new LoggedTunableNumber(
           "Funnel/Speeds/ManualReverse", FunnelConstants.Voltages.manualReverse);
 
-  public enum FunnelState {
-    IDLE,
-    INTAKE,
-    MANUAL_FORWARD,
-    MANUAL_REVERSE,
-    CUSTOM_MANUAL
-  }
-
   public Funnel(RollerIO io) {
+    super(FunnelState.IDLE);
     this.io = io;
   }
 
   @Override
-  public void periodic() {
-    switch (currentState) {
+  protected void updateInputs() {
+    io.updateInputs(inputs);
+  }
+
+  @Override
+  protected void transition() {
+    switch (getCurrentState()) {
       case IDLE:
-        io.stop();
-        break;
+        io.runVolts(0.0);
       case INTAKE:
-        io.runVolts(5.0);
+        io.runVolts(intakeVoltage.get());
+      case MANUAL_FORWARD:
+        io.runVolts(manualForwardVoltage.get());
+      case MANUAL_REVERSE:
+        io.runVolts(manualReverseVoltage.get());
     }
   }
 }
