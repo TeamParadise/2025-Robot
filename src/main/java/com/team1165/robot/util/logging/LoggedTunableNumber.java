@@ -41,7 +41,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
   }
 
   /**
-   * Constructs a new LoggedTunableNumber with the specified default value. If tuning mode is enabled, this is the only time you can set the value from the code.
+   * Constructs a new LoggedTunableNumber with the specified default value. If tuning mode is
+   * enabled, this is the only time you can set the value from the code.
    *
    * @param dashboardKey Key on dashboard (under Tuning).
    * @param defaultValue Default value.
@@ -52,7 +53,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
   }
 
   /**
-   * Set the current value of the number. If the robot is in tuning mode, the value will not be set, unless this is the first time setting the value.
+   * Set the current value of the number. If the robot is in tuning mode, the value will not be set,
+   * unless this is the first time setting the value.
    *
    * @param value The new value to assign.
    */
@@ -68,7 +70,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
   }
 
   /**
-   * Get the current value, from the dashboard in tuning mode, and from the currently set value if not. If no value is currently set, returns 0.0.
+   * Get the current value, from the dashboard in tuning mode, and from the currently set value if
+   * not. If no value is currently set, returns 0.0.
    *
    * @return The current value.
    */
@@ -117,7 +120,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
   }
 
   /**
-   * Get the current value, from the dashboard in tuning mode, and from the currently set value if not. If no value is currently set, returns 0.0.
+   * Get the current value, from the dashboard in tuning mode, and from the currently set value if
+   * not. If no value is currently set, returns 0.0.
    *
    * @return The current value.
    */
