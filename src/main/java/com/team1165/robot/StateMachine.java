@@ -62,6 +62,11 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     setState(getNextState());
   }
 
+  /**
+   * Check to see if the state machine has reached the "goal" of the specified state. This will typically be used to check to see if the subsystem is within a specific tolerance of the state's goal position or speed. By default, this will return true if the current state is equal to the goal state, and should be overridden for extra functionality.
+   * @param goalState The state to check if the subsystem is in tolerance of.
+   * @return If the subsystem is within tolerance of the current state.
+   */
   protected boolean atGoal(S goalState) {
     return goalState == currentState;
   }
@@ -112,10 +117,19 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     return currentState;
   }
 
+  /**
+   * Get the next state of the subsystem, if the subsystem is meant to transition between different states on it's own. By default, this will just return the current state.
+   * @return THe next state of the subsystem if it exists, otherwise, the curren state.
+   */
   protected S getNextState() {
     return currentState;
   }
 
+  /**
+   * Function to change the state of the subsystem and start a transition.
+   *
+   * @param state The state to switch to.
+   */
   protected void setState(S state) {
     if (!(state == currentState)) {
       currentState = state;
