@@ -140,6 +140,9 @@ public class MotorData {
      * instance.
      */
     public void update() {
+      // Reset the sticky fault value
+      SparkUtil.resetStickyFault();
+
       // Get applied output since it's used multiple times later on
       double appliedOutput = spark.getAppliedOutput();
 
@@ -170,7 +173,7 @@ public class MotorData {
       velocity = SparkUtil.ifOkOrDefault(spark, encoder::getVelocity, velocity);
 
       // After updating everything, check if SparkUtil reports any connection issues/sticky fault
-      connected = connectedDebouncer.calculate(!SparkUtil.getAndResetStickyFault());
+      connected = connectedDebouncer.calculate(!SparkUtil.getStickyFault());
     }
   }
 
