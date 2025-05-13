@@ -15,7 +15,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.team1165.robot.util.logging.MotorData.SparkMotorData;
-import com.team1165.robot.util.vendor.rev.SparkFullConfigs.SparkFullConfig;
+import com.team1165.robot.util.vendor.rev.SparkConfig;
 import com.team1165.robot.util.vendor.rev.SparkModel;
 import com.team1165.robot.util.vendor.rev.SparkUtil;
 
@@ -35,20 +35,20 @@ public class RollerIOSpark implements RollerIO {
   private final SparkMotorData primaryMotorData;
   private final SparkMotorData secondaryMotorData;
 
-  public RollerIOSpark(SparkFullConfig primaryFullConfig, SparkFullConfig secondaryFullConfig) {
+  public RollerIOSpark(SparkConfig primaryFullConfig, SparkConfig secondaryFullConfig) {
     // Assign motor variables
     primaryMotor =
-        primaryFullConfig.model == SparkModel.SparkFlex
-            ? new SparkFlex(primaryFullConfig.canId, primaryFullConfig.motorType)
-            : new SparkMax(primaryFullConfig.canId, primaryFullConfig.motorType);
+        primaryFullConfig.model() == SparkModel.SparkFlex
+            ? new SparkFlex(primaryFullConfig.canId(), primaryFullConfig.motorType())
+            : new SparkMax(primaryFullConfig.canId(), primaryFullConfig.motorType());
     secondaryMotor =
-        secondaryFullConfig.model == SparkModel.SparkFlex
-            ? new SparkFlex(secondaryFullConfig.canId, secondaryFullConfig.motorType)
-            : new SparkMax(secondaryFullConfig.canId, secondaryFullConfig.motorType);
+        secondaryFullConfig.model() == SparkModel.SparkFlex
+            ? new SparkFlex(secondaryFullConfig.canId(), secondaryFullConfig.motorType())
+            : new SparkMax(secondaryFullConfig.canId(), secondaryFullConfig.motorType());
 
     // Assign the configurations to variables
-    primaryConfig = primaryFullConfig.config;
-    secondaryConfig = secondaryFullConfig.config;
+    primaryConfig = primaryFullConfig.config();
+    secondaryConfig = secondaryFullConfig.config();
 
     // Create MotorData instances to log motors
     primaryMotorData = new SparkMotorData(primaryMotor);

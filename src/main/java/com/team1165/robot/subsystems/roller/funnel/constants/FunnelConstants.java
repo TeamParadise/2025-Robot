@@ -9,15 +9,16 @@ package com.team1165.robot.subsystems.roller.funnel.constants;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.team1165.robot.util.vendor.rev.SparkConfig;
 import com.team1165.robot.util.vendor.rev.SparkFullConfigs.SparkMaxFullConfig;
 
 public class FunnelConstants {
   private static final SparkMaxConfig baseMotorConfig =
       new SparkMaxConfig().apply(); // figure this out, REVLib sucks.
-  private static final SparkMaxFullConfig primaryMotorConfig =
-      new SparkMaxFullConfig(3, MotorType.kBrushless, baseMotorConfig);
-  private static final SparkMaxFullConfig secondaryMotorConfig =
-      new SparkMaxFullConfig(4, MotorType.kBrushless, baseMotorConfig);
+  private static final SparkConfig primaryMotorConfig =
+      SparkConfig.sparkMax(3, MotorType.kBrushless, baseMotorConfig);
+  private static final SparkConfig secondaryMotorConfig =
+      SparkConfig.sparkMax(4, MotorType.kBrushless, baseMotorConfig);
 
   public static final class Voltages {
     public static final double intake = 5.0;
