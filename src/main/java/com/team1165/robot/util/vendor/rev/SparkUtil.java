@@ -24,12 +24,15 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 /** Class containing various utilities to interface with SPARK motor controllers. */
-public class SparkUtil {
+public final class SparkUtil {
   /** Stores whether any error was detected by any utility methods, since the last reset. */
   private static boolean sparkStickyFault = false;
 
+  private SparkUtil() {} // Prevent instantiation
+
   /**
-   * Creates and configures a SPARK ({@link SparkBase}) motor controller with the provided configuration.
+   * Creates and configures a SPARK ({@link SparkBase}) motor controller with the provided
+   * configuration.
    *
    * @param config The configuration of the SPARK motor controller.
    * @param name The name of the SPARK motor controller (used for logging if anything goes wrong).
@@ -37,28 +40,38 @@ public class SparkUtil {
    */
   public static SparkBase createNewSpark(SparkConfig config, String name) {
     // Create the SPARK based on the model provided
-    var spark = config.model() == SparkModel.SparkFlex
-        ? new SparkFlex(config.canId(), config.motorType())
-        : new SparkMax(config.canId(), config.motorType());
+    var spark =
+        config.model() == SparkModel.SparkFlex
+            ? new SparkFlex(config.canId(), config.motorType())
+            : new SparkMax(config.canId(), config.motorType());
 
     // Configure the SPARK with the configuration given, and alert if it was never successful
-    new Alert(
-            "SPARK \"" + name + "\" (ID: " + config.canId() + ") configuration has failed. Unexpected behavior may occur.",
-            AlertType.kWarning)
-        .set(
-            !SparkUtil.tryUntilOk(
-                5,
-                () ->
-                    spark.configure(
-                        config.config(),
-                        ResetMode.kResetSafeParameters,
-                        PersistMode.kPersistParameters)));
+    boolean failed =
+        !SparkUtil.tryUntilOk(
+            5,
+            () ->
+                spark.configure(
+                    config.config(),
+                    ResetMode.kResetSafeParameters,
+                    PersistMode.kPersistParameters));
+
+    if (failed) {
+      new Alert(
+              "SPARK \""
+                  + name
+                  + "\" (ID: "
+                  + config.canId()
+                  + ") configuration has failed. Unexpected behavior may occur.",
+              AlertType.kWarning)
+          .set(true);
+    }
 
     return spark;
   }
 
   /**
-   * Get the sticky fault status. The sticky fault status represents if any methods called here since the last reset have returned an error.
+   * Gets the sticky fault status. The sticky fault status represents if any methods called in
+   * SparkUtil since the last reset have returned an error.
    *
    * @return The sticky fault status.
    */
@@ -67,7 +80,9 @@ public class SparkUtil {
   }
 
   /**
-   * Reset the sticky fault status back to false. This should be called right before grabbing anything from a SPARK for the loop period.
+   * Resets the sticky fault status back to false. This should be called right before grabbing
+   * information from a SPARK, and called before grabbing information from any other SPARK in a loop
+   * period.
    */
   public static void resetStickyFault() {
     sparkStickyFault = false;
@@ -76,7 +91,7 @@ public class SparkUtil {
   /**
    * Processes a value from a SPARK only if the value is valid (does not error).
    *
-   * @param spark The SPARK involved with this process.
+   * @param spark The SPARK that the value is being grabbed from.
    * @param supplier The value to try to get from the SPARK.
    * @param consumer The consumer that will process the value if valid.
    */
@@ -90,26 +105,48 @@ public class SparkUtil {
   }
 
   /**
-   * Processes values from a SPARK only if the values are valid (don't result in any errors).
+   * Processes a value from a SPARK only if the value is valid (does not error).
    *
-   * @param spark The SPARK involved with this process.
-   * @param suppliers The values to try to get from the SPARK.
-   * @param consumer The consumer that will process the values if valid.
+   * @param spark The SPARK that the value is being grabbed from.
+   * @param supplier The value to try to get from the SPARK.
+   * @param consumer The consumer that will process the value if valid.
    */
-  public static void ifOk(
-      SparkBase spark, DoubleSupplier[] suppliers, Consumer<double[]> consumer) {
-    double[] values = new double[suppliers.length];
-    for (int i = 0; i < suppliers.length; i++) {
-      values[i] = suppliers[i].getAsDouble();
-      if (spark.getLastError() != REVLibError.kOk) {
-        sparkStickyFault = true;
-        return;
-      }
+  public static <T> void ifOk(SparkBase spark, Supplier<T> supplier, Consumer<T> consumer) {
+    var value = supplier.get();
+    if (spark.getLastError() == REVLibError.kOk) {
+      consumer.accept(value);
+    } else {
+      sparkStickyFault = true;
     }
-    consumer.accept(values);
   }
 
-  /** Return a value from a Spark (or the default if the value is invalid). */
+  /**
+   * Returns a value from a SPARK, or the default if the value is invalid.
+   *
+   * @param spark The SPARK that the value is being grabbed from.
+   * @param supplier The value to try to get from the SPARK.
+   * @param defaultValue The default value to be returned if the value is invalid.
+   * @return The value from the SPARK, or the default if the value is invalid.
+   */
+  public static boolean ifOkOrDefault(
+      SparkBase spark, BooleanSupplier supplier, boolean defaultValue) {
+    boolean value = supplier.getAsBoolean();
+    if (spark.getLastError() == REVLibError.kOk) {
+      return value;
+    } else {
+      sparkStickyFault = true;
+      return defaultValue;
+    }
+  }
+
+  /**
+   * Returns a value from a SPARK, or the default if the value is invalid.
+   *
+   * @param spark The SPARK that the value is being grabbed from.
+   * @param supplier The value to try to get from the SPARK.
+   * @param defaultValue The default value to be returned if the value is invalid.
+   * @return The value from the SPARK, or the default if the value is invalid.
+   */
   public static double ifOkOrDefault(
       SparkBase spark, DoubleSupplier supplier, double defaultValue) {
     double value = supplier.getAsDouble();
@@ -121,10 +158,16 @@ public class SparkUtil {
     }
   }
 
-  /** Return a value from a Spark (or the default if the value is invalid). */
-  public static boolean ifOkOrDefault(
-      SparkBase spark, BooleanSupplier supplier, boolean defaultValue) {
-    boolean value = supplier.getAsBoolean();
+  /**
+   * Returns a value from a SPARK, or the default if the value is invalid.
+   *
+   * @param spark The SPARK that the value is being grabbed from.
+   * @param supplier The value to try to get from the SPARK.
+   * @param defaultValue The default value to be returned if the value is invalid.
+   * @return The value from the SPARK, or the default if the value is invalid.
+   */
+  public static <T> T ifOkOrDefault(SparkBase spark, Supplier<T> supplier, T defaultValue) {
+    var value = supplier.get();
     if (spark.getLastError() == REVLibError.kOk) {
       return value;
     } else {
