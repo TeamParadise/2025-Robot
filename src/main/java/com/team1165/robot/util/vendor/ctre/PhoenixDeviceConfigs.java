@@ -23,43 +23,43 @@ public final class PhoenixDeviceConfigs {
    * Record-based configuration for a CANcoder, encompassing everything needed to initialize and
    * configure the CANcoder.
    *
+   * @param canId The CAN ID of the CANcoder.
    * @param canBus The CAN bus that the CANcoder is located on ("rio" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
-   * @param canId The CAN ID of the CANcoder.
    * @param config The configuration to apply to the CANcoder.
    */
-  public record CANcoderConfig(String canBus, int canId, CANcoderConfiguration config) {}
+  public record CANcoderConfig(int canId, String canBus, CANcoderConfiguration config) {}
 
   /**
    * Record-based configuration for a CANrange, encompassing everything needed to initialize and
    * configure the CANrange.
    *
+   * @param canId The CAN ID of the CANrange.
    * @param canBus The CAN bus that the CANrange is located on ("rio" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
-   * @param canId The CAN ID of the CANrange.
    * @param config The configuration to apply to the CANrange.
    */
-  public record CANrangeConfig(String canBus, int canId, CANrangeConfiguration config) {}
+  public record CANrangeConfig(int canId, String canBus, CANrangeConfiguration config) {}
 
   /**
    * Record-based configuration for a Pigeon 2.0, encompassing everything needed to initialize and
    * configure the Pigeon.
    *
+   * @param canId The CAN ID of the Pigeons.
    * @param canBus The CAN bus that the Pigeon is located on ("rio" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
-   * @param canId The CAN ID of the Pigeons.
    * @param config The configuration to apply to the Pigeon.
    */
-  public record PigeonConfig(String canBus, int canId, Pigeon2Configuration config) {}
+  public record PigeonConfig(int canId, String canBus, Pigeon2Configuration config) {}
 
   /**
    * Record-based configuration for a Talon FX, encompassing everything needed to initialize and
    * configure the Talon FX.
    *
+   * @param canId The CAN ID of the Talon FX.
    * @param canBus The CAN bus that the Talon FX is located on ("rio" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
-   * @param canId The CAN ID of the Talon FX.
    * @param config The configuration to apply to the Talon FX.
    */
-  public record TalonFXConfig(String canBus, int canId, TalonFXConfiguration config) {}
+  public record TalonFXConfig(int canId, String canBus, TalonFXConfiguration config) {}
 }
