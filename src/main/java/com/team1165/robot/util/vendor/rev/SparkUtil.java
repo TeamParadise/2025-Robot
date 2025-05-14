@@ -34,11 +34,12 @@ public final class SparkUtil {
    * Creates and configures a SPARK ({@link SparkBase}) motor controller with the provided
    * configuration.
    *
+   * @param name   The name of the SPARK motor controller (used for logging if anything goes
+   *               wrong).
    * @param config The configuration of the SPARK motor controller.
-   * @param name The name of the SPARK motor controller (used for logging if anything goes wrong).
    * @return The new {@link SparkBase} created.
    */
-  public static SparkBase createNewSpark(SparkConfig config, String name) {
+  public static SparkBase createNewSpark(String name, SparkConfig config) {
     // Create the SPARK based on the model provided
     var spark =
         config.model() == SparkModel.SparkFlex
