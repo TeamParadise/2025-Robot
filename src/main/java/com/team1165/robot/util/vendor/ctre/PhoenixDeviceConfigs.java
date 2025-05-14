@@ -8,6 +8,7 @@
 package com.team1165.robot.util.vendor.ctre;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
@@ -28,6 +29,17 @@ public final class PhoenixDeviceConfigs {
    * @param config The configuration to apply to the CANcoder.
    */
   public record CANcoderConfig(String canBus, int canId, CANcoderConfiguration config) {}
+
+  /**
+   * Record-based configuration for a CANrange, encompassing everything needed to initialize and
+   * configure the CANrange.
+   *
+   * @param canBus The CAN bus that the CANrange is located on ("rio" for the roboRIO CAN bus,
+   *     otherwise, the name of the CANivore bus).
+   * @param canId The CAN ID of the CANrange.
+   * @param config The configuration to apply to the CANrange.
+   */
+  public record CANrangeConfig(String canBus, int canId, CANrangeConfiguration config) {}
 
   /**
    * Record-based configuration for a Pigeon 2.0, encompassing everything needed to initialize and
