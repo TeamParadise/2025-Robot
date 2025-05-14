@@ -10,13 +10,10 @@ package com.team1165.robot.subsystems.roller.io;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.team1165.robot.util.logging.MotorData.SparkMotorData;
 import com.team1165.robot.util.vendor.rev.SparkConfig;
-import com.team1165.robot.util.vendor.rev.SparkModel;
 import com.team1165.robot.util.vendor.rev.SparkUtil;
 
 /**
@@ -37,14 +34,9 @@ public class RollerIOSpark implements RollerIO {
 
   public RollerIOSpark(SparkConfig primaryFullConfig, SparkConfig secondaryFullConfig) {
     // Assign motor variables
-    primaryMotor =
-        primaryFullConfig.model() == SparkModel.SparkFlex
-            ? new SparkFlex(primaryFullConfig.canId(), primaryFullConfig.motorType())
-            : new SparkMax(primaryFullConfig.canId(), primaryFullConfig.motorType());
-    secondaryMotor =
-        secondaryFullConfig.model() == SparkModel.SparkFlex
-            ? new SparkFlex(secondaryFullConfig.canId(), secondaryFullConfig.motorType())
-            : new SparkMax(secondaryFullConfig.canId(), secondaryFullConfig.motorType());
+    // TODO: Change the name later
+    primaryMotor = SparkUtil.createNewSpark("RollerPrimary", primaryFullConfig);
+    secondaryMotor = SparkUtil.createNewSpark("RollerSecondary", secondaryFullConfig);
 
     // Assign the configurations to variables
     primaryConfig = primaryFullConfig.config();
@@ -53,18 +45,6 @@ public class RollerIOSpark implements RollerIO {
     // Create MotorData instances to log motors
     primaryMotorData = new SparkMotorData(primaryMotor);
     secondaryMotorData = new SparkMotorData(secondaryMotor);
-
-    // Configure the motors
-    SparkUtil.tryUntilOk(
-        5,
-        () ->
-            primaryMotor.configure(
-                primaryConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-    SparkUtil.tryUntilOk(
-        5,
-        () ->
-            secondaryMotor.configure(
-                secondaryConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
   }
 
   /**
