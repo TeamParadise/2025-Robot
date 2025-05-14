@@ -34,8 +34,7 @@ public final class SparkUtil {
    * Creates and configures a SPARK ({@link SparkBase}) motor controller with the provided
    * configuration.
    *
-   * @param name   The name of the SPARK motor controller (used for logging if anything goes
-   *               wrong).
+   * @param name The name of the SPARK motor controller (used for logging if anything goes wrong).
    * @param config The configuration of the SPARK motor controller.
    * @return The new {@link SparkBase} created.
    */
@@ -180,14 +179,14 @@ public final class SparkUtil {
   /**
    * Attempts to run the method/supplier until no error is produced.
    *
+   * @param maxAttempts The maximum number of times to try before giving up.
+   * @param method The method to run and check if it was successful.
    * @return If the method was ever successful.
    */
-  public static boolean tryUntilOk(int maxAttempts, Supplier<REVLibError> command) {
+  public static boolean tryUntilOk(int maxAttempts, Supplier<REVLibError> method) {
     for (int i = 0; i < maxAttempts; i++) {
-      var error = command.get();
-      if (error == REVLibError.kOk) {
-        return true;
-      }
+      var error = method.get();
+      if (error == REVLibError.kOk) return true;
     }
     return false;
   }
