@@ -26,7 +26,7 @@ public final class PhoenixDeviceConfigs {
    * @param name The name that the CANcoder should be called in logs and alerts. This, ideally,
    *     should match the name given on the CAN bus.
    * @param canId The CAN ID of the CANcoder.
-   * @param canBus The CAN bus that the CANcoder is located on ("rio" for the roboRIO CAN bus,
+   * @param canBus The CAN bus that the CANcoder is located on ("rio" or "" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
    * @param configuration The configuration to apply to the CANcoder.
    */
@@ -40,7 +40,7 @@ public final class PhoenixDeviceConfigs {
    * @param name The name that the CANrange should be called in logs and alerts. This, ideally,
    *     should match the name given on the CAN bus.
    * @param canId The CAN ID of the CANrange.
-   * @param canBus The CAN bus that the CANrange is located on ("rio" for the roboRIO CAN bus,
+   * @param canBus The CAN bus that the CANrange is located on ("rio" or "" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
    * @param configuration The configuration to apply to the CANrange.
    */
@@ -54,7 +54,7 @@ public final class PhoenixDeviceConfigs {
    * @param name The name that the Pigeon should be called in logs and alerts. This, ideally, should
    *     match the name given on the CAN bus.
    * @param canId The CAN ID of the Pigeon.
-   * @param canBus The CAN bus that the Pigeon is located on ("rio" for the roboRIO CAN bus,
+   * @param canBus The CAN bus that the Pigeon is located on ("rio" or "" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
    * @param configuration The configuration to apply to the Pigeon.
    */
@@ -68,7 +68,7 @@ public final class PhoenixDeviceConfigs {
    * @param name The name that the Talon FX should be called in logs and alerts. This, ideally,
    *     should match the name given on the CAN bus.
    * @param canId The CAN ID of the Talon FX.
-   * @param canBus The CAN bus that the Talon FX is located on ("rio" for the roboRIO CAN bus,
+   * @param canBus The CAN bus that the Talon FX is located on ("rio" or "" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
    * @param configuration The configuration to apply to the Talon FX.
    */

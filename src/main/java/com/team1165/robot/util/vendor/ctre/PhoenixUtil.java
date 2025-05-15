@@ -9,18 +9,17 @@ package com.team1165.robot.util.vendor.ctre;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.jni.CANBusJNI;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANcoderConfig;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 public final class PhoenixUtil {
   // Signals for synchronized refresh across devices
-  private static BaseStatusSignal[] signalArrayA = new BaseStatusSignal[0];
-  private static BaseStatusSignal[] signalArrayB = new BaseStatusSignal[0];
+  private static BaseStatusSignal[] canivoreSignals = new BaseStatusSignal[0];
+  private static BaseStatusSignal[] rioSignals = new BaseStatusSignal[0];
 
   private PhoenixUtil() {} // Prevent instantiation
 
@@ -49,6 +48,18 @@ public final class PhoenixUtil {
           .set(true);
     }
 
+    // Explicitly enable required status signals for remote sensors
+    // TODO: Maybe create some sort of CAN constants with preset values for these, so that they can
+    // stay consistent across all devices, and not be manually specified each time?
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        CANBusJNI.JNI_IsNetworkFD(config.canBus()) ? 250 : 100,
+        cancoder.getAbsolutePosition(),
+        cancoder.getPosition(),
+        cancoder.getVelocity());
+
+    // Disable unused status signals (can always be enabled later)
+    cancoder.optimizeBusUtilization(0, 0.1);
+
     return cancoder;
   }
 
@@ -67,23 +78,35 @@ public final class PhoenixUtil {
     return false;
   }
 
-  public static void registerSignals(StatusSignal<?>... signals) {
-    // TODO: Make sure this code works.
-    var signalListA = Arrays.asList(signalArrayA);
-    var signalListB = Arrays.asList(signalArrayB);
-
-    for (int i = 0; i < signals.length; i++) {
-      if (signalListA.isEmpty()) {
-        signalListA.add(signals[i]);
-      } else {
-
-      }
-    }
+  /** Refreshes all signals registered with this class. */
+  public static void refreshAll() {
+    if (canivoreSignals.length > 0) BaseStatusSignal.refreshAll(canivoreSignals);
+    if (rioSignals.length > 0) BaseStatusSignal.refreshAll(rioSignals);
   }
 
-  /** Refreshes all signals across devices registered with this class. */
-  public static void refreshAll() {
-    if (signalArrayA.length > 0) BaseStatusSignal.refreshAll(signalArrayA);
-    if (signalArrayB.length > 0) BaseStatusSignal.refreshAll(signalArrayB);
+  /**
+   * Registers a set of signals for synchronized refresh through {@link #refreshAll()}. Through a
+   * single call of this method, all the signals registered must be on a single CAN bus. To add
+   * signals from the secondary CAN bus, call this method a second time with that CAN bus passed in,
+   * and the signals on it.
+   *
+   * @param canBus The CAN bus that the signals are located on ("rio" or "" for the roboRIO CAN bus,
+   *     otherwise, the name of the CANivore bus).
+   * @param signals The status signals to be registered with this class.
+   */
+  public static void registerSignals(String canBus, BaseStatusSignal... signals) {
+    if (CANBusJNI.JNI_IsNetworkFD(canBus)) {
+      // Create a new CANivore signals array with the new signals added
+      BaseStatusSignal[] newSignals = new BaseStatusSignal[canivoreSignals.length + signals.length];
+      System.arraycopy(canivoreSignals, 0, newSignals, 0, canivoreSignals.length);
+      System.arraycopy(signals, 0, newSignals, canivoreSignals.length, signals.length);
+      canivoreSignals = newSignals;
+    } else {
+      // Create a new RIO signals array with the new signals added
+      BaseStatusSignal[] newSignals = new BaseStatusSignal[rioSignals.length + signals.length];
+      System.arraycopy(rioSignals, 0, newSignals, 0, rioSignals.length);
+      System.arraycopy(signals, 0, newSignals, rioSignals.length, signals.length);
+      rioSignals = newSignals;
+    }
   }
 }
