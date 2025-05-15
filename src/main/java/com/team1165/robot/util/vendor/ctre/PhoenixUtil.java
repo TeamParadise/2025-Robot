@@ -22,8 +22,7 @@ public final class PhoenixUtil {
 
   private PhoenixUtil() {} // Prevent instantiation
 
-  public static CANcoder createNewCANcoder(
-      String name, CANcoderConfig config, StatusSignal<?>... statusSignals) {
+  public static CANcoder createNewCANcoder(CANcoderConfig config, StatusSignal<?>... statusSignals) {
     // Create the CANcoder with the configuration values
     var cancoder = new CANcoder(config.canId(), config.canBus());
   }
