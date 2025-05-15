@@ -34,11 +34,10 @@ public final class SparkUtil {
    * Creates and configures a SPARK ({@link SparkBase}) motor controller with the provided
    * configuration.
    *
-   * @param name The name of the SPARK motor controller (used for logging if anything goes wrong).
    * @param config The configuration of the SPARK motor controller.
    * @return The new {@link SparkBase} created.
    */
-  public static SparkBase createNewSpark(String name, SparkConfig config) {
+  public static SparkBase createNewSpark(SparkConfig config) {
     // Create the SPARK based on the model provided
     var spark =
         config.model() == SparkModel.SparkFlex
@@ -58,7 +57,7 @@ public final class SparkUtil {
     if (failed) {
       new Alert(
               "SPARK \""
-                  + name
+                  + config.name()
                   + "\" (ID: "
                   + config.canId()
                   + ") configuration has failed. Unexpected behavior may occur.",
