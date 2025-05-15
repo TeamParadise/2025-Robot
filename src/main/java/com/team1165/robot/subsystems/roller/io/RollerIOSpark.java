@@ -34,9 +34,8 @@ public class RollerIOSpark implements RollerIO {
 
   public RollerIOSpark(SparkConfig primaryFullConfig, SparkConfig secondaryFullConfig) {
     // Assign motor variables
-    // TODO: Change the name later
-    primaryMotor = SparkUtil.createNewSpark("RollerPrimary", primaryFullConfig);
-    secondaryMotor = SparkUtil.createNewSpark("RollerSecondary", secondaryFullConfig);
+    primaryMotor = SparkUtil.createNewSpark(primaryFullConfig);
+    secondaryMotor = SparkUtil.createNewSpark(secondaryFullConfig);
 
     // Assign the configurations to variables
     primaryConfig = primaryFullConfig.config();
