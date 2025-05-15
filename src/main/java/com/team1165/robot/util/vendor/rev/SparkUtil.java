@@ -44,7 +44,7 @@ public final class SparkUtil {
             ? new SparkFlex(config.canId(), config.motorType())
             : new SparkMax(config.canId(), config.motorType());
 
-    // Configure the SPARK with the configuration given, and alert if it was never successful
+    // Configure the SPARK with the configuration given
     boolean failed =
         !SparkUtil.tryUntilOk(
             5,
@@ -54,6 +54,7 @@ public final class SparkUtil {
                     ResetMode.kResetSafeParameters,
                     PersistMode.kPersistParameters));
 
+    // Alert if the configuration was never successful
     if (failed) {
       new Alert(
               "SPARK \""

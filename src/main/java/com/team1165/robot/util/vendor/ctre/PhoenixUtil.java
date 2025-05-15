@@ -12,6 +12,8 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANcoderConfig;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
@@ -22,9 +24,32 @@ public final class PhoenixUtil {
 
   private PhoenixUtil() {} // Prevent instantiation
 
-  public static CANcoder createNewCANcoder(CANcoderConfig config, StatusSignal<?>... statusSignals) {
+  /**
+   * Creates and configures a CTRE CANcoder ({@link CANcoder}) with the provided config.
+   *
+   * @param config The full config of the CANcoder.
+   * @return The new {@link CANcoder} created.
+   */
+  public static CANcoder createNewCANcoder(CANcoderConfig config) {
     // Create the CANcoder with the configuration values
     var cancoder = new CANcoder(config.canId(), config.canBus());
+
+    // Configure the CANcoder with the configuration given
+    boolean failed = !tryUntilOk(5, () -> cancoder.getConfigurator().apply(config.configuration()));
+
+    // Alert if the configuration was never successful
+    if (failed) {
+      new Alert(
+              "CANcoder \""
+                  + config.name()
+                  + "\" (ID: "
+                  + config.canId()
+                  + ") configuration has failed. Unexpected behavior may occur.",
+              AlertType.kWarning)
+          .set(true);
+    }
+
+    return cancoder;
   }
 
   /**
