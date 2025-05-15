@@ -25,21 +25,21 @@ public class RollerIOSpark implements RollerIO {
   // Save motors and configs, configs are saved for brake mode configuration later
   private final SparkBase primaryMotor;
   private final SparkBase secondaryMotor;
-  private final SparkBaseConfig primaryConfig;
-  private final SparkBaseConfig secondaryConfig;
+  private final SparkBaseConfig primaryConfiguration;
+  private final SparkBaseConfig secondaryConfiguration;
 
   // Motor data to log
   private final SparkMotorData primaryMotorData;
   private final SparkMotorData secondaryMotorData;
 
-  public RollerIOSpark(SparkConfig primaryFullConfig, SparkConfig secondaryFullConfig) {
+  public RollerIOSpark(SparkConfig primaryConfig, SparkConfig secondaryConfig) {
     // Assign motor variables
-    primaryMotor = SparkUtil.createNewSpark(primaryFullConfig);
-    secondaryMotor = SparkUtil.createNewSpark(secondaryFullConfig);
+    primaryMotor = SparkUtil.createNewSpark(primaryConfig);
+    secondaryMotor = SparkUtil.createNewSpark(secondaryConfig);
 
     // Assign the configurations to variables
-    primaryConfig = primaryFullConfig.config();
-    secondaryConfig = secondaryFullConfig.config();
+    primaryConfiguration = primaryConfig.configuration();
+    secondaryConfiguration = secondaryConfig.configuration();
 
     // Create MotorData instances to log motors
     primaryMotorData = new SparkMotorData(primaryMotor);
@@ -106,14 +106,16 @@ public class RollerIOSpark implements RollerIO {
                   5,
                   () ->
                       primaryMotor.configure(
-                          primaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                          primaryConfiguration.idleMode(
+                              enabled ? IdleMode.kBrake : IdleMode.kCoast),
                           ResetMode.kNoResetSafeParameters,
                           PersistMode.kNoPersistParameters));
               SparkUtil.tryUntilOk(
                   5,
                   () ->
                       secondaryMotor.configure(
-                          secondaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                          secondaryConfiguration.idleMode(
+                              enabled ? IdleMode.kBrake : IdleMode.kCoast),
                           ResetMode.kNoResetSafeParameters,
                           PersistMode.kNoPersistParameters));
             })
