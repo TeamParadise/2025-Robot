@@ -15,7 +15,7 @@ import com.team1165.robot.util.vendor.rev.SparkConfig;
 
 public class FunnelConstants {
   private static final SparkBaseConfig baseMotorConfig =
-      new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake); // figure this out, REVLib sucks.
+      new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake);
   private static final SparkConfig primaryMotorConfig =
       SparkConfig.sparkMax("FunnelPrimary", 3, MotorType.kBrushless, baseMotorConfig);
   private static final SparkConfig secondaryMotorConfig =
