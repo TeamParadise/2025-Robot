@@ -50,7 +50,7 @@ public final class SparkUtil {
             5,
             () ->
                 spark.configure(
-                    config.config(),
+                    config.configuration(),
                     ResetMode.kResetSafeParameters,
                     PersistMode.kPersistParameters));
 
