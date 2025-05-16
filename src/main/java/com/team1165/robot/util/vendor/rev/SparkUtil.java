@@ -46,7 +46,7 @@ public final class SparkUtil {
 
     // Configure the SPARK with the configuration given
     boolean failed =
-        !SparkUtil.tryUntilOk(
+        SparkUtil.tryUntilOk(
             5,
             () ->
                 spark.configure(
@@ -181,13 +181,13 @@ public final class SparkUtil {
    *
    * @param maxAttempts The maximum number of times to try before giving up.
    * @param method The method to run and check if it was successful.
-   * @return If the method was ever successful.
+   * @return If the method was never successful.
    */
   public static boolean tryUntilOk(int maxAttempts, Supplier<REVLibError> method) {
     for (int i = 0; i < maxAttempts; i++) {
       var error = method.get();
-      if (error == REVLibError.kOk) return true;
+      if (error == REVLibError.kOk) return false;
     }
-    return false;
+    return true;
   }
 }
