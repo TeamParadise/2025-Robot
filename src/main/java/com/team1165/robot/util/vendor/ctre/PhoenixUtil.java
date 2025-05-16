@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.function.Supplier;
 
+/** Class containing various utilities to interface with CTR Electronics Phoenix 6 devices. */
 public final class PhoenixUtil {
   // Signals for synchronized refresh across devices
   private static BaseStatusSignal[] canivoreSignals = new BaseStatusSignal[0];
@@ -41,7 +42,7 @@ public final class PhoenixUtil {
     var cancoder = new CANcoder(config.canId(), config.canBus());
 
     // Configure the CANcoder with the configuration given
-    boolean failed = !tryUntilOk(5, () -> cancoder.getConfigurator().apply(config.configuration()));
+    boolean failed = tryUntilOk(5, () -> cancoder.getConfigurator().apply(config.configuration()));
 
     // Alert if the configuration was never successful
     if (failed) {
@@ -80,7 +81,7 @@ public final class PhoenixUtil {
     var canrange = new CANrange(config.canId(), config.canBus());
 
     // Configure the CANrange with the configuration given
-    boolean failed = !tryUntilOk(5, () -> canrange.getConfigurator().apply(config.configuration()));
+    boolean failed = tryUntilOk(5, () -> canrange.getConfigurator().apply(config.configuration()));
 
     // Alert if the configuration was never successful
     if (failed) {
@@ -116,7 +117,7 @@ public final class PhoenixUtil {
     var pigeon = new Pigeon2(config.canId(), config.canBus());
 
     // Configure the Pigeon with the configuration given
-    boolean failed = !tryUntilOk(5, () -> pigeon.getConfigurator().apply(config.configuration()));
+    boolean failed = tryUntilOk(5, () -> pigeon.getConfigurator().apply(config.configuration()));
 
     // Alert if the configuration was never successful
     if (failed) {
@@ -154,7 +155,7 @@ public final class PhoenixUtil {
     var talon = new TalonFX(config.canId(), config.canBus());
 
     // Configure the CANrange with the configuration given
-    boolean failed = !tryUntilOk(5, () -> talon.getConfigurator().apply(config.configuration()));
+    boolean failed = tryUntilOk(5, () -> talon.getConfigurator().apply(config.configuration()));
 
     // Alert if the configuration was never successful
     if (failed) {
@@ -181,21 +182,6 @@ public final class PhoenixUtil {
     talon.optimizeBusUtilization(0, 0.1);
 
     return talon;
-  }
-
-  /**
-   * Attempts to run the method/supplier until no error is produced.
-   *
-   * @param maxAttempts The maximum number of times to try before giving up.
-   * @param method The method to run and check if it was successful.
-   * @return If the method was ever successful.
-   */
-  public static boolean tryUntilOk(int maxAttempts, Supplier<StatusCode> method) {
-    for (int i = 0; i < maxAttempts; i++) {
-      var error = method.get();
-      if (error.isOK()) return true;
-    }
-    return false;
   }
 
   /** Refreshes all signals registered with this class. */
@@ -229,4 +215,20 @@ public final class PhoenixUtil {
       rioSignals = newSignals;
     }
   }
+
+  /**
+   * Attempts to run the method/supplier until no error is produced.
+   *
+   * @param maxAttempts The maximum number of times to try before giving up.
+   * @param method The method to run and check if it was successful.
+   * @return If the method was never successful.
+   */
+  public static boolean tryUntilOk(int maxAttempts, Supplier<StatusCode> method) {
+    for (int i = 0; i < maxAttempts; i++) {
+      var error = method.get();
+      if (error.isOK()) return false;
+    }
+    return true;
+  }
+
 }
