@@ -11,6 +11,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.jni.CANBusJNI;
+import com.team1165.robot.util.constants.CANFrequency;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANcoderConfig;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -52,7 +53,7 @@ public final class PhoenixUtil {
     // TODO: Maybe create some sort of CAN constants with preset values for these, so that they can
     // stay consistent across all devices, and not be manually specified each time?
     BaseStatusSignal.setUpdateFrequencyForAll(
-        CANBusJNI.JNI_IsNetworkFD(config.canBus()) ? 250 : 100,
+        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
         cancoder.getAbsolutePosition(),
         cancoder.getPosition(),
         cancoder.getVelocity());
