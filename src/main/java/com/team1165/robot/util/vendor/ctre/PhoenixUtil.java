@@ -21,7 +21,9 @@ import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.PigeonConfig;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.TalonFXConfig;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import java.util.Arrays;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /** Class containing various utilities to interface with CTR Electronics Phoenix 6 devices. */
 public final class PhoenixUtil {
@@ -160,12 +162,12 @@ public final class PhoenixUtil {
     // Alert if the configuration was never successful
     if (failed) {
       new Alert(
-          "Talon FX \""
-              + config.name()
-              + "\" (ID: "
-              + config.canId()
-              + ") configuration has failed. Unexpected behavior may occur.",
-          AlertType.kWarning)
+              "Talon FX \""
+                  + config.name()
+                  + "\" (ID: "
+                  + config.canId()
+                  + ") configuration has failed. Unexpected behavior may occur.",
+              AlertType.kWarning)
           .set(true);
     }
 
@@ -202,17 +204,17 @@ public final class PhoenixUtil {
    */
   public static void registerSignals(String canBus, BaseStatusSignal... signals) {
     if (CANBusJNI.JNI_IsNetworkFD(canBus)) {
-      // Create a new CANivore signals array with the new signals added
-      BaseStatusSignal[] newSignals = new BaseStatusSignal[canivoreSignals.length + signals.length];
-      System.arraycopy(canivoreSignals, 0, newSignals, 0, canivoreSignals.length);
-      System.arraycopy(signals, 0, newSignals, canivoreSignals.length, signals.length);
-      canivoreSignals = newSignals;
+      // Create a new CANivore signals array with the new signals added, and any duplicates removed
+      canivoreSignals =
+          Stream.concat(Arrays.stream(canivoreSignals), Arrays.stream(signals))
+              .distinct()
+              .toArray(BaseStatusSignal[]::new);
     } else {
-      // Create a new RIO signals array with the new signals added
-      BaseStatusSignal[] newSignals = new BaseStatusSignal[rioSignals.length + signals.length];
-      System.arraycopy(rioSignals, 0, newSignals, 0, rioSignals.length);
-      System.arraycopy(signals, 0, newSignals, rioSignals.length, signals.length);
-      rioSignals = newSignals;
+      // Create a new RIO signals array with the new signals added, and any duplicates removed
+      rioSignals =
+          Stream.concat(Arrays.stream(rioSignals), Arrays.stream(signals))
+              .distinct()
+              .toArray(BaseStatusSignal[]::new);
     }
   }
 
@@ -230,5 +232,4 @@ public final class PhoenixUtil {
     }
     return true;
   }
-
 }
