@@ -10,9 +10,13 @@ package com.team1165.robot.util.vendor.ctre;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.jni.CANBusJNI;
 import com.team1165.robot.util.constants.CANFrequency;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANcoderConfig;
+import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANrangeConfig;
+import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.PigeonConfig;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.function.Supplier;
@@ -50,18 +54,91 @@ public final class PhoenixUtil {
     }
 
     // Explicitly enable required status signals for remote sensors
-    // TODO: Maybe create some sort of CAN constants with preset values for these, so that they can
-    // stay consistent across all devices, and not be manually specified each time?
     BaseStatusSignal.setUpdateFrequencyForAll(
         CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
         cancoder.getAbsolutePosition(),
         cancoder.getPosition(),
-        cancoder.getVelocity());
+        cancoder.getVelocity(),
+        cancoder.getMagnetHealth());
 
     // Disable unused status signals (can always be enabled later)
     cancoder.optimizeBusUtilization(0, 0.1);
 
     return cancoder;
+  }
+
+  /**
+   * Creates and configures a CTRE CANrange ({@link CANrange}) with the provided config.
+   *
+   * @param config The full config of the CANrange.
+   * @return The new {@link CANrange} created.
+   */
+  public static CANrange createNewCANrange(CANrangeConfig config) {
+    // Create the CANrange with the configuration values
+    var canrange = new CANrange(config.canId(), config.canBus());
+
+    // Configure the CANrange with the configuration given
+    boolean failed = !tryUntilOk(5, () -> canrange.getConfigurator().apply(config.configuration()));
+
+    // Alert if the configuration was never successful
+    if (failed) {
+      new Alert(
+              "CANrange \""
+                  + config.name()
+                  + "\" (ID: "
+                  + config.canId()
+                  + ") configuration has failed. Unexpected behavior may occur.",
+              AlertType.kWarning)
+          .set(true);
+    }
+
+    // Explicitly enable required status signals for remote sensors
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
+        canrange.getIsDetected());
+
+    // Disable unused status signals (can always be enabled later)
+    canrange.optimizeBusUtilization(0, 0.1);
+
+    return canrange;
+  }
+
+  /**
+   * Creates and configures a CTRE Pigeon 2.0 ({@link Pigeon2}) with the provided config.
+   *
+   * @param config The full config of the Pigeon.
+   * @return The new {@link Pigeon2} created.
+   */
+  public static Pigeon2 createNewPigeon(PigeonConfig config) {
+    // Create the Pigeon with the configuration values
+    var pigeon = new Pigeon2(config.canId(), config.canBus());
+
+    // Configure the CANrange with the configuration given
+    boolean failed = !tryUntilOk(5, () -> pigeon.getConfigurator().apply(config.configuration()));
+
+    // Alert if the configuration was never successful
+    if (failed) {
+      new Alert(
+              "Pigeon \""
+                  + config.name()
+                  + "\" (ID: "
+                  + config.canId()
+                  + ") configuration has failed. Unexpected behavior may occur.",
+              AlertType.kWarning)
+          .set(true);
+    }
+
+    // Explicitly enable required status signals for remote sensors
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
+        pigeon.getYaw(),
+        pigeon.getPitch(),
+        pigeon.getRoll());
+
+    // Disable unused status signals (can always be enabled later)
+    pigeon.optimizeBusUtilization(0, 0.1);
+
+    return pigeon;
   }
 
   /**
