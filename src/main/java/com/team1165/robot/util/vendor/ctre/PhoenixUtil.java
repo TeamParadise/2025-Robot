@@ -12,11 +12,13 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.jni.CANBusJNI;
 import com.team1165.robot.util.constants.CANFrequency;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANcoderConfig;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANrangeConfig;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.PigeonConfig;
+import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.TalonFXConfig;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.function.Supplier;
@@ -113,7 +115,7 @@ public final class PhoenixUtil {
     // Create the Pigeon with the configuration values
     var pigeon = new Pigeon2(config.canId(), config.canBus());
 
-    // Configure the CANrange with the configuration given
+    // Configure the Pigeon with the configuration given
     boolean failed = !tryUntilOk(5, () -> pigeon.getConfigurator().apply(config.configuration()));
 
     // Alert if the configuration was never successful
@@ -139,6 +141,46 @@ public final class PhoenixUtil {
     pigeon.optimizeBusUtilization(0, 0.1);
 
     return pigeon;
+  }
+
+  /**
+   * Creates and configures a Talon FX ({@link TalonFX}) with the provided config.
+   *
+   * @param config The full config of the Talon FX.
+   * @return The new {@link TalonFX} created.
+   */
+  public static TalonFX createNewTalonFX(TalonFXConfig config) {
+    // Create the Talon FX with the configuration values
+    var talon = new TalonFX(config.canId(), config.canBus());
+
+    // Configure the CANrange with the configuration given
+    boolean failed = !tryUntilOk(5, () -> talon.getConfigurator().apply(config.configuration()));
+
+    // Alert if the configuration was never successful
+    if (failed) {
+      new Alert(
+          "Talon FX \""
+              + config.name()
+              + "\" (ID: "
+              + config.canId()
+              + ") configuration has failed. Unexpected behavior may occur.",
+          AlertType.kWarning)
+          .set(true);
+    }
+
+    // Explicitly enable required status signals for sensors and motors that are being followed
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
+        talon.getDutyCycle(),
+        talon.getMotorVoltage(),
+        talon.getTorqueCurrent(),
+        talon.getPosition(),
+        talon.getVelocity());
+
+    // Disable unused status signals (can always be enabled later)
+    talon.optimizeBusUtilization(0, 0.1);
+
+    return talon;
   }
 
   /**
