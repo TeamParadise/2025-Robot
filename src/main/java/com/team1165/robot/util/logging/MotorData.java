@@ -13,6 +13,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.Faults;
+import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.TalonFXConfig;
+import com.team1165.robot.util.vendor.ctre.PhoenixUtil;
 import com.team1165.robot.util.vendor.rev.SparkConfig;
 import com.team1165.robot.util.vendor.rev.SparkUtil;
 import edu.wpi.first.math.filter.Debouncer;
@@ -23,8 +25,6 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import java.util.ArrayList;
-import java.util.List;
 import org.littletonrobotics.junction.LogTable;
 
 /**
@@ -122,29 +122,32 @@ public class MotorData {
    * encoder to log data.
    */
   public static class SparkMotorData extends MotorData {
-    // Motor controller and encoder to grab data from
+    // SPARK and encoder to grab data from
     private final SparkBase spark;
     private final RelativeEncoder encoder;
 
-    // Alerts to send if any issues arise with the motor (controller)
+    // Alerts to send if any issues arise with the SPARK or motor
     private final Alert connectedAlert;
     private final Alert faultAlert;
 
     /**
-     * Debouncer in order to ignore any skipped CAN frames instead of reporting that the controller
-     * is disconnected.
+     * Debouncer to ensure that a few bad CAN frames won't cause the SPARK to report as
+     * disconnected.
      */
-    private final Debouncer connectedDebouncer = new Debouncer(0.25);
+    private final Debouncer connectedDebouncer = new Debouncer(0.20);
 
     /**
      * Constructs a {@link SparkMotorData} using the specified constants.
      *
      * @param spark The {@link SparkBase} to log data from.
+     * @param config The {@link SparkConfig} for this SPARK. Only used for name and CAN ID.
      */
     public SparkMotorData(SparkBase spark, SparkConfig config) {
+      // Get the SPARK and encoder to log data from
       this.spark = spark;
       this.encoder = spark.getEncoder();
 
+      // Create alerts with the name and CAN ID of the SPARK
       connectedAlert =
           new Alert(
               "SPARK \"" + config.name() + "\" (ID: " + config.canId() + ") is disconnected!",
@@ -160,14 +163,10 @@ public class MotorData {
      * with this instance.
      */
     public void update() {
-      // Reset the sticky fault value
+      // Reset the sticky fault value from SparkUtil
       SparkUtil.resetStickyFault();
 
-      // Get applied output since it's used multiple times later on
-      double appliedOutput = spark.getAppliedOutput();
-
-      appliedVolts =
-          SparkUtil.ifOkOrDefault(spark, () -> spark.getBusVoltage() * appliedOutput, appliedVolts);
+      // Check if there are any active faults, if there are, activate an alert and save the faults
       faultAlert.set(
           faultActive = SparkUtil.ifOkOrDefault(spark, spark::hasActiveFault, faultActive));
       if (faultActive) {
@@ -184,6 +183,13 @@ public class MotorData {
       } else {
         faults = "";
       }
+
+      // Get applied output since it's used multiple times later on
+      double appliedOutput = spark.getAppliedOutput();
+
+      // Get values from the SPARK and save them
+      appliedVolts =
+          SparkUtil.ifOkOrDefault(spark, () -> spark.getBusVoltage() * appliedOutput, appliedVolts);
       motorTemperatureCelsius =
           SparkUtil.ifOkOrDefault(spark, spark::getMotorTemperature, motorTemperatureCelsius);
       outputCurrentAmps =
@@ -194,17 +200,21 @@ public class MotorData {
       velocity = SparkUtil.ifOkOrDefault(spark, encoder::getVelocity, velocity);
 
       // After updating everything, check if SparkUtil reports any connection issues/sticky fault
-      connectedAlert.set(connected = connectedDebouncer.calculate(!SparkUtil.getStickyFault()));
+      connectedAlert.set(!(connected = connectedDebouncer.calculate(!SparkUtil.getStickyFault())));
     }
   }
 
+  /**
+   * {@link MotorData} class that uses status signals from a Talon FX motor controller to log data.
+   */
   public static class TalonMotorData extends MotorData {
-    private final TalonFX talon;
-
+    // Status signals providing the data to log
     private final StatusSignal<Voltage> appliedVoltsSignal;
     private final StatusSignal<Integer> faultFieldSignal;
-    private final List<StatusSignal<Boolean>> faultsSignals =
-        new ArrayList<StatusSignal<Boolean>>(99);
+    private final StatusSignal<Boolean> bootDuringEnableFaultSignal;
+    private final StatusSignal<Boolean> deviceTempFaultSignal;
+    private final StatusSignal<Boolean> hardwareFaultSignal;
+    private final StatusSignal<Boolean> procTempFaultSignal;
     private final StatusSignal<Temperature> motorTemperatureSignal;
     private final StatusSignal<Current> outputCurrentSignal;
     private final StatusSignal<Angle> positionSignal;
@@ -212,21 +222,58 @@ public class MotorData {
     private final StatusSignal<Current> supplyCurrentSignal;
     private final StatusSignal<AngularVelocity> velocitySignal;
 
-    public TalonMotorData(TalonFX talon) {
-      this.talon = talon;
+    // Alerts to send if any issues arise with the Talon FX or motor
+    private final Alert connectedAlert;
+    private final Alert faultAlert;
 
+    /**
+     * Debouncer to ensure that a few bad CAN frames won't cause the Talon FX to report as
+     * disconnected.
+     */
+    private final Debouncer connectedDebouncer = new Debouncer(0.20);
+
+    public TalonMotorData(TalonFX talon, TalonFXConfig config) {
+      // Get status signals from the Talon FX
       appliedVoltsSignal = talon.getMotorVoltage();
       faultFieldSignal = talon.getFaultField();
-      faultsSignals.add(talon.getFault_BootDuringEnable());
-      faultsSignals.add(talon.getFault_DeviceTemp());
-      faultsSignals.add(talon.getFault_Hardware());
-      faultsSignals.add(talon.getFault_ProcTemp());
+      bootDuringEnableFaultSignal = talon.getFault_BootDuringEnable();
+      deviceTempFaultSignal = talon.getFault_DeviceTemp();
+      hardwareFaultSignal = talon.getFault_Hardware();
+      procTempFaultSignal = talon.getFault_ProcTemp();
       motorTemperatureSignal = talon.getDeviceTemp();
       outputCurrentSignal = talon.getTorqueCurrent();
       positionSignal = talon.getPosition();
       processorTemperatureSignal = talon.getProcessorTemp();
       supplyCurrentSignal = talon.getSupplyCurrent();
       velocitySignal = talon.getVelocity();
+
+      // TODO: Create/use utility class in PhoenixUtil to set CAN frequency using the constants
+
+      // Register status signals with PhoenixUtil
+      PhoenixUtil.registerSignals(
+          config.canBus(),
+          appliedVoltsSignal,
+          faultFieldSignal,
+          bootDuringEnableFaultSignal,
+          deviceTempFaultSignal,
+          hardwareFaultSignal,
+          procTempFaultSignal,
+          motorTemperatureSignal,
+          outputCurrentSignal,
+          positionSignal,
+          processorTemperatureSignal,
+          supplyCurrentSignal,
+          velocitySignal);
+
+      // Create alerts with the name and ID of the Talon FX
+      connectedAlert =
+          new Alert(
+              "Talon FX \"" + config.name() + "\" (ID: " + config.canId() + ") is disconnected!",
+              AlertType.kError);
+      faultAlert =
+          new Alert(
+              "Talon FX \"" + config.name() + "\" (ID: " + config.canId() + ") has active faults!",
+              AlertType.kError);
     }
 
     public void update() {
