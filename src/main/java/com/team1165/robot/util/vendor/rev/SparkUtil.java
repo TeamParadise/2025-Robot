@@ -57,6 +57,7 @@ public final class SparkUtil {
     // Alert if the configuration was never successful
     if (failed) {
       new Alert(
+              "Hardware Init",
               "SPARK \""
                   + config.name()
                   + "\" (ID: "

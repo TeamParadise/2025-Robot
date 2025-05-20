@@ -49,6 +49,7 @@ public final class PhoenixUtil {
     // Alert if the configuration was never successful
     if (failed) {
       new Alert(
+              "Hardware Init",
               "CANcoder \""
                   + config.name()
                   + "\" (ID: "
@@ -89,6 +90,7 @@ public final class PhoenixUtil {
     // Alert if the configuration was never successful
     if (failed) {
       new Alert(
+              "Hardware Init",
               "CANrange \""
                   + config.name()
                   + "\" (ID: "
@@ -123,6 +125,7 @@ public final class PhoenixUtil {
     // Alert if the configuration was never successful
     if (failed) {
       new Alert(
+              "Hardware Init",
               "Pigeon \""
                   + config.name()
                   + "\" (ID: "
@@ -158,6 +161,7 @@ public final class PhoenixUtil {
     // Alert if the configuration was never successful
     if (failed) {
       new Alert(
+              "Hardware Init",
               "Talon FX \""
                   + config.name()
                   + "\" (ID: "

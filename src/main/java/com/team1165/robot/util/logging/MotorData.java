@@ -150,10 +150,12 @@ public class MotorData {
       // Create alerts with the name and CAN ID of the SPARK
       connectedAlert =
           new Alert(
+              "Hardware",
               "SPARK \"" + config.name() + "\" (ID: " + config.canId() + ") is disconnected!",
               AlertType.kError);
       faultAlert =
           new Alert(
+              "Hardware",
               "SPARK \"" + config.name() + "\" (ID: " + config.canId() + ") has active faults!",
               AlertType.kError);
     }
@@ -268,10 +270,12 @@ public class MotorData {
       // Create alerts with the name and ID of the Talon FX
       connectedAlert =
           new Alert(
+              "Hardware",
               "Talon FX \"" + config.name() + "\" (ID: " + config.canId() + ") is disconnected!",
               AlertType.kError);
       faultAlert =
           new Alert(
+              "Hardware",
               "Talon FX \"" + config.name() + "\" (ID: " + config.canId() + ") has active faults!",
               AlertType.kError);
     }
@@ -282,9 +286,9 @@ public class MotorData {
       if (faultActive) {
         faults =
             (bootDuringEnableFaultSignal.getValue() ? "BootDuringEnable " : "")
-            + (deviceTempFaultSignal.getValue() ? "DeviceTemp " : "")
-            + (hardwareFaultSignal.getValue() ? "Hardware " : "")
-            + (procTempFaultSignal.getValue() ? "ProcTemp " : "");
+                + (deviceTempFaultSignal.getValue() ? "DeviceTemp " : "")
+                + (hardwareFaultSignal.getValue() ? "Hardware " : "")
+                + (procTempFaultSignal.getValue() ? "ProcTemp " : "");
       } else {
         faults = "";
       }
@@ -299,8 +303,10 @@ public class MotorData {
       velocity = velocitySignal.getValueAsDouble();
 
       // After updating everything, check if there are any reported connection issues
-      connectedAlert.set(!(connected = connectedDebouncer.calculate(BaseStatusSignal.isAllGood(appliedVoltsSignal,
-          positionSignal, velocitySignal))));
+      connectedAlert.set(
+          !(connected =
+              connectedDebouncer.calculate(
+                  BaseStatusSignal.isAllGood(appliedVoltsSignal, positionSignal, velocitySignal))));
     }
   }
 }
