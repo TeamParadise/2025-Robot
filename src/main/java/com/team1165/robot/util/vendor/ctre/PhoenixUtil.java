@@ -59,8 +59,9 @@ public final class PhoenixUtil {
     }
 
     // Explicitly enable required status signals for remote sensors
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
+    setUpdateFrequency(
+        config.canBus(),
+        CANFrequency.FAST,
         cancoder.getAbsolutePosition(),
         cancoder.getPosition(),
         cancoder.getVelocity(),
@@ -98,9 +99,7 @@ public final class PhoenixUtil {
     }
 
     // Explicitly enable required status signals for remote sensors
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
-        canrange.getIsDetected());
+    setUpdateFrequency(config.canBus(), CANFrequency.FAST, canrange.getIsDetected());
 
     // Disable unused status signals (can always be enabled later)
     canrange.optimizeBusUtilization(0, 0.1);
@@ -134,11 +133,8 @@ public final class PhoenixUtil {
     }
 
     // Explicitly enable required status signals for remote sensors
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
-        pigeon.getYaw(),
-        pigeon.getPitch(),
-        pigeon.getRoll());
+    setUpdateFrequency(
+        config.canBus(), CANFrequency.FAST, pigeon.getYaw(), pigeon.getPitch(), pigeon.getRoll());
 
     // Disable unused status signals (can always be enabled later)
     pigeon.optimizeBusUtilization(0, 0.1);
@@ -172,8 +168,9 @@ public final class PhoenixUtil {
     }
 
     // Explicitly enable required status signals for sensors and motors that are being followed
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        CANFrequency.FAST.getFrequency(CANBusJNI.JNI_IsNetworkFD(config.canBus())),
+    setUpdateFrequency(
+        config.canBus(),
+        CANFrequency.FAST,
         talon.getDutyCycle(),
         talon.getMotorVoltage(),
         talon.getTorqueCurrent(),
@@ -216,6 +213,36 @@ public final class PhoenixUtil {
               .distinct()
               .toArray(BaseStatusSignal[]::new);
     }
+  }
+
+  /**
+   * Set the update frequency for status signals based on the provided {@link CANFrequency} and
+   * whether the {@code canBus} is CAN FD.
+   *
+   * @param canBus The CAN bus that the signals are located on ("rio" or "" for the roboRIO CAN bus,
+   *     otherwise, the name of the CANivore bus).
+   * @param frequency The {@link CANFrequency} that the signals should be updated at.
+   * @param signals The signals to set the update frequency of.
+   */
+  public static void setUpdateFrequency(
+      String canBus, CANFrequency frequency, BaseStatusSignal... signals) {
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        frequency.getFrequency(CANBusJNI.JNI_IsNetworkFD(canBus)), signals);
+  }
+
+  /**
+   * Basic method that calls {@link #setUpdateFrequency} and {@link #registerSignals} on a set of
+   * signals.
+   *
+   * @param canBus The CAN bus that the signals are located on ("rio" or "" for the roboRIO CAN bus,
+   *     otherwise, the name of the CANivore bus).
+   * @param frequency The {@link CANFrequency} that the signals should be updated at.
+   * @param signals The signals to set the update frequency of.
+   */
+  public static void setFrequencyAndRegister(
+      String canBus, CANFrequency frequency, BaseStatusSignal... signals) {
+    setUpdateFrequency(canBus, frequency, signals);
+    registerSignals(canBus, signals);
   }
 
   /**

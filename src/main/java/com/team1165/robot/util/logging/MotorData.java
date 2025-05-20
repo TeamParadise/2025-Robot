@@ -277,21 +277,30 @@ public class MotorData {
     }
 
     public void update() {
+      // Check if there are any active faults, if there are, activate an alert and save the faults
+      faultAlert.set(faultActive = faultFieldSignal.getValue() != 0);
+      if (faultActive) {
+        faults =
+            (bootDuringEnableFaultSignal.getValue() ? "BootDuringEnable " : "")
+            + (deviceTempFaultSignal.getValue() ? "DeviceTemp " : "")
+            + (hardwareFaultSignal.getValue() ? "Hardware " : "")
+            + (procTempFaultSignal.getValue() ? "ProcTemp " : "");
+      } else {
+        faults = "";
+      }
+
+      // Get values from the status signals and save them
       appliedVolts = appliedVoltsSignal.getValueAsDouble();
-      connected =
-          BaseStatusSignal.isAllGood(
-              appliedVoltsSignal,
-              motorTemperatureSignal,
-              outputCurrentSignal,
-              positionSignal,
-              processorTemperatureSignal);
-      // TODO: Add faults
       motorTemperatureCelsius = motorTemperatureSignal.getValueAsDouble();
       outputCurrentAmps = outputCurrentSignal.getValueAsDouble();
       position = positionSignal.getValueAsDouble();
       processorTemperatureCelsius = processorTemperatureSignal.getValueAsDouble();
       supplyCurrentAmps = supplyCurrentSignal.getValueAsDouble();
       velocity = velocitySignal.getValueAsDouble();
+
+      // After updating everything, check if there are any reported connection issues
+      connectedAlert.set(!(connected = connectedDebouncer.calculate(BaseStatusSignal.isAllGood(appliedVoltsSignal,
+          positionSignal, velocitySignal))));
     }
   }
 }
