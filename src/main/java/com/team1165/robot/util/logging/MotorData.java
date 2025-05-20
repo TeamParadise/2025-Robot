@@ -13,6 +13,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.Faults;
+import com.team1165.robot.util.constants.CANFrequency;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.TalonFXConfig;
 import com.team1165.robot.util.vendor.ctre.PhoenixUtil;
 import com.team1165.robot.util.vendor.rev.SparkConfig;
@@ -212,7 +213,7 @@ public class MotorData {
   /**
    * {@link MotorData} class that uses status signals from a Talon FX motor controller to log data.
    */
-  public static class TalonMotorData extends MotorData {
+  public static class TalonFXMotorData extends MotorData {
     // Status signals providing the data to log
     private final StatusSignal<Voltage> appliedVoltsSignal;
     private final StatusSignal<Integer> faultFieldSignal;
@@ -237,7 +238,14 @@ public class MotorData {
      */
     private final Debouncer connectedDebouncer = new Debouncer(0.20);
 
-    public TalonMotorData(TalonFX talon, TalonFXConfig config) {
+    /**
+     * Constructs a {@link TalonFXMotorData} using the specified constants.
+     *
+     * @param talon The {@link TalonFX} to log data from.
+     * @param config The {@link TalonFXConfig} for this Talon FX. Only used for name, CAN ID, and
+     *     CAN bus.
+     */
+    public TalonFXMotorData(TalonFX talon, TalonFXConfig config) {
       // Get status signals from the Talon FX
       appliedVoltsSignal = talon.getMotorVoltage();
       faultFieldSignal = talon.getFaultField();
@@ -252,23 +260,25 @@ public class MotorData {
       supplyCurrentSignal = talon.getSupplyCurrent();
       velocitySignal = talon.getVelocity();
 
-      // TODO: Create/use utility class in PhoenixUtil to set CAN frequency using the constants
-
-      // Register status signals with PhoenixUtil
-      PhoenixUtil.registerSignals(
+      // Set the update frequency and register the signals
+      PhoenixUtil.setFrequencyAndRegister(
           config.canBus(),
+          CANFrequency.MEDIUM,
           appliedVoltsSignal,
-          faultFieldSignal,
-          bootDuringEnableFaultSignal,
-          deviceTempFaultSignal,
-          hardwareFaultSignal,
-          procTempFaultSignal,
           motorTemperatureSignal,
           outputCurrentSignal,
           positionSignal,
           processorTemperatureSignal,
           supplyCurrentSignal,
           velocitySignal);
+      PhoenixUtil.setFrequencyAndRegister(
+          config.canBus(),
+          CANFrequency.SLOW,
+          faultFieldSignal,
+          bootDuringEnableFaultSignal,
+          deviceTempFaultSignal,
+          hardwareFaultSignal,
+          procTempFaultSignal);
 
       // Create alerts with the name and ID of the Talon FX
       connectedAlert =
@@ -283,6 +293,10 @@ public class MotorData {
               AlertType.kError);
     }
 
+    /**
+     * Updates the motor data using the status signals from the Talon FX motor controller linked
+     * with this instance.
+     */
     public void update() {
       // Check if there are any active faults, if there are, activate an alert and save the faults
       faultAlert.set(faultActive = faultFieldSignal.getValue() != 0);
@@ -309,7 +323,7 @@ public class MotorData {
       connectedAlert.set(
           !(connected =
               connectedDebouncer.calculate(
-                  BaseStatusSignal.isAllGood(appliedVoltsSignal, positionSignal, velocitySignal))));
+                  BaseStatusSignal.isAllGood(motorTemperatureSignal, processorTemperatureSignal, supplyCurrentSignal))));
     }
   }
 }
