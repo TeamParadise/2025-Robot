@@ -42,8 +42,8 @@ public class RollerIOSpark implements RollerIO {
     secondaryConfiguration = secondaryConfig.configuration();
 
     // Create MotorData instances to log motors
-    primaryMotorData = new SparkMotorData(primaryMotor);
-    secondaryMotorData = new SparkMotorData(secondaryMotor);
+    primaryMotorData = new SparkMotorData(primaryMotor, primaryConfig);
+    secondaryMotorData = new SparkMotorData(secondaryMotor, secondaryConfig);
   }
 
   /**
