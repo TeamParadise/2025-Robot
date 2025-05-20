@@ -45,17 +45,12 @@ public final class SparkUtil {
             : new SparkMax(config.canId(), config.motorType());
 
     // Configure the SPARK with the configuration given
-    boolean failed =
-        SparkUtil.tryUntilOk(
-            5,
-            () ->
-                spark.configure(
-                    config.configuration(),
-                    ResetMode.kResetSafeParameters,
-                    PersistMode.kPersistParameters));
+    REVLibError status =
+        spark.configure(
+            config.configuration(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Alert if the configuration was never successful
-    if (failed) {
+    if (status != REVLibError.kOk) {
       new Alert(
               "Hardware Init",
               "SPARK \""
@@ -175,20 +170,5 @@ public final class SparkUtil {
       sparkStickyFault = true;
       return defaultValue;
     }
-  }
-
-  /**
-   * Attempts to run the method/supplier until no error is produced.
-   *
-   * @param maxAttempts The maximum number of times to try before giving up.
-   * @param method The method to run and check if it was successful.
-   * @return If the method was never successful.
-   */
-  public static boolean tryUntilOk(int maxAttempts, Supplier<REVLibError> method) {
-    for (int i = 0; i < maxAttempts; i++) {
-      var error = method.get();
-      if (error == REVLibError.kOk) return false;
-    }
-    return true;
   }
 }

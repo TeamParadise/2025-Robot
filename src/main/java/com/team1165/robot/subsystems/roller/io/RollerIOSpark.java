@@ -102,22 +102,14 @@ public class RollerIOSpark implements RollerIO {
   public void setBrakeMode(boolean enabled) {
     new Thread(
             () -> {
-              SparkUtil.tryUntilOk(
-                  5,
-                  () ->
-                      primaryMotor.configure(
-                          primaryConfiguration.idleMode(
-                              enabled ? IdleMode.kBrake : IdleMode.kCoast),
-                          ResetMode.kNoResetSafeParameters,
-                          PersistMode.kNoPersistParameters));
-              SparkUtil.tryUntilOk(
-                  5,
-                  () ->
-                      secondaryMotor.configure(
-                          secondaryConfiguration.idleMode(
-                              enabled ? IdleMode.kBrake : IdleMode.kCoast),
-                          ResetMode.kNoResetSafeParameters,
-                          PersistMode.kNoPersistParameters));
+              primaryMotor.configure(
+                  primaryConfiguration.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                  ResetMode.kNoResetSafeParameters,
+                  PersistMode.kNoPersistParameters);
+              secondaryMotor.configure(
+                  secondaryConfiguration.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                  ResetMode.kNoResetSafeParameters,
+                  PersistMode.kNoPersistParameters);
             })
         .start();
   }
