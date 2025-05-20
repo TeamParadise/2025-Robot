@@ -64,8 +64,7 @@ public class DriveIOMapleSim extends DriveIOReal {
    * themselves.
    *
    * <p>Some of these simulation values for the {@link MapleSimConfig} can be grabbed through a
-   * PathPlanner {@link com.pathplanner.lib.config.RobotConfig} and {@link
-   * com.pathplanner.lib.config.ModuleConfig}, if you are utilizing PathPlanner.
+   * PathPlanner RobotConfig and ModuleConfig, if you are utilizing PathPlanner.
    *
    * <p>Final note, this constructor automatically will regulate certain {@link
    * SwerveModuleConstants} in order to ensure that they work properly with simulation.
@@ -103,8 +102,7 @@ public class DriveIOMapleSim extends DriveIOReal {
    * themselves.
    *
    * <p>Some of these simulation values for the {@link MapleSimConfig} can be grabbed through a
-   * PathPlanner {@link com.pathplanner.lib.config.RobotConfig} and {@link
-   * com.pathplanner.lib.config.ModuleConfig}, if you are utilizing PathPlanner.
+   * PathPlanner RobotConfig and ModuleConfig, if you are utilizing PathPlanner.
    *
    * <p>Final note, this constructor automatically will regulate certain {@link
    * SwerveModuleConstants} in order to ensure that they work properly with simulation.
