@@ -9,6 +9,8 @@ package com.team1165.robot.util.vendor.rev;
 
 /** Basic enum that represents the model of a SPARK motor controller (MAX or FLEX). */
 public enum SparkModel {
+  /** REV SPARK MAX motor controller. */
   SparkMax,
+  /** REV SPARK FLEX motor controller. */
   SparkFlex,
 }

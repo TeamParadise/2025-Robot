@@ -10,13 +10,10 @@ package com.team1165.robot.subsystems.roller.io;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.team1165.robot.util.logging.MotorData.SparkMotorData;
-import com.team1165.robot.util.vendor.rev.SparkFullConfigs.SparkFullConfig;
-import com.team1165.robot.util.vendor.rev.SparkModel;
+import com.team1165.robot.util.vendor.rev.SparkConfig;
 import com.team1165.robot.util.vendor.rev.SparkUtil;
 
 /**
@@ -28,43 +25,25 @@ public class RollerIOSpark implements RollerIO {
   // Save motors and configs, configs are saved for brake mode configuration later
   private final SparkBase primaryMotor;
   private final SparkBase secondaryMotor;
-  private final SparkBaseConfig primaryConfig;
-  private final SparkBaseConfig secondaryConfig;
+  private final SparkBaseConfig primaryConfiguration;
+  private final SparkBaseConfig secondaryConfiguration;
 
   // Motor data to log
   private final SparkMotorData primaryMotorData;
   private final SparkMotorData secondaryMotorData;
 
-  public RollerIOSpark(SparkFullConfig primaryFullConfig, SparkFullConfig secondaryFullConfig) {
+  public RollerIOSpark(SparkConfig primaryConfig, SparkConfig secondaryConfig) {
     // Assign motor variables
-    primaryMotor =
-        primaryFullConfig.model == SparkModel.SparkFlex
-            ? new SparkFlex(primaryFullConfig.canId, primaryFullConfig.motorType)
-            : new SparkMax(primaryFullConfig.canId, primaryFullConfig.motorType);
-    secondaryMotor =
-        secondaryFullConfig.model == SparkModel.SparkFlex
-            ? new SparkFlex(secondaryFullConfig.canId, secondaryFullConfig.motorType)
-            : new SparkMax(secondaryFullConfig.canId, secondaryFullConfig.motorType);
+    primaryMotor = SparkUtil.createNewSpark(primaryConfig);
+    secondaryMotor = SparkUtil.createNewSpark(secondaryConfig);
 
     // Assign the configurations to variables
-    primaryConfig = primaryFullConfig.config;
-    secondaryConfig = secondaryFullConfig.config;
+    primaryConfiguration = primaryConfig.configuration();
+    secondaryConfiguration = secondaryConfig.configuration();
 
     // Create MotorData instances to log motors
-    primaryMotorData = new SparkMotorData(primaryMotor);
-    secondaryMotorData = new SparkMotorData(secondaryMotor);
-
-    // Configure the motors
-    SparkUtil.tryUntilOk(
-        5,
-        () ->
-            primaryMotor.configure(
-                primaryConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-    SparkUtil.tryUntilOk(
-        5,
-        () ->
-            secondaryMotor.configure(
-                secondaryConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    primaryMotorData = new SparkMotorData(primaryMotor, primaryConfig);
+    secondaryMotorData = new SparkMotorData(secondaryMotor, secondaryConfig);
   }
 
   /**
@@ -127,14 +106,16 @@ public class RollerIOSpark implements RollerIO {
                   5,
                   () ->
                       primaryMotor.configure(
-                          primaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                          primaryConfiguration.idleMode(
+                              enabled ? IdleMode.kBrake : IdleMode.kCoast),
                           ResetMode.kNoResetSafeParameters,
                           PersistMode.kNoPersistParameters));
               SparkUtil.tryUntilOk(
                   5,
                   () ->
                       secondaryMotor.configure(
-                          secondaryConfig.idleMode(enabled ? IdleMode.kBrake : IdleMode.kCoast),
+                          secondaryConfiguration.idleMode(
+                              enabled ? IdleMode.kBrake : IdleMode.kCoast),
                           ResetMode.kNoResetSafeParameters,
                           PersistMode.kNoPersistParameters));
             })
