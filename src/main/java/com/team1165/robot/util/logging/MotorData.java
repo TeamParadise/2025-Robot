@@ -29,7 +29,7 @@ import org.littletonrobotics.junction.LogTable;
 
 /**
  * Class that provides easy logging of all the default values from a motor (controller) through
- * AdvantageKit IO classes.
+ * AdvantageKit IO input classes.
  */
 public class MotorData {
   /** The applied voltage to the motor controller. */
@@ -73,9 +73,10 @@ public class MotorData {
   public double velocity = 0.0;
 
   /**
-   * Method to log this {@link MotorData} to a {@link LogTable} from an AdvantageKit IO class. Call
-   * this inside your IO's {@code toLog()}. Make sure the {@code key} matches the one you call
-   * {@code fromLog()} with!
+   * Method to log this {@link MotorData} to a {@link LogTable} from an AdvantageKit input class.
+   *
+   * <p>Call this inside your input's {@code toLog()}. Make sure the {@code key} matches the one you
+   * call {@code fromLog()} with!
    *
    * @param table The table to log to.
    * @param key The key value to log everything under ("Primary" will log everything under the
@@ -96,8 +97,10 @@ public class MotorData {
 
   /**
    * Method to grab the values from a log of this {@link MotorData} from a {@link LogTable} of an
-   * AdvantageKit IO class. Call this inside your IO's {@code fromLog()}. Make sure the {@code key}
-   * matches the one you call {@code toLog()} with!
+   * AdvantageKit input class.
+   *
+   * <p>Call this inside your input's {@code fromLog()}. Make sure the {@code key} matches the one
+   * you call {@code toLog()} with!
    *
    * @param table The table to grab logs from.
    * @param key The key value to grab the logs from ("Primary" will grab everything under the
