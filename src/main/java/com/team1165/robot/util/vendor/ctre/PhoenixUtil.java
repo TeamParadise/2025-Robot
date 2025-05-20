@@ -63,6 +63,7 @@ public final class PhoenixUtil {
     setUpdateFrequency(
         config.canBus(),
         CANFrequency.FAST,
+        false,
         cancoder.getAbsolutePosition(),
         cancoder.getPosition(),
         cancoder.getVelocity(),
@@ -101,7 +102,7 @@ public final class PhoenixUtil {
     }
 
     // Explicitly enable required status signals for remote sensors
-    setUpdateFrequency(config.canBus(), CANFrequency.FAST, canrange.getIsDetected());
+    setUpdateFrequency(config.canBus(), CANFrequency.FAST, false, canrange.getIsDetected());
 
     // Disable unused status signals (can always be enabled later)
     canrange.optimizeBusUtilization(0, 0.1);
@@ -137,7 +138,12 @@ public final class PhoenixUtil {
 
     // Explicitly enable required status signals for remote sensors
     setUpdateFrequency(
-        config.canBus(), CANFrequency.FAST, pigeon.getYaw(), pigeon.getPitch(), pigeon.getRoll());
+        config.canBus(),
+        CANFrequency.FAST,
+        false,
+        pigeon.getYaw(),
+        pigeon.getPitch(),
+        pigeon.getRoll());
 
     // Disable unused status signals (can always be enabled later)
     pigeon.optimizeBusUtilization(0, 0.1);
@@ -175,6 +181,7 @@ public final class PhoenixUtil {
     setUpdateFrequency(
         config.canBus(),
         CANFrequency.FAST,
+        false,
         talon.getDutyCycle(),
         talon.getMotorVoltage(),
         talon.getTorqueCurrent(),
@@ -226,12 +233,45 @@ public final class PhoenixUtil {
    * @param canBus The CAN bus that the signals are located on ("rio" or "" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
    * @param frequency The {@link CANFrequency} that the signals should be updated at.
+   * @param keepHigherFrequency If this is true, and a signal has an applied frequency higher than
+   *     what is trying to be set; the higher frequency will be kept. Otherwise, the frequency
+   *     trying to be set will be applied either way.
+   * @param signals The signals to set the update frequency of.
+   */
+  public static void setUpdateFrequency(
+      String canBus,
+      CANFrequency frequency,
+      boolean keepHigherFrequency,
+      BaseStatusSignal... signals) {
+    if (keepHigherFrequency) {
+      for (BaseStatusSignal signal : signals) {
+        double frequencyToSet = frequency.getFrequency(CANBusJNI.JNI_IsNetworkFD(canBus));
+        if (signal.getAppliedUpdateFrequency() > frequencyToSet) {
+          signal.setUpdateFrequency(frequencyToSet);
+        }
+      }
+    } else {
+      BaseStatusSignal.setUpdateFrequencyForAll(
+          frequency.getFrequency(CANBusJNI.JNI_IsNetworkFD(canBus)), signals);
+    }
+  }
+
+  /**
+   * Set the update frequency for status signals based on the provided {@link CANFrequency} and
+   * whether the {@code canBus} is CAN FD.
+   *
+   * <p>By default, if the signal provided has an applied frequency that is higher than what is
+   * trying to be set, the higher frequency will be kept. To override this, use {@link
+   * #setUpdateFrequency(String, CANFrequency, boolean, BaseStatusSignal...)}
+   *
+   * @param canBus The CAN bus that the signals are located on ("rio" or "" for the roboRIO CAN bus,
+   *     otherwise, the name of the CANivore bus).
+   * @param frequency The {@link CANFrequency} that the signals should be updated at.
    * @param signals The signals to set the update frequency of.
    */
   public static void setUpdateFrequency(
       String canBus, CANFrequency frequency, BaseStatusSignal... signals) {
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        frequency.getFrequency(CANBusJNI.JNI_IsNetworkFD(canBus)), signals);
+    setUpdateFrequency(canBus, frequency, true, signals);
   }
 
   /**
@@ -241,12 +281,32 @@ public final class PhoenixUtil {
    * @param canBus The CAN bus that the signals are located on ("rio" or "" for the roboRIO CAN bus,
    *     otherwise, the name of the CANivore bus).
    * @param frequency The {@link CANFrequency} that the signals should be updated at.
-   * @param signals The signals to set the update frequency of.
+   * @param keepHigherFrequency If this is true, and a signal has an applied frequency higher than
+   *     what is trying to be set; the higher frequency will be kept. Otherwise, the frequency
+   *     trying to be set will be applied either way.
+   * @param signals The signals to register and set the update frequency of.
    */
   public static void setFrequencyAndRegister(
-      String canBus, CANFrequency frequency, BaseStatusSignal... signals) {
-    setUpdateFrequency(canBus, frequency, signals);
+      String canBus, CANFrequency frequency, boolean keepHigherFrequency, BaseStatusSignal... signals) {
+    setUpdateFrequency(canBus, frequency, keepHigherFrequency, signals);
     registerSignals(canBus, signals);
+  }
+
+  /**
+   * Basic method that calls {@link #setUpdateFrequency} and {@link #registerSignals} on a set of
+   * signals.
+   *
+   * <p>By default, if the signal provided has an applied frequency that is higher than what is
+   * trying to be set, the higher frequency will be kept. To override this, use {@link
+   * #setFrequencyAndRegister(String, CANFrequency, boolean, BaseStatusSignal...)}
+   *
+   * @param canBus The CAN bus that the signals are located on ("rio" or "" for the roboRIO CAN bus,
+   *     otherwise, the name of the CANivore bus).
+   * @param frequency The {@link CANFrequency} that the signals should be updated at.
+   * @param signals The signals to register and set the update frequency of.
+   */
+  public static void setFrequencyAndRegister(String canBus, CANFrequency frequency, BaseStatusSignal... signals) {
+    setFrequencyAndRegister(canBus, frequency, true, signals);
   }
 
   /**

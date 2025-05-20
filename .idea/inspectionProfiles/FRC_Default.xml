@@ -17,6 +17,7 @@
       <option name="processLiterals" value="false" />
       <option name="processComments" value="true" />
     </inspection_tool>
+    <inspection_tool class="StructuralWrap" enabled="false" level="TYPO" enabled_by_default="false" />
     <inspection_tool class="UnnecessaryQualifiedReference" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>
