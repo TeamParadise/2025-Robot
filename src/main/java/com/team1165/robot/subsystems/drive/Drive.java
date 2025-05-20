@@ -14,17 +14,11 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.PathPlannerLogging;
-import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants.PathConstants;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIO.DriveIOInputs;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
-import com.team1165.robot.util.auto.LocalADStarAK;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -34,12 +28,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -89,19 +81,6 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putData("Field", field);
     // Configure the rotation controller to accept continuous input
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
-
-    // Setup PathPlanner compatibility with AdvantageKit
-    Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> {
-          Logger.recordOutput(
-              "Drive/PathFollowing/PathPlanner/Trajectory", activePath.toArray(new Pose2d[0]));
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(
-        (targetPose) -> {
-          Logger.recordOutput(
-              "Drive/PathFollowing/PathPlanner/TrajectorySetpoint", new Pose2d[] {targetPose});
-        });
   }
 
   @Override
@@ -135,43 +114,6 @@ public class Drive extends SubsystemBase {
                 inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians()));
 
     io.setControl(applyFieldSpeeds.withSpeeds(speeds));
-  }
-
-  /**
-   * Build a command to pathfind to a given pose.
-   *
-   * @param pose The pose to pathfind to
-   * @param constraints The constraints to use while pathfinding
-   * @param goalEndVelocity The goal end velocity of the robot when reaching the target pose
-   * @return A command to pathfind to a given pose
-   */
-  public Command pathfindToPose(
-      Pose2d pose, PathConstraints constraints, LinearVelocity goalEndVelocity) {
-    // Create the PathfindingCommand and return it
-    return new PathfindingCommand(
-            pose,
-            constraints,
-            goalEndVelocity,
-            this::getPose,
-            this::getSpeeds,
-            (speeds, feedforwards) ->
-                setControl(
-                    applyRobotSpeeds
-                        .withSpeeds(speeds)
-                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
-            PathConstants.ppDriveController,
-            DriveConstants.robotConfig,
-            this)
-        .alongWith( // Log that PathPlanner is active
-            new InstantCommand(
-                () -> Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", true)))
-        .finallyDo(
-            () -> { // Log that PathPlanner is no longer active, and clear setpoint
-              Logger.recordOutput("Drive/PathFollowing/PathPlanner/Active", false);
-              Logger.recordOutput(
-                  "Drive/PathFollowing/PathPlanner/TrajectorySetpoint", new Pose2d[0]);
-            });
   }
 
   // endregion
