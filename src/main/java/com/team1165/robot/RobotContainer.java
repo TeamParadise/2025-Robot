@@ -204,7 +204,8 @@ public class RobotContainer {
         .whileTrue(
             funnel
                 .stateCommand(FunnelState.MANUAL_REVERSE)
-                .alongWith(new FlywheelsPercenmt(flywheels, () -> -0.15)));
+                .alongWith(new FlywheelsPercenmt(flywheels, () -> -0.15)))
+        .onFalse(funnel.stateCommand(FunnelState.IDLE));
     driverController
         .rightBumper()
         .whileTrue(
