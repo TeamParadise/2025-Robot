@@ -7,6 +7,7 @@
 
 package com.team1165.robot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -36,6 +37,7 @@ import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import com.team1165.robot.subsystems.roller.funnel.FunnelState;
 import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
+import com.team1165.robot.subsystems.roller.io.RollerIOSim;
 import com.team1165.robot.subsystems.roller.io.RollerIOSpark;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
@@ -133,7 +135,7 @@ public class RobotContainer {
                     DriveConstants.getModuleConstants()));
         elevator = new Elevator(new ElevatorIOSim());
         flywheels = new Flywheels(new FlywheelsIO() {});
-        funnel = new Funnel(new RollerIO() {});
+        funnel = new Funnel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(50)));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,

@@ -7,10 +7,17 @@
 
 package com.team1165.robot.subsystems.roller.io;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.team1165.robot.util.logging.MotorData.GenericMotorData;
+import edu.wpi.first.units.measure.Current;
+import org.ironmaple.simulation.motorsims.MapleMotorSim;
+import org.ironmaple.simulation.motorsims.SimMotorConfigs;
+import org.ironmaple.simulation.motorsims.SimulatedMotorController.GenericMotorController;
 
 /**
  * A hardware interface/implementation layer for a basic wheel/roller subsystem powered by two
@@ -18,16 +25,45 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
  * separately if needed.
  */
 public class RollerIOSim implements RollerIO {
-  private final DCMotor gearbox;
-  private final DCMotorSim primarySim;
-  private final DCMotorSim secondarySim;
+  private final MapleMotorSim primarySim;
+  private final MapleMotorSim secondarySim;
+  private final GenericMotorController primaryController;
+  private final GenericMotorController secondaryController;
   private double primaryAppliedVoltage;
   private double secondaryAppliedVoltage;
 
-  private RollerIOSim(DCMotor motor, double moi) {
-    gearbox = motor;
-    primarySim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, 1, moi), motor);
-    secondarySim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, 1, moi), motor);
+  // "Motor" data to log
+  private final GenericMotorData primaryMotorData = new GenericMotorData();
+  private final GenericMotorData secondaryMotorData = new GenericMotorData();
+
+  public RollerIOSim(SimMotorConfigs config, Current currentLimit) {
+    primarySim = new MapleMotorSim(config);
+    secondarySim = new MapleMotorSim(config);
+    primaryController = primarySim.useSimpleDCMotorController().withCurrentLimit(currentLimit);
+    secondaryController = secondarySim.useSimpleDCMotorController().withCurrentLimit(currentLimit);
+  }
+
+  @Override
+  public void updateInputs(RollerIOInputs inputs) {
+    primarySim.update(Seconds.of(0.020));
+    secondarySim.update(Seconds.of(0.020));
+    // Update the motor data
+    primaryMotorData.update(
+        primaryAppliedVoltage,
+        primarySim.getStatorCurrent().in(Amps),
+        primarySim.getAngularPosition().in(Rotations),
+        primarySim.getSupplyCurrent().in(Amps),
+        primarySim.getVelocity().in(Rotations.per(Minute)));
+
+    secondaryMotorData.update(
+        secondaryAppliedVoltage,
+        secondarySim.getStatorCurrent().in(Amps),
+        secondarySim.getAngularPosition().in(Rotations),
+        secondarySim.getSupplyCurrent().in(Amps),
+        secondarySim.getVelocity().in(Rotations.per(Minute)));
+
+    inputs.primaryMotor = primaryMotorData;
+    inputs.secondaryMotor = secondaryMotorData;
   }
 
   /**
@@ -49,8 +85,13 @@ public class RollerIOSim implements RollerIO {
    */
   @Override
   public void runVolts(double primaryVoltage, double secondaryVoltage) {
-    primaryAppliedVoltage = MathUtil.clamp(primaryVoltage, -12.0, 12.0);
-    primarySim.setInputVoltage(primaryVoltage);
-    secondarySim.setInputVoltage(secondaryVoltage);
+    primaryController.requestVoltage(Volts.of(primaryVoltage));
+    secondaryController.requestVoltage(Volts.of(secondaryVoltage));
+  }
+
+  @Override
+  public void stop() {
+    primaryController.requestVoltage(Volts.of(0));
+    secondaryController.requestVoltage(Volts.of(0));
   }
 }

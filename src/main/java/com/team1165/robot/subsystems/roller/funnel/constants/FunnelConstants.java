@@ -7,11 +7,16 @@
 
 package com.team1165.robot.subsystems.roller.funnel.constants;
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.team1165.robot.util.vendor.rev.SparkConfig;
+import edu.wpi.first.math.system.plant.DCMotor;
+import org.ironmaple.simulation.motorsims.SimMotorConfigs;
 
 public class FunnelConstants {
   private static final SparkBaseConfig baseMotorConfig =
@@ -20,6 +25,9 @@ public class FunnelConstants {
       SparkConfig.sparkMax("FunnelPrimary", 3, MotorType.kBrushless, baseMotorConfig);
   public static final SparkConfig secondaryMotorConfig =
       SparkConfig.sparkMax("FunnelSecondary", 4, MotorType.kBrushless, baseMotorConfig);
+
+  public static final SimMotorConfigs simConfig =
+      new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.05), Volts.of(0.05));
 
   public static final class Voltages {
     public static final double intake = 5.0;
