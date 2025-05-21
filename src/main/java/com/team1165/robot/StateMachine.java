@@ -43,9 +43,6 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   protected StateMachine(S initialState) {
     currentState = initialState;
-
-    // Start a transition to the initial state
-    startTransition();
   }
 
   /**

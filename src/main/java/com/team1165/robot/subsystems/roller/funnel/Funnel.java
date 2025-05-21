@@ -14,6 +14,7 @@ import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import org.littletonrobotics.junction.Logger;
 
 public class Funnel extends StateMachine<FunnelState> {
   private final RollerIO io;
@@ -33,6 +34,13 @@ public class Funnel extends StateMachine<FunnelState> {
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
     this.io = io;
+    transition();
+  }
+
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.processInputs("Funnel", inputs);
   }
 
   @Override
