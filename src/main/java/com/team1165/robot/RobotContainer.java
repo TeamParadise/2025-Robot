@@ -19,7 +19,6 @@ import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.commands.elevator.ElevatorPosition;
 import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
-import com.team1165.robot.commands.funnel.FunnelPercent;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.constants.TunerConstants;
@@ -33,9 +32,11 @@ import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
 import com.team1165.robot.subsystems.flywheels.io.FlywheelsIO;
 import com.team1165.robot.subsystems.flywheels.io.FlywheelsIOSparkMax;
-import com.team1165.robot.subsystems.funnel.Funnel;
-import com.team1165.robot.subsystems.funnel.io.FunnelIO;
-import com.team1165.robot.subsystems.funnel.io.FunnelIOSparkMax;
+import com.team1165.robot.subsystems.roller.funnel.Funnel;
+import com.team1165.robot.subsystems.roller.funnel.FunnelState;
+import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
+import com.team1165.robot.subsystems.roller.io.RollerIO;
+import com.team1165.robot.subsystems.roller.io.RollerIOSpark;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision;
 import com.team1165.robot.subsystems.vision.apriltag.ATVision.CameraConfig;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
@@ -98,7 +99,10 @@ public class RobotContainer {
                     DriveConstants.drivetrainConstants, DriveConstants.getModuleConstants()));
         elevator = new Elevator(new ElevatorIOTalonFX());
         flywheels = new Flywheels(new FlywheelsIOSparkMax());
-        funnel = new Funnel(new FunnelIOSparkMax());
+        funnel =
+            new Funnel(
+                new RollerIOSpark(
+                    FunnelConstants.primaryMotorConfig, FunnelConstants.secondaryMotorConfig));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -129,7 +133,7 @@ public class RobotContainer {
                     DriveConstants.getModuleConstants()));
         elevator = new Elevator(new ElevatorIOSim());
         flywheels = new Flywheels(new FlywheelsIO() {});
-        funnel = new Funnel(new FunnelIO() {});
+        funnel = new Funnel(new RollerIO() {});
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -162,7 +166,7 @@ public class RobotContainer {
         drive = new Drive(new DriveIO() {});
         elevator = new Elevator(new ElevatorIO() {});
         flywheels = new Flywheels(new FlywheelsIO() {});
-        funnel = new Funnel(new FunnelIO() {});
+        funnel = new Funnel(new RollerIO() {});
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -198,13 +202,26 @@ public class RobotContainer {
     driverController
         .leftBumper()
         .whileTrue(
-            new FunnelPercent(funnel, () -> -0.15)
+            funnel
+                .stateCommand(FunnelState.MANUAL_REVERSE)
                 .alongWith(new FlywheelsPercenmt(flywheels, () -> -0.15)));
     driverController
         .rightBumper()
         .whileTrue(
-            new FunnelPercent(funnel, () -> 0.15)
-                .alongWith(new FlywheelsPercenmt(flywheels, () -> 0.15)));
+            funnel
+                .stateCommand(FunnelState.MANUAL_FORWARD)
+                .alongWith(new FlywheelsPercenmt(flywheels, () -> 0.15)))
+        .onFalse(funnel.stateCommand(FunnelState.IDLE));
+    // Ideally, if both of the above subsystems were state-based, maybe do something like this?:
+    // driverController
+    // .onTrue(
+    //    funnel.stateCommand(FunnelState.MANUAL_FORWARD)
+    //      .alongWith(flywheels.stateCommand(FlywheelsState.MANUAL_FORWARD))
+    // .onFalse(
+    //    funnel.stateCommand(FunnelState.IDLE)
+    //      .alongWith(flywheels.stateCommand(FlywheelsState.IDLE));
+    // This is longer than the original pre-state machine code, but it is also MUCH more clear in
+    // exactly what it is doing, and allows more control outside of the command
 
     // Center buttons
     driverController.start().onTrue(new InstantCommand(drive::seedFieldCentric));

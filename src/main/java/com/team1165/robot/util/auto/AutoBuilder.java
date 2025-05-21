@@ -15,7 +15,7 @@ import com.team1165.robot.FieldConstants.Reef;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
-import com.team1165.robot.subsystems.funnel.Funnel;
+import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;

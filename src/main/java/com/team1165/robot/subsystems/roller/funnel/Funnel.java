@@ -12,6 +12,8 @@ import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Funnel extends StateMachine<FunnelState> {
   private final RollerIO io;
@@ -25,11 +27,21 @@ public class Funnel extends StateMachine<FunnelState> {
   private final LoggedTunableNumber manualReverseVoltage =
       new LoggedTunableNumber(
           "Funnel/Speeds/ManualReverse", FunnelConstants.Voltages.manualReverse);
-  private final LoggedTunableNumber customManualVoltage = new LoggedTunableNumber("Funnel/Speeds/CustomManual", 0.0);
+  private final LoggedTunableNumber customManualVoltage =
+      new LoggedTunableNumber("Funnel/Speeds/CustomManual", 0.0);
 
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
     this.io = io;
+  }
+
+  @Override
+  public void setState(FunnelState state) {
+    super.setState(state);
+  }
+
+  public Command stateCommand(FunnelState state) {
+    return Commands.run(() -> setState(state), this);
   }
 
   @Override
@@ -42,12 +54,16 @@ public class Funnel extends StateMachine<FunnelState> {
     switch (getCurrentState()) {
       case IDLE:
         io.runVolts(0.0);
+        break;
       case INTAKE:
         io.runVolts(intakeVoltage.get());
+        break;
       case MANUAL_FORWARD:
         io.runVolts(manualForwardVoltage.get());
+        break;
       case MANUAL_REVERSE:
         io.runVolts(manualReverseVoltage.get());
+        break;
       case CUSTOM_MANUAL:
         io.runVolts(customManualVoltage.get());
     }

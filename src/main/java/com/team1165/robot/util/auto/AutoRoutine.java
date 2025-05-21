@@ -17,7 +17,7 @@ import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
-import com.team1165.robot.subsystems.funnel.Funnel;
+import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.measure.Time;
