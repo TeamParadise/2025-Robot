@@ -25,6 +25,7 @@ public class Funnel extends StateMachine<FunnelState> {
   private final LoggedTunableNumber manualReverseVoltage =
       new LoggedTunableNumber(
           "Funnel/Speeds/ManualReverse", FunnelConstants.Voltages.manualReverse);
+  private final LoggedTunableNumber customManualVoltage = new LoggedTunableNumber("Funnel/Speeds/CustomManual", 0.0);
 
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
@@ -47,6 +48,8 @@ public class Funnel extends StateMachine<FunnelState> {
         io.runVolts(manualForwardVoltage.get());
       case MANUAL_REVERSE:
         io.runVolts(manualReverseVoltage.get());
+      case CUSTOM_MANUAL:
+        io.runVolts(customManualVoltage.get());
     }
   }
 }
