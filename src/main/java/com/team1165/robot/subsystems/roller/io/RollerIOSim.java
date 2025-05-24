@@ -29,8 +29,6 @@ public class RollerIOSim implements RollerIO {
   private final MapleMotorSim secondarySim;
   private final GenericMotorController primaryController;
   private final GenericMotorController secondaryController;
-  private double primaryAppliedVoltage;
-  private double secondaryAppliedVoltage;
 
   // "Motor" data to log
   private final GenericMotorData primaryMotorData = new GenericMotorData();
@@ -49,14 +47,14 @@ public class RollerIOSim implements RollerIO {
     secondarySim.update(Seconds.of(0.020));
     // Update the motor data
     primaryMotorData.update(
-        primaryAppliedVoltage,
+        primarySim.getAppliedVoltage().in(Volts),
         primarySim.getStatorCurrent().in(Amps),
         primarySim.getAngularPosition().in(Rotations),
         primarySim.getSupplyCurrent().in(Amps),
         primarySim.getVelocity().in(Rotations.per(Minute)));
 
     secondaryMotorData.update(
-        secondaryAppliedVoltage,
+        secondarySim.getAppliedVoltage().in(Volts),
         secondarySim.getStatorCurrent().in(Amps),
         secondarySim.getAngularPosition().in(Rotations),
         secondarySim.getSupplyCurrent().in(Amps),
