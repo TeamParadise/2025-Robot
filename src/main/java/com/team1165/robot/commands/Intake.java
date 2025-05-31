@@ -18,7 +18,7 @@ public class Intake extends Command {
   private final Flywheels flywheels;
   private final Funnel funnel;
   private final Timer timer = new Timer();
-  private final double elapsedTime = 0.08;
+  private final double elapsedTime = 0.04;
 
   private double startingTimestampCurrent = 0.0;
   private boolean didDrawHighCurrent = false;
