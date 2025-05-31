@@ -108,14 +108,14 @@ public class RobotContainer {
                         0.197,
                         -0.286,
                         0.2,
-                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(10)))),
+                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(-10)))),
                 new CameraConfig(
                     new ATVisionIOPhoton("Left Camera"),
                     new Transform3d(
                         0.197,
                         0.286,
                         0.2,
-                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(-10)))));
+                        new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(10)))));
       }
 
       case SIM -> {
