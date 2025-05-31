@@ -43,7 +43,7 @@ public class Intake extends Command {
 
   @Override
   public void execute() {
-    if (timer.hasElapsed(0.07)) {
+    if (timer.hasElapsed(0.15)) {
       if (flywheels.isDrawingHighCurrent() && !didDrawHighCurrent) {
         startingTimestampCurrent = timer.get();
         didDrawHighCurrent = true;
