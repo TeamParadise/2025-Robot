@@ -79,8 +79,7 @@ public class AutoRoutine {
                 .andThen(
                     nextDriveCommand
                         .alongWith(
-                            new WaitCommand(2)
-                                .andThen(new FlywheelsPercenmt(flywheels, () -> 0.2)))
+                            new WaitCommand(2).andThen(new FlywheelsPercenmt(flywheels, () -> 0.2)))
                         .withTimeout(3)))
         .withTimeout(5)
         .andThen(
