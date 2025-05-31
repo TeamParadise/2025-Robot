@@ -287,7 +287,10 @@ public final class PhoenixUtil {
    * @param signals The signals to register and set the update frequency of.
    */
   public static void setFrequencyAndRegister(
-      String canBus, CANFrequency frequency, boolean keepHigherFrequency, BaseStatusSignal... signals) {
+      String canBus,
+      CANFrequency frequency,
+      boolean keepHigherFrequency,
+      BaseStatusSignal... signals) {
     setUpdateFrequency(canBus, frequency, keepHigherFrequency, signals);
     registerSignals(canBus, signals);
   }
@@ -305,7 +308,8 @@ public final class PhoenixUtil {
    * @param frequency The {@link CANFrequency} that the signals should be updated at.
    * @param signals The signals to register and set the update frequency of.
    */
-  public static void setFrequencyAndRegister(String canBus, CANFrequency frequency, BaseStatusSignal... signals) {
+  public static void setFrequencyAndRegister(
+      String canBus, CANFrequency frequency, BaseStatusSignal... signals) {
     setFrequencyAndRegister(canBus, frequency, true, signals);
   }
 
