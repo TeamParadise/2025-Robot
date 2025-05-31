@@ -223,7 +223,7 @@ public class RobotContainer {
         .x()
         .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
 
-     RobotModeTriggers.teleop().onTrue(new InstantCommand(apriltagVision::enableSingleTagTrig));
+    // RobotModeTriggers.teleop().onTrue(new InstantCommand(apriltagVision::enableSingleTagTrig));
   }
 
   /** Use this method to define default commands for subsystems. */
