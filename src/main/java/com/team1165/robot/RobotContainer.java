@@ -56,7 +56,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -107,14 +106,14 @@ public class RobotContainer {
                     new ATVisionIOPhoton("Right Camera"),
                     new Transform3d(
                         0.197,
-                        -0.286,
+                        0.286,
                         0.2,
                         new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(10)))),
                 new CameraConfig(
                     new ATVisionIOPhoton("Left Camera"),
                     new Transform3d(
                         0.197,
-                        0.286,
+                        -0.286,
                         0.2,
                         new Rotation3d(Degrees.zero(), Degrees.of(-20), Degrees.of(-10)))));
       }
