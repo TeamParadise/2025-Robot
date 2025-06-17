@@ -13,7 +13,7 @@ public class ElevatorConstants {
   public static final String canBus = "canivore";
 
   // Intake position
-  public static final double intakePosition = 0.2;
+  public static final double intakePosition = 0.0;
 
   // General characteristics
   public static final double gearRatio = 5.0;
