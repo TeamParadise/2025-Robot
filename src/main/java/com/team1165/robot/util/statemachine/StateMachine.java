@@ -1,13 +1,11 @@
 /*
- * File originally made by: The Cobra Commanders - FRC 498
- * Copyright (c) 2025 Team 498 (https://github.com/cobracommanders)
  * Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
  *
  * Use of this source code is governed by the MIT License, which can be found in the LICENSE file at
  * the root directory of this project.
  */
 
-package com.team1165.robot;
+package com.team1165.robot.util.statemachine;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -128,14 +126,20 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     return currentState;
   }
 
+  protected S getTransitionState(S goalState) {
+    return currentState;
+  }
+
   /**
    * Function to change the state of the subsystem and start a transition.
    *
-   * @param state The state to switch to.
+   * @param goalState The state to switch to.
    */
-  protected void setState(S state) {
-    if (!(state == currentState)) {
-      startTransition(state);
+  protected void setState(S goalState) {
+    if (!(goalState == currentState)) {
+      Logger.recordOutput(this.getName() + "/GoalState", goalState);
+      currentState = getTransitionState(goalState);
+      startTransition();
     }
   }
 
@@ -144,7 +148,7 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    * actually exists, and where the user should change the speed, position, and more of the
    * subsystems. This will transition to the assigned current state of the subsystem.
    */
-  protected void transition(S goalState) {}
+  protected void transition() {}
 
   /**
    * Update the inputs of this subsystem. This is typically done through an AdvantageKit-style IO
@@ -170,14 +174,14 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    * time of the transition, log the new state of the subsystem, and then call {@link #transition()}
    * to actually perform the full transition and set the speed, position, etc., of the subsystem.
    */
-  private void startTransition(S newState) {
+  private void startTransition() {
     // Get the timestamp where the transition occurs
     lastTransitionTimestamp = Timer.getTimestamp();
-    // Log the new state
-    Logger.recordOutput(this.getName() + "/GoalState", newState);
+
+    // Log the new current state
+    Logger.recordOutput(this.getName() + "/CurrentState", currentState);
 
     // Run the actual transition
-    transition(newState);
-    Logger.recordOutput(this.getName() + "/CurrentState", currentState);
+    transition();
   }
 }

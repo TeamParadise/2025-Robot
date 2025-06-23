@@ -7,7 +7,7 @@
 
 package com.team1165.robot.subsystems.roller.funnel;
 
-import com.team1165.robot.StateMachine;
+import com.team1165.robot.util.statemachine.StateMachine;
 import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
