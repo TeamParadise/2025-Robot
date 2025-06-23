@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 
+/** State-machine based Funnel subsystem, powered by two motors. */
 public class Funnel extends StateMachine<FunnelState> {
   private final RollerIO io;
   private final RollerIOInputs inputs = new RollerIOInputs();
@@ -58,8 +59,8 @@ public class Funnel extends StateMachine<FunnelState> {
   }
 
   @Override
-  protected void transition() {
-    switch (getCurrentState()) {
+  protected void transition(FunnelState goalState) {
+    switch (goalState) {
       case IDLE:
         io.runVolts(0.0);
         break;

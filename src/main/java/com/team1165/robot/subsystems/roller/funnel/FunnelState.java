@@ -17,6 +17,6 @@ public enum FunnelState {
   MANUAL_FORWARD,
   /** Spin backwards. */
   MANUAL_REVERSE,
-  /** Custom state modified on the fly. */
+  /** Custom state modified on the fly. Only valid in tuning mode. */
   CUSTOM_MANUAL
 }

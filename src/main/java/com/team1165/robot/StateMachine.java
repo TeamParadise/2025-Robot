@@ -135,8 +135,7 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   protected void setState(S state) {
     if (!(state == currentState)) {
-      currentState = state;
-      startTransition();
+      startTransition(state);
     }
   }
 
@@ -145,7 +144,7 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    * actually exists, and where the user should change the speed, position, and more of the
    * subsystems. This will transition to the assigned current state of the subsystem.
    */
-  protected void transition() {}
+  protected void transition(S goalState) {}
 
   /**
    * Update the inputs of this subsystem. This is typically done through an AdvantageKit-style IO
@@ -171,13 +170,14 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    * time of the transition, log the new state of the subsystem, and then call {@link #transition()}
    * to actually perform the full transition and set the speed, position, etc., of the subsystem.
    */
-  private void startTransition() {
+  private void startTransition(S newState) {
     // Get the timestamp where the transition occurs
     lastTransitionTimestamp = Timer.getTimestamp();
     // Log the new state
-    Logger.recordOutput(this.getName() + "/CurrentState", currentState);
+    Logger.recordOutput(this.getName() + "/GoalState", newState);
 
     // Run the actual transition
-    transition();
+    transition(newState);
+    Logger.recordOutput(this.getName() + "/CurrentState", currentState);
   }
 }

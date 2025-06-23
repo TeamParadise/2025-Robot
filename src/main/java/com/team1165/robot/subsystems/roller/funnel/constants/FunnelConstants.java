@@ -27,7 +27,7 @@ public class FunnelConstants {
       SparkConfig.sparkMax("FunnelSecondary", 4, MotorType.kBrushless, baseMotorConfig);
 
   public static final SimMotorConfigs simConfig =
-      new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.05), Volts.of(0.05));
+      new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.002), Volts.of(0.05));
 
   public static final class Voltages {
     public static final double intake = 5.0;

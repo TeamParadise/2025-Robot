@@ -25,6 +25,7 @@ import org.ironmaple.simulation.motorsims.SimulatedMotorController.GenericMotorC
  * separately if needed.
  */
 public class RollerIOSim implements RollerIO {
+  // MapleSim simulation motors
   private final MapleMotorSim primarySim;
   private final MapleMotorSim secondarySim;
   private final GenericMotorController primaryController;
