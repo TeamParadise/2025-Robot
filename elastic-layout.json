@@ -1,0 +1,316 @@
+{
+  "version": 1.0,
+  "grid_size": 128,
+  "tabs": [
+    {
+      "name": "Teleoperated",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Teleop Reef",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 768.0,
+            "height": 896.0,
+            "type": "Reef",
+            "properties": {
+              "topic": "Teleop/Teleop Reef",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Teleop Level",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 1152.0,
+            "height": 128.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Teleop/Teleop Level",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Field",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 1152.0,
+            "height": 896.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/Field",
+              "period": 0.06,
+              "field_game": "Reefscape",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autonomous",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "First",
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/CS/First",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Second",
+            "x": 1152.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/CS/Second",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Third",
+            "x": 1152.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/CS/Third",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "FirstLevel",
+            "x": 640.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/Score/FirstLevel",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "SecondLevel",
+            "x": 640.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/Score/SecondLevel",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "ThirdLevel",
+            "x": 640.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/Score/ThirdLevel",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "StartDelay",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/StartDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "SequencesToRun",
+            "x": 1664.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/SequencesToRun",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "PushPartner",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "Auto/PushPartner",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "JustLeave",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "Auto/JustLeave",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "FirstDelay",
+            "x": 1408.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/Score/FirstDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "FirstLocation",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Reef",
+            "properties": {
+              "topic": "Auto/Score/FirstLocation",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "SecondDelay",
+            "x": 1408.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/Score/SecondDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "SecondLocation",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Reef",
+            "properties": {
+              "topic": "Auto/Score/SecondLocation",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "ThirdDelay",
+            "x": 1408.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/Score/ThirdDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "ThirdLocation",
+            "x": 256.0,
+            "y": 512.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Reef",
+            "properties": {
+              "topic": "Auto/Score/ThirdLocation",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "SecondDelay",
+            "x": 896.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/CS/SecondDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "FirstDelay",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/CS/FirstDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "ThirdDelay",
+            "x": 896.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auto/CS/ThirdDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
