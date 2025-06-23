@@ -35,13 +35,7 @@ public class Funnel extends StateMachine<FunnelState> {
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
     this.io = io;
-    transition(FunnelState.IDLE);
-  }
-
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Funnel", inputs);
+    transition();
   }
 
   @Override
@@ -56,11 +50,12 @@ public class Funnel extends StateMachine<FunnelState> {
   @Override
   protected void updateInputs() {
     io.updateInputs(inputs);
+    Logger.processInputs("Funnel", inputs);
   }
 
   @Override
-  protected void transition(FunnelState goalState) {
-    switch (goalState) {
+  protected void transition() {
+    switch (getCurrentState()) {
       case IDLE:
         io.runVolts(0.0);
         break;

@@ -15,9 +15,9 @@ import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * A class that represents a {@link SubsystemBase} with a state machine implementation.
+ * A class that represents a {@link SubsystemBase} with a state machine implementation. By default, this state machine should be added to a form of state manager (likely a whole robot state machine), or else inputs will not be updated and states will not be automatically switched.
  *
- * <p>A state machine goes through these steps inside a CommandScheduler loop:
+ * <p> The default behavior of the state machine goes through these steps inside a robot code loop:
  *
  * <p>1. When the current loop is first run, the CommandScheduler will call of the subsystems
  * periodic functions. In the case for a state machine, periodic will update all inputs, and switch
@@ -43,13 +43,17 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     currentState = initialState;
   }
 
+  public void periodic() {
+    update();
+  }
+
+
   /**
    * Periodic method called by the {@link edu.wpi.first.wpilibj2.command.CommandScheduler} each
    * loop. This will update the inputs of the subsystem and switch it to the next state, if it has a
    * next state and if it is ready.
    */
-  @Override
-  public void periodic() {
+  public void update() {
     // Update the inputs of this subsystem
     updateInputs();
 
@@ -127,7 +131,7 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   }
 
   protected S getTransitionState(S goalState) {
-    return currentState;
+    return goalState;
   }
 
   /**
