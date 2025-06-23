@@ -103,7 +103,8 @@ public class RobotContainer {
         funnel =
             new Funnel(
                 new RollerIOSpark(
-                    FunnelConstants.primaryMotorConfig, FunnelConstants.secondaryMotorConfig));
+                    FunnelConstants.Configurations.primaryMotorConfig,
+                    FunnelConstants.Configurations.secondaryMotorConfig));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -134,7 +135,7 @@ public class RobotContainer {
                     DriveConstants.getModuleConstants()));
         elevator = new Elevator(new ElevatorIOSim());
         flywheels = new Flywheels(new FlywheelsIO() {});
-        funnel = new Funnel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(50)));
+        funnel = new Funnel(new RollerIOSim(FunnelConstants.Configurations.simConfig, Amps.of(50)));
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,

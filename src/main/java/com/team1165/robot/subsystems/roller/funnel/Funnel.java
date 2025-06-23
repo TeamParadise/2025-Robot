@@ -35,7 +35,7 @@ public class Funnel extends StateMachine<FunnelState> {
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
     this.io = io;
-    transition();
+    transition(FunnelState.IDLE);
   }
 
   @Override

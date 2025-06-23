@@ -18,17 +18,28 @@ import com.team1165.robot.util.vendor.rev.SparkConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import org.ironmaple.simulation.motorsims.SimMotorConfigs;
 
+/** Class to store constants for the Funnel subsystem of the robot. */
 public class FunnelConstants {
-  private static final SparkBaseConfig baseMotorConfig =
-      new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake);
-  public static final SparkConfig primaryMotorConfig =
-      SparkConfig.sparkMax("FunnelPrimary", 3, MotorType.kBrushless, baseMotorConfig);
-  public static final SparkConfig secondaryMotorConfig =
-      SparkConfig.sparkMax("FunnelSecondary", 4, MotorType.kBrushless, baseMotorConfig);
+  /** Class to store constants required for initial configuration of the Funnel. */
+  public static final class Configurations {
+    // SPARK MAX configurations
+    private static final SparkBaseConfig baseMotorConfig =
+        new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+    public static final SparkConfig primaryMotorConfig =
+        SparkConfig.sparkMax("FunnelPrimary", 3, MotorType.kBrushless, baseMotorConfig);
+    public static final SparkConfig secondaryMotorConfig =
+        SparkConfig.sparkMax(
+            "FunnelSecondary",
+            4,
+            MotorType.kBrushless,
+            baseMotorConfig); // TODO: Likely will need to invert this motor?
 
-  public static final SimMotorConfigs simConfig =
-      new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.002), Volts.of(0.05));
+    // Simulation motor configuration
+    public static final SimMotorConfigs simConfig =
+        new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.002), Volts.of(0.05));
+  }
 
+  /** Class to store the voltages for each of the possible states for the Funnel. */
   public static final class Voltages {
     public static final double intake = 5.0;
     public static final double manualForward = 3.0;
