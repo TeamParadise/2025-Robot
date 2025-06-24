@@ -15,41 +15,59 @@ import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * A class that represents a {@link SubsystemBase} with a state machine implementation. By default, this state machine periodically updates inputs and the current state through the {@link edu.wpi.first.wpilibj2.command.CommandScheduler}. If you want to manually manage input updates (in the case of a timed-based robot or if you are using a whole robot state machine), use a {@link ManagedStateMachine}.
+ * A class that represents a {@link SubsystemBase} with a state machine implementation. By default,
+ * this state machine periodically updates inputs and the current state through the {@link
+ * edu.wpi.first.wpilibj2.command.CommandScheduler}. If input updates need to be manually managed or
+ * managed through other means (in the case of a timed-based robot or a whole robot state machine),
+ * use a {@link ManagedStateMachine}.
  *
- * <p> The default behavior of the state machine goes through these steps inside a robot code loop:
+ * <p>The default behavior of the state machine goes through these steps inside a command-based
+ * robot code loop:
  *
- * <p>1. When the CommandScheduler runs, it'll call this (and other) subsystem's {@link #periodic()) methods. In the case for a state machine, periodic will update all inputs, and switch
- * to a new state if the current state/objective is finished/reached.
- *
- * <p>2. After all subsystems have had their periodic functions called, commands will run, likely
- * updating the states of the subsystems/state machines.
- *
- * <p>3. When a state is updated in a state machine, it will transition to this new state, typically
- * by doing something like changing the speed of a motor.
+ * <ol>
+ *   <li>When the CommandScheduler runs, it'll call all subsystems' {@link #periodic()}, in no
+ *       specific order. In the case of a state machine, the {@link #periodic()} method will update
+ *       all inputs and switch to a new state if the current state/goal is finished/reached. This is
+ *       most applicable when a transition is required between two primary states, and the goal
+ *       state is automatically switched to once the transition is done.
+ *   <li>After all subsystems have had their periodic methods called, commands will run, likely
+ *       updating the states of the subsystems/state machines.
+ *   <li>Whenever a state is updated in a state machine (through {@link #setState(S)}, it will
+ *       attempt to transition to this state immediately. If the current state cannot immediately
+ *       transition to the goal state, a "transition" state is instead set as the current state,
+ *       found using the {@link #getTransitionState(S)} method. This happens EVERY TIME a state is
+ *       changed, and not just when the next loop occurs. This allows control to be sent immediately
+ *       instead of waiting for another periodic loop.
+ * </ol>
  */
 public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
+  /** The current state that the subsystem is in. */
   private S currentState;
+
+  /** The last time that a state transition was performed. */
   private double lastTransitionTimestamp = 0.0;
 
   /**
-   * Creates a new subsystem with a state machine implementation.
+   * Creates a new {@link SubsystemBase} with a state machine implementation.
    *
-   * @param initialState The initial/default state of the subsystem.
+   * @param initialState The initial/default state of the state machine.
    * @see StateMachine
    */
   protected StateMachine(S initialState) {
     currentState = initialState;
   }
 
+  /**
+   * Periodic method called by the {@link edu.wpi.first.wpilibj2.command.CommandScheduler} each
+   * loop, that calls the {@link #update()} method. If you don't want this to be called periodically
+   * by the scheduler, use a {@link ManagedStateMachine} instead.
+   */
   public void periodic() {
     update();
   }
 
   /**
-   * Periodic method called by the {@link edu.wpi.first.wpilibj2.command.CommandScheduler} each
-   * loop. This will update the inputs of the subsystem and switch it to the next state, if it has a
-   * next state and if it is ready.
+   * Method that will update the inputs of the subsystem and switch it to the next state if one is available.
    */
   public void update() {
     // Update the inputs of this subsystem
@@ -133,7 +151,7 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   }
 
   /**
-   * Function to change the state of the subsystem and start a transition.
+   * Method to change the state of the subsystem and start a transition.
    *
    * @param goalState The state to switch to.
    */
