@@ -32,10 +32,10 @@ import org.littletonrobotics.junction.Logger;
  *       after a transition goal is reached.
  *   <li>After all subsystem periodic methods have run, scheduled commands are executed, which may
  *       update the states of subsystems or state machines.
- *   <li>Whenever a state is updated using {@link #setState(S)}, the state machine attempts to
- *       transition to the new state immediately. If a direct transition is not possible, a
- *       "transition" state (determined by {@link #getTransitionState(S)}) is set as the current
- *       state instead. This evaluation happens instantly upon calling {@link #setState(S)}, not
+ *   <li>Whenever a state is updated using {@link #setState(S)}, the state machine attempts to *
+ *       transition to the new state immediately. If a direct transition is not possible, a *
+ *       "transition" state (determined by {@link #getTransitionState(S)}) is set as the current *
+ *       state instead. This evaluation happens instantly upon calling {@link #setState(S)}, not *
  *       during the next periodic loop, allowing the controls to be immediately updated.
  * </ol>
  */
@@ -43,8 +43,8 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   /** The current state that the subsystem is in. */
   private S currentState;
 
-  /** The goal staet that the subsystem is trying to reach. */
-  private S goalState;
+  /** The final state that the subsystem is trying to reach. */
+  private S finalState;
 
   /** The last time that a state transition was performed. */
   private double lastTransitionTimestamp = 0.0;
@@ -57,17 +57,18 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   protected StateMachine(S initialState) {
     currentState = initialState;
-    goalState = initialState;
+    finalState = initialState;
   }
 
-  // region Public methods
+  // region Default methods that are typically not overridden (mostly public)
   /**
-   * Returns whether the subsystem has fully reached its current state—i.e., whether its goal has
+   * Returns whether the subsystem has fully reached its current state, i.e., whether its goal has
    * been met. This can be used to determine if the subsystem has achieved the desired position,
    * speed, or other criteria defined by the current state.
    *
-   * <p>By default, this always returns {@code true}, and should be overridden to reflect meaningful
-   * state completion checks.
+   * <p>By default, this always returns {@code true}, and the {@link #atGoal(S)} method can be
+   * overridden to provide more meaningful checks (like if the subsystem is in range of the goal
+   * position or speed).
    *
    * @return If the subsystem is at the goal defined by the current state.
    */
@@ -75,8 +76,12 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     return atGoal(currentState);
   }
 
+  public boolean atFinalGoal() {
+    return atGoal(finalState);
+  }
+
   /**
-   * Return the current state of this subsystem.
+   * Returns the current state that this subsystem is in.
    *
    * @return The current state of this subsystem.
    */
@@ -85,32 +90,89 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   }
 
   /**
+   * Returns the final state that this subsystem is trying to reach.
+   *
+   * @return The final state of this subsystem.
+   */
+  public S getFinalState() {
+    return finalState;
+  }
+
+  /**
+   * Sets a new goal state for the subsystem and begins the transition process.
+   *
+   * @param newState The desired state to transition to.
+   */
+  protected void setState(S newState) {
+    // Only attempt transition if the new goal state is not the current/goal state
+    if (newState != currentState && newState != this.goalState) {
+      // Set the goal state and find the new current state
+      goalState = newState;
+      currentState = getTransitionState(newState);
+
+      // Log the current state and the goal state
+      Logger.recordOutput(this.getName() + "/CurrentState", currentState);
+      Logger.recordOutput(this.getName() + "/GoalState", goalState);
+
+      // Record the transition time and perform the transition
+      lastTransitionTimestamp = Timer.getTimestamp();
+      transition();
+    }
+  }
+
+  /**
    * Periodic method called by the {@link edu.wpi.first.wpilibj2.command.CommandScheduler} each
    * loop, that calls the {@link #update()} method. If you don't want this to be called periodically
-   * by the scheduler, use a {@link ManagedStateMachine} instead.
+   * by the scheduler, use a {@link ManagedStateMachine} instead or override this method.
    */
   public void periodic() {
     update();
   }
 
   /**
-   * Checks if the current state has been in for longer than the given duration. Used for having
-   * timeout logic in state transitions.
+   * Returns if the current state has been active for longer than the specified duration. Useful for
+   * timeout logic during state transitions.
    *
    * @param duration The timeout duration (in seconds) to use.
-   * @return Whether the current state has been active for longer than the given duration.
+   * @return Whether the current state has been active longer than the given duration.
    */
   public boolean timeout(double duration) {
-    var currentStateDuration = Timer.getFPGATimestamp() - lastTransitionTimestamp;
+    return (Timer.getFPGATimestamp() - lastTransitionTimestamp) > duration;
+  }
 
-    return currentStateDuration > duration;
+  /**
+   * Creates a command that ends once this subsystem is in the given state.
+   *
+   * @param state The state to wait for.
+   * @return A command that ends once the current state equals the given state.
+   */
+  public Command waitForState(S state) {
+    return Commands.waitUntil(() -> currentState == state);
+  }
+
+  /**
+   * Creates a command that finishes when the subsystem reaches any one of the given states.
+   *
+   * @param states A set of the states to wait for.
+   * @return A command that waits until the state is equal to any of the goal states.
+   */
+  public Command waitForStates(Set<S> states) {
+    return Commands.waitUntil(() -> states.contains(currentState));
+  }
+
+  // endregion
+
+  // region Methods that are typically overridden (mostly protected)
+
+  public Command waitUntilGoalReached(S state) {
+    return Commands.waitUntil(() -> atGoal(state));
   }
 
   /**
    * Method that will update the inputs of the subsystem and switch it to the next state if one is
    * available.
    */
-  public void update() {
+  public final void update() {
     // Update the inputs of this subsystem
     updateInputs();
 
@@ -118,33 +180,6 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     setState(getNextState());
   }
 
-  /**
-   * Creates a command that finishes once this subsystem is in the given state.
-   *
-   * @param goalState The state to wait for.
-   * @return A command that finishes once the current state is equal to the goal state.
-   */
-  public Command waitForState(S goalState) {
-    return Commands.waitUntil(() -> currentState == goalState);
-  }
-
-  /**
-   * Creates a command that waits until this state machine is in any of the given states.
-   *
-   * @param goalStates A set of the states to wait for.
-   * @return A command that waits until the state is equal to any of the goal states.
-   */
-  public Command waitForStates(Set<S> goalStates) {
-    return Commands.waitUntil(() -> goalStates.contains(currentState));
-  }
-
-  public Command waitUntilGoalReached(S goalState) {
-    return Commands.waitUntil(() -> currentState == goalState && atGoal());
-  }
-
-  // endregion
-
-  // region Protected methods (these are the ones that should be overridden in an implementation
   /**
    * Check to see if the state machine has reached the "goal" of the specified state. This will
    * typically be used to check to see if the subsystem is within a specific tolerance of the
@@ -173,39 +208,19 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   }
 
   /**
-   * Sets a new goal state for the subsystem and begins the transition process.
-   *
-   * @param newState The desired state to transition to.
-   */
-  protected void setState(S newState) {
-    // Only attempt transition if the new goal state is not the current/goal state
-    if (!(newState == currentState | newState == this.goalState)) {
-      // Set the goal state and find the new current state
-      goalState = newState;
-      currentState = getTransitionState(newState);
-
-      // Log the goal state and the current state
-      Logger.recordOutput(this.getName() + "/CurrentState", currentState);
-      Logger.recordOutput(this.getName() + "/GoalState", goalState);
-
-      // Record the transition time and perform the transition
-      lastTransitionTimestamp = Timer.getTimestamp();
-      transition();
-    }
-  }
-
-  /**
    * Performs a transition to the new current state. This method contains most of the state
    * machine's logic and is where users should implement changes to subsystem behavior—such as
    * adjusting speed, position, and other parameters.
    */
-  protected void transition() {}
+  protected abstract void transition();
 
   /**
    * Update the inputs of this subsystem. This is typically done through an AdvantageKit-style IO
    * class.
    */
   protected void updateInputs() {}
+  ;
 
   // endregion
+  private void overrideState(S state) {}
 }
