@@ -43,6 +43,9 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   /** The current state that the subsystem is in. */
   private S currentState;
 
+  /** The goal staet that the subsystem is trying to reach. */
+  private S goalState;
+
   /** The last time that a state transition was performed. */
   private double lastTransitionTimestamp = 0.0;
 
@@ -54,17 +57,19 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   protected StateMachine(S initialState) {
     currentState = initialState;
+    goalState = initialState;
   }
 
   // region Public methods
   /**
-   * Returns if the subsystem has fully reached it's current state, if it's goal has been reached.
-   * This can be used to check to see if a subsystem has reached the current state's position,
-   * speed, etc.
+   * Returns whether the subsystem has fully reached its current state—i.e., whether its goal has
+   * been met. This can be used to determine if the subsystem has achieved the desired position,
+   * speed, or other criteria defined by the current state.
    *
-   * <p>By default, this returns true, and will only return other values if overridden.
+   * <p>By default, this always returns {@code true}, and should be overridden to reflect meaningful
+   * state completion checks.
    *
-   * @return If the subsystem is at the state's goal.
+   * @return If the subsystem is at the goal defined by the current state.
    */
   public boolean atGoal() {
     return atGoal(currentState);
@@ -168,22 +173,31 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   }
 
   /**
-   * Method to change the state of the subsystem and start a transition.
+   * Sets a new goal state for the subsystem and begins the transition process.
    *
-   * @param goalState The state to switch to.
+   * @param newState The desired state to transition to.
    */
-  protected void setState(S goalState) {
-    if (!(goalState == currentState)) {
+  protected void setState(S newState) {
+    // Only attempt transition if the new goal state is not the current/goal state
+    if (!(newState == currentState | newState == this.goalState)) {
+      // Set the goal state and find the new current state
+      goalState = newState;
+      currentState = getTransitionState(newState);
+
+      // Log the goal state and the current state
+      Logger.recordOutput(this.getName() + "/CurrentState", currentState);
       Logger.recordOutput(this.getName() + "/GoalState", goalState);
-      currentState = getTransitionState(goalState);
-      startTransition();
+
+      // Record the transition time and perform the transition
+      lastTransitionTimestamp = Timer.getTimestamp();
+      transition();
     }
   }
 
   /**
-   * Perform a transition between two states. This is where most of the logic of the state machine
-   * actually exists, and where the user should change the speed, position, and more of the
-   * subsystems. This will transition to the assigned current state of the subsystem.
+   * Performs a transition to the new current state. This method contains most of the state
+   * machine's logic and is where users should implement changes to subsystem behavior—such as
+   * adjusting speed, position, and other parameters.
    */
   protected void transition() {}
 
@@ -194,20 +208,4 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   protected void updateInputs() {}
 
   // endregion
-
-  /**
-   * Start a transition to the new current state. This method will save the current timestamp at the
-   * time of the transition, log the new state of the subsystem, and then call {@link #transition()}
-   * to actually perform the full transition and set the speed, position, etc., of the subsystem.
-   */
-  private void startTransition() {
-    // Get the timestamp where the transition occurs
-    lastTransitionTimestamp = Timer.getTimestamp();
-
-    // Log the new current state
-    Logger.recordOutput(this.getName() + "/CurrentState", currentState);
-
-    // Run the actual transition
-    transition();
-  }
 }
