@@ -9,6 +9,7 @@ package com.team1165.robot.util.statemachine;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Set;
@@ -16,28 +17,26 @@ import org.littletonrobotics.junction.Logger;
 
 /**
  * A class that represents a {@link SubsystemBase} with a state machine implementation. By default,
- * this state machine periodically updates inputs and the current state through the {@link
- * edu.wpi.first.wpilibj2.command.CommandScheduler}. If input updates need to be manually managed or
- * managed through other means (in the case of a timed-based robot or a whole robot state machine),
- * use a {@link ManagedStateMachine}.
+ * this state machine periodically updates its inputs and current state via the {@link
+ * CommandScheduler}. If input updates need to be manually managed (e.g., in a time-based robot or a
+ * robot-wide state machine), use a {@link ManagedStateMachine}.
  *
- * <p>The default behavior of the state machine goes through these steps inside a command-based
- * robot code loop:
+ * <p>The default behavior of the state machine proceeds through the following steps during each
+ * command-based robot code loop:
  *
  * <ol>
- *   <li>When the CommandScheduler runs, it'll call all subsystems' {@link #periodic()}, in no
- *       specific order. In the case of a state machine, the {@link #periodic()} method will update
- *       all inputs and switch to a new state if the current state/goal is finished/reached. This is
- *       most applicable when a transition is required between two primary states, and the goal
- *       state is automatically switched to once the transition is done.
- *   <li>After all subsystems have had their periodic methods called, commands will run, likely
- *       updating the states of the subsystems/state machines.
- *   <li>Whenever a state is updated in a state machine (through {@link #setState(S)}, it will
- *       attempt to transition to this state immediately. If the current state cannot immediately
- *       transition to the goal state, a "transition" state is instead set as the current state,
- *       found using the {@link #getTransitionState(S)} method. This happens EVERY TIME a state is
- *       changed, and not just when the next loop occurs. This allows control to be sent immediately
- *       instead of waiting for another periodic loop.
+ *   <li>When the {@link CommandScheduler} runs, it calls each subsystem's {@link #periodic()}
+ *       method in an arbitrary order. For a state machine, this {@link #periodic()} method updates
+ *       inputs and transitions to a new state if the current state has completed or its goal has
+ *       been reached. This is most useful when transitioning between primary states automatically
+ *       after a transition goal is reached.
+ *   <li>After all subsystem periodic methods have run, scheduled commands are executed, which may
+ *       update the states of subsystems or state machines.
+ *   <li>Whenever a state is updated using {@link #setState(S)}, the state machine attempts to
+ *       transition to the new state immediately. If a direct transition is not possible, a
+ *       "transition" state (determined by {@link #getTransitionState(S)}) is set as the current
+ *       state instead. This evaluation happens instantly upon calling {@link #setState(S)}, not
+ *       during the next periodic loop, allowing the controls to be immediately updated.
  * </ol>
  */
 public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
@@ -57,39 +56,7 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     currentState = initialState;
   }
 
-  /**
-   * Periodic method called by the {@link edu.wpi.first.wpilibj2.command.CommandScheduler} each
-   * loop, that calls the {@link #update()} method. If you don't want this to be called periodically
-   * by the scheduler, use a {@link ManagedStateMachine} instead.
-   */
-  public void periodic() {
-    update();
-  }
-
-  /**
-   * Method that will update the inputs of the subsystem and switch it to the next state if one is available.
-   */
-  public void update() {
-    // Update the inputs of this subsystem
-    updateInputs();
-
-    // Get and set the next state
-    setState(getNextState());
-  }
-
-  /**
-   * Check to see if the state machine has reached the "goal" of the specified state. This will
-   * typically be used to check to see if the subsystem is within a specific tolerance of the
-   * state's goal position or speed. By default, this will return true if the current state is equal
-   * to the goal state, and should be overridden for extra functionality.
-   *
-   * @param goalState The state to check if the subsystem is in tolerance of.
-   * @return If the subsystem is within tolerance of the current state.
-   */
-  protected boolean atGoal(S goalState) {
-    return goalState == currentState;
-  }
-
+  // region Public methods
   /**
    * Returns if the subsystem has fully reached it's current state, if it's goal has been reached.
    * This can be used to check to see if a subsystem has reached the current state's position,
@@ -101,6 +68,49 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   public boolean atGoal() {
     return atGoal(currentState);
+  }
+
+  /**
+   * Return the current state of this subsystem.
+   *
+   * @return The current state of this subsystem.
+   */
+  public S getCurrentState() {
+    return currentState;
+  }
+
+  /**
+   * Periodic method called by the {@link edu.wpi.first.wpilibj2.command.CommandScheduler} each
+   * loop, that calls the {@link #update()} method. If you don't want this to be called periodically
+   * by the scheduler, use a {@link ManagedStateMachine} instead.
+   */
+  public void periodic() {
+    update();
+  }
+
+  /**
+   * Checks if the current state has been in for longer than the given duration. Used for having
+   * timeout logic in state transitions.
+   *
+   * @param duration The timeout duration (in seconds) to use.
+   * @return Whether the current state has been active for longer than the given duration.
+   */
+  public boolean timeout(double duration) {
+    var currentStateDuration = Timer.getFPGATimestamp() - lastTransitionTimestamp;
+
+    return currentStateDuration > duration;
+  }
+
+  /**
+   * Method that will update the inputs of the subsystem and switch it to the next state if one is
+   * available.
+   */
+  public void update() {
+    // Update the inputs of this subsystem
+    updateInputs();
+
+    // Get and set the next state
+    setState(getNextState());
   }
 
   /**
@@ -127,13 +137,20 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     return Commands.waitUntil(() -> currentState == goalState && atGoal());
   }
 
+  // endregion
+
+  // region Protected methods (these are the ones that should be overridden in an implementation
   /**
-   * Return the current state of this subsystem.
+   * Check to see if the state machine has reached the "goal" of the specified state. This will
+   * typically be used to check to see if the subsystem is within a specific tolerance of the
+   * state's goal position or speed. By default, this will return true if the current state is equal
+   * to the goal state, and should be overridden for extra functionality.
    *
-   * @return The current state of this subsystem.
+   * @param goalState The state to check if the subsystem is in tolerance of.
+   * @return If the subsystem is within tolerance of the current state.
    */
-  public S getCurrentState() {
-    return currentState;
+  protected boolean atGoal(S goalState) {
+    return goalState == currentState;
   }
 
   /**
@@ -176,18 +193,7 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   protected void updateInputs() {}
 
-  /**
-   * Checks if the current state has been in for longer than the given duration. Used for having
-   * timeout logic in state transitions.
-   *
-   * @param duration The timeout duration (in seconds) to use.
-   * @return Whether the current state has been active for longer than the given duration.
-   */
-  public boolean timeout(double duration) {
-    var currentStateDuration = Timer.getFPGATimestamp() - lastTransitionTimestamp;
-
-    return currentStateDuration > duration;
-  }
+  // endregion
 
   /**
    * Start a transition to the new current state. This method will save the current timestamp at the
