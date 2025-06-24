@@ -7,11 +7,11 @@
 
 package com.team1165.robot.subsystems.roller.funnel;
 
-import com.team1165.robot.util.statemachine.StateMachine;
 import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
+import com.team1165.robot.util.statemachine.StateMachine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
