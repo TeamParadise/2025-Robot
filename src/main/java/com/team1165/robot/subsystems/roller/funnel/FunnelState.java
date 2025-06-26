@@ -7,8 +7,10 @@
 
 package com.team1165.robot.subsystems.roller.funnel;
 
+import com.team1165.robot.util.statemachine.State;
+
 /** All the possible states for the {@link Funnel} subsystem. */
-public enum FunnelState {
+public enum FunnelState implements State {
   /** Idle, not moving. */
   IDLE,
   /** Default intake state to get a coral into the scoring mechanism. */

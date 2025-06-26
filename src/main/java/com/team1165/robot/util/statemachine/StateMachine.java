@@ -9,6 +9,7 @@ package com.team1165.robot.util.statemachine;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,12 +40,18 @@ import org.littletonrobotics.junction.Logger;
  *       during the next periodic loop, allowing the controls to be immediately updated.
  * </ol>
  */
-public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
+public abstract class StateMachine<S extends State> extends SubsystemBase {
   /** The current state that the subsystem is in. */
   private S currentState;
 
-  /** The final state that the subsystem is trying to reach. */
-  private S finalState;
+  /** Stores if a goal override is currently active. */
+  private boolean goalOverrideActive = false;
+
+  /** Stores the value of a goal override. */
+  private boolean goalOverrideValue = false;
+
+  /** Stores if a state override is currently active. */
+  private boolean stateOverrideActive = false;
 
   /** The last time that a state transition was performed. */
   private double lastTransitionTimestamp = 0.0;
@@ -57,7 +64,6 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   protected StateMachine(S initialState) {
     currentState = initialState;
-    finalState = initialState;
   }
 
   // region Default methods that are typically not overridden (mostly public)
@@ -76,10 +82,6 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     return atGoal(currentState);
   }
 
-  public boolean atFinalGoal() {
-    return atGoal(finalState);
-  }
-
   /**
    * Returns the current state that this subsystem is in.
    *
@@ -87,15 +89,6 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
    */
   public S getCurrentState() {
     return currentState;
-  }
-
-  /**
-   * Returns the final state that this subsystem is trying to reach.
-   *
-   * @return The final state of this subsystem.
-   */
-  public S getFinalState() {
-    return finalState;
   }
 
   /**
@@ -140,33 +133,9 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
     return (Timer.getFPGATimestamp() - lastTransitionTimestamp) > duration;
   }
 
-  /**
-   * Creates a command that ends once this subsystem is in the given state.
-   *
-   * @param state The state to wait for.
-   * @return A command that ends once the current state equals the given state.
-   */
-  public Command waitForState(S state) {
-    return Commands.waitUntil(() -> currentState == state);
-  }
-
-  /**
-   * Creates a command that finishes when the subsystem reaches any one of the given states.
-   *
-   * @param states A set of the states to wait for.
-   * @return A command that waits until the state is equal to any of the goal states.
-   */
-  public Command waitForStates(Set<S> states) {
-    return Commands.waitUntil(() -> states.contains(currentState));
-  }
-
   // endregion
 
   // region Methods that are typically overridden (mostly protected)
-
-  public Command waitUntilGoalReached(S state) {
-    return Commands.waitUntil(() -> atGoal(state));
-  }
 
   /**
    * Method that will update the inputs of the subsystem and switch it to the next state if one is
@@ -194,20 +163,6 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   }
 
   /**
-   * Get the next state of the subsystem, if the subsystem is meant to transition between different
-   * states on it's own. By default, this will just return the current state.
-   *
-   * @return THe next state of the subsystem if it exists, otherwise, the curren state.
-   */
-  protected S getNextState() {
-    return currentState;
-  }
-
-  protected S getTransitionState(S goalState) {
-    return goalState;
-  }
-
-  /**
    * Performs a transition to the new current state. This method contains most of the state
    * machine's logic and is where users should implement changes to subsystem behavior—such as
    * adjusting speed, position, and other parameters.
@@ -222,5 +177,76 @@ public abstract class StateMachine<S extends Enum<S>> extends SubsystemBase {
   ;
 
   // endregion
-  private void overrideState(S state) {}
+  // region Commands
+
+  /**
+   * Creates a command to override the state of this subsystem. This command will set the
+   * currentState to the provided state, and will prevent a {@link RobotManager} instance from
+   * changing the state, until this command ends.
+   *
+   * <p>This command will never end without interruption. Make sure to interrupt it using a Trigger,
+   * or by calling another override command. If interrupted, it will call the {@link RobotManager}
+   * to get the current managed state of the subsystem, and the subsystem will return to that state.
+   * Interrupting with another override command will immediately start the override sequence again.
+   *
+   * <p>If this override should persist until the end of the match or when the robot code is
+   * disabled (this could be useful for a form of emergency stop), you can use {@link
+   * Command#withInterruptBehavior(InterruptionBehavior)} to ensure that the command cannot be
+   * interrupted by other commands. You can still cancel it using {@link
+   * CommandScheduler#cancel(Command...)}.
+   *
+   * @param state The state to override with.
+   */
+  public Command overrideState(S state) {
+    var command = Commands.runOnce(
+            () -> {
+              setState(state);
+              Logger.recordOutput(this.getName() + "StateOverride", stateOverrideActive = true);
+            })
+        .alongWith(Commands.idle());
+
+    // Run this when the override command is interrupted
+    CommandScheduler.getInstance().onCommandInterrupt(
+        (cmd, interupt) -> {
+          Logger.recordOutput(this.getName() + "StateOverride", stateOverrideActive = false);
+          if (interupt.isEmpty()) { // If it wasn't interrupted by another (presumably override) cmd
+            setState(RobotManager.getManagedState(this));
+          }
+        }
+    );
+
+    return command;
+  }
+
+  /**
+   * Creates a command that ends once this subsystem is in the given state.
+   *
+   * @param state The state to wait for.
+   * @return A command that ends once the current state equals the given state.
+   */
+  public Command waitForState(S state) {
+    return Commands.waitUntil(() -> currentState == state);
+  }
+
+  /**
+   * Creates a command that finishes when the subsystem reaches any one of the given states.
+   *
+   * @param states A set of the states to wait for.
+   * @return A command that waits until the state is equal to any of the goal states.
+   */
+  public Command waitForStates(Set<S> states) {
+    return Commands.waitUntil(() -> states.contains(currentState));
+  }
+
+  /**
+   * Creates a
+   *
+   * @param state
+   * @return
+   */
+  public Command waitUntilGoalReached(S state) {
+    return Commands.waitUntil(() -> atGoal(state));
+  }
+
+  // endregion
 }
