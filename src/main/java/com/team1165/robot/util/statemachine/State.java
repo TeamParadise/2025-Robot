@@ -7,4 +7,10 @@
 
 package com.team1165.robot.util.statemachine;
 
+/**
+ * An interface for an {@link Enum} used to define all possible states for a {@link StateMachine}.
+ *
+ * <p>Each implementation of this interface should be an {@link Enum}, where each enum constant
+ * represents a distinct state that the {@link StateMachine} can be in.
+ */
 public interface State {}
