@@ -36,6 +36,8 @@ import org.littletonrobotics.junction.Logger;
  *       {@link #setState(S)}, not during the next periodic loop, allowing the controls to be
  *       immediately updated.
  * </ol>
+ *
+ * @param <S> All possible states for this state machine.
  */
 public abstract class StateMachine<S extends State> extends SubsystemBase {
   /** The current state that the subsystem is in. */
