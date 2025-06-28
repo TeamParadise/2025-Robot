@@ -65,8 +65,8 @@ public abstract class GoalOverridableStateMachine<S extends Enum<S> & State>
 
   /** Disable the goal override system, causing the subsystem to report its real status. */
   public void disableGoalOverride() {
-    Logger.recordOutput(name + "GoalOverrideActive", goalOverrideActive = false);
-    Logger.recordOutput(name + "GoalOverrideValue", goalOverrideValue = false);
+    Logger.recordOutput(name + "/GoalOverrideActive", goalOverrideActive = false);
+    Logger.recordOutput(name + "/GoalOverrideValue", goalOverrideValue = false);
   }
 
   /**
@@ -76,8 +76,8 @@ public abstract class GoalOverridableStateMachine<S extends Enum<S> & State>
    * @param goalValue Whether the goal should report as reached (true) or not reached (false).
    */
   public void enableGoalOverride(boolean goalValue) {
-    Logger.recordOutput(name + "GoalOverrideActive", goalOverrideActive = true);
-    Logger.recordOutput(name + "GoalOverrideValue", goalOverrideValue = goalValue);
+    Logger.recordOutput(name + "/GoalOverrideActive", goalOverrideActive = true);
+    Logger.recordOutput(name + "/GoalOverrideValue", goalOverrideValue = goalValue);
   }
 
   /**

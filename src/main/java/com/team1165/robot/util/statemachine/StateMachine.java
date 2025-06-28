@@ -54,8 +54,8 @@ public abstract class StateMachine<S extends Enum<S> & State> extends SubsystemB
    * @see StateMachine
    */
   protected StateMachine(S initialState) {
-    currentState = initialState;
     name = getName();
+    setState(initialState);
   }
 
   // region Commands

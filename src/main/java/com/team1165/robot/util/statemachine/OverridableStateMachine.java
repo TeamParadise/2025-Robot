@@ -29,6 +29,9 @@ import org.littletonrobotics.junction.Logger;
  * @param <S> All possible states for this state machine.
  */
 public abstract class OverridableStateMachine<S extends Enum<S> & State> extends StateMachine<S> {
+  /** The state that the {@link RobotManager} is trying to command this subsystem to go to. */
+  private S managedState;
+
   /** Stores if a state override is currently active. */
   private boolean stateOverrideActive = false;
 
@@ -40,6 +43,7 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
    */
   protected OverridableStateMachine(S initialState) {
     super(initialState);
+    setState(initialState);
   }
 
   /**
@@ -65,18 +69,18 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
     var command =
         Commands.runOnce(
                 () -> {
-                  setState(state);
-                  Logger.recordOutput(name + "StateOverride", stateOverrideActive = true);
-                })
+                  super.setState(state);
+                  Logger.recordOutput(name + "/StateOverride", stateOverrideActive = true);
+                }, this)
             .alongWith(Commands.idle());
 
     // Run this when the override command is interrupted
     CommandScheduler.getInstance()
         .onCommandInterrupt(
             (cmd, interupt) -> {
-              Logger.recordOutput(name + "StateOverride", stateOverrideActive = false);
+              Logger.recordOutput(name + "/StateOverride", stateOverrideActive = false);
               if (interupt.isEmpty()) { // If it wasn't interrupted by another command
-                setState(RobotManager.getManagedState(this));
+                setState(managedState);
               }
             });
 
@@ -91,6 +95,7 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
    */
   @Override
   protected void setState(S newState) {
+    Logger.recordOutput(name + "/ManagedState", managedState = newState);
     if (!stateOverrideActive) {
       super.setState(newState);
     }
