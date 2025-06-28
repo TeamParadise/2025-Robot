@@ -10,7 +10,6 @@ package com.team1165.robot.commands;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
-import com.team1165.robot.subsystems.roller.funnel.FunnelState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -54,7 +53,7 @@ public class Intake extends Command {
         if (timer.get() - startingTimestampCurrent > elapsedTime) {
           endCommand = true;
           flywheels.stop();
-          funnel.setState(FunnelState.IDLE);
+          // funnel.setState(FunnelState.IDLE);
         }
       } else if (!flywheels.isDrawingHighCurrent() && didDrawHighCurrent) {
         didDrawHighCurrent = false;
@@ -62,7 +61,8 @@ public class Intake extends Command {
     }
 
     flywheels.runPercent(0.22);
-    funnel.setState(FunnelState.INTAKE); // Ideally, this might go in init, to avoid repeat calls?
+    // funnel.setState(FunnelState.INTAKE); // Ideally, this might go in init, to avoid repeat
+    // calls?
     elevator.runToIntakePosition();
   }
 
@@ -75,6 +75,6 @@ public class Intake extends Command {
   @Override
   public void end(boolean interrupted) {
     flywheels.stop();
-    funnel.setState(FunnelState.IDLE);
+    // funnel.setState(FunnelState.IDLE);
   }
 }

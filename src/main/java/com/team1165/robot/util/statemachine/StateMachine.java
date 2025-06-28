@@ -42,8 +42,10 @@ import org.littletonrobotics.junction.Logger;
 public abstract class StateMachine<S extends Enum<S> & State> extends SubsystemBase {
   /** The name of this subsystem. */
   protected final String name;
+
   /** The current state that the subsystem is in. */
   private S currentState;
+
   /** The last time that a state change occurred. */
   private double lastStateChangeTimestamp = 0.0;
 

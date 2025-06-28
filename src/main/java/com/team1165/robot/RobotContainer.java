@@ -16,8 +16,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
-import com.team1165.robot.commands.Intake;
-import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.commands.elevator.ElevatorPosition;
 import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
 import com.team1165.robot.subsystems.drive.Drive;
@@ -74,6 +72,7 @@ public class RobotContainer {
   private final Flywheels flywheels;
   private final Funnel funnel;
   private final ATVision apriltagVision;
+  private final OdysseusManager robot;
 
   private final TeleopDashboard teleopDash = TeleopDashboard.getInstance();
 
@@ -177,6 +176,8 @@ public class RobotContainer {
       }
     }
 
+    robot = new OdysseusManager(FunnelState.IDLE, funnel);
+
     MaxSpeed =
         () ->
             elevator.getPosition() >= 6.5
@@ -204,17 +205,17 @@ public class RobotContainer {
     driverController
         .leftBumper()
         .whileTrue(
-            funnel
+            robot
                 .stateCommand(FunnelState.MANUAL_REVERSE)
                 .alongWith(new FlywheelsPercenmt(flywheels, () -> -0.15)))
-        .onFalse(funnel.stateCommand(FunnelState.IDLE));
+        .onFalse(robot.stateCommand(FunnelState.IDLE));
     driverController
         .rightBumper()
         .whileTrue(
-            funnel
+            robot
                 .stateCommand(FunnelState.MANUAL_FORWARD)
                 .alongWith(new FlywheelsPercenmt(flywheels, () -> 0.15)))
-        .onFalse(funnel.stateCommand(FunnelState.IDLE));
+        .onFalse(robot.stateCommand(FunnelState.IDLE));
     // Ideally, if both of the above subsystems were state-based, maybe do something like this?:
     // driverController
     // .onTrue(
@@ -234,14 +235,17 @@ public class RobotContainer {
             new InstantCommand(() -> elevator.setEmergencyStop(!elevator.getEmergencyStopState())));
 
     // ABXY
-    driverController.a().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.05));
-    driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
+    // driverController.a().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.05));
+    // driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
+    driverController.a().onTrue(robot.stateCommand(FunnelState.INTAKE));
+    driverController.b().whileTrue(funnel.overrideState(FunnelState.MANUAL_FORWARD));
+    driverController.x().onTrue(robot.stateCommand(FunnelState.IDLE));
     driverController
         .y()
         .onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
-    driverController
-        .x()
-        .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
+    // driverController
+    //     .x()
+    //    .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
 
     // RobotModeTriggers.teleop().onTrue(new InstantCommand(apriltagVision::enableSingleTagTrig));
   }

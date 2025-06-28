@@ -11,13 +11,11 @@ import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
-import com.team1165.robot.util.statemachine.StateMachine;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import com.team1165.robot.util.statemachine.OverridableStateMachine;
 import org.littletonrobotics.junction.Logger;
 
 /** State-machine based Funnel subsystem, powered by two motors. */
-public class Funnel extends StateMachine<FunnelState> {
+public class Funnel extends OverridableStateMachine<FunnelState> {
   private final RollerIO io;
   private final RollerIOInputs inputs = new RollerIOInputs();
 
@@ -35,22 +33,12 @@ public class Funnel extends StateMachine<FunnelState> {
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
     this.io = io;
-    transition();
   }
 
   @Override
-  public void setState(FunnelState state) {
-    super.setState(state);
-  }
-
-  public Command stateCommand(FunnelState state) {
-    return Commands.run(() -> setState(state), this);
-  }
-
-  @Override
-  protected void updateInputs() {
+  protected void update() {
     io.updateInputs(inputs);
-    Logger.processInputs("Funnel", inputs);
+    Logger.processInputs(name, inputs);
   }
 
   @Override

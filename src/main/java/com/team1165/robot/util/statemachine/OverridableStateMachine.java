@@ -71,7 +71,8 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
                 () -> {
                   super.setState(state);
                   Logger.recordOutput(name + "/StateOverride", stateOverrideActive = true);
-                }, this)
+                },
+                this)
             .alongWith(Commands.idle());
 
     // Run this when the override command is interrupted
