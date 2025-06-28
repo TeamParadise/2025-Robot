@@ -66,7 +66,7 @@ public abstract class OverridableStateMachine<S extends State> extends StateMach
         Commands.runOnce(
                 () -> {
                   setState(state);
-                  Logger.recordOutput(this.getName() + "StateOverride", stateOverrideActive = true);
+                  Logger.recordOutput(name + "StateOverride", stateOverrideActive = true);
                 })
             .alongWith(Commands.idle());
 
@@ -74,7 +74,7 @@ public abstract class OverridableStateMachine<S extends State> extends StateMach
     CommandScheduler.getInstance()
         .onCommandInterrupt(
             (cmd, interupt) -> {
-              Logger.recordOutput(this.getName() + "StateOverride", stateOverrideActive = false);
+              Logger.recordOutput(name + "StateOverride", stateOverrideActive = false);
               if (interupt.isEmpty()) { // If it wasn't interrupted by another command
                 setState(RobotManager.getManagedState(this));
               }

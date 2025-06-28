@@ -43,8 +43,11 @@ public abstract class StateMachine<S extends State> extends SubsystemBase {
   /** The current state that the subsystem is in. */
   private S currentState;
 
-  /** The last time that a state transition was performed. */
-  private double lastTransitionTimestamp = 0.0;
+  /** The last time that a state change occurred. */
+  private double lastStateChangeTimestamp = 0.0;
+
+  /** The name of this subsystem. */
+  protected final String name;
 
   /**
    * Creates a new {@link SubsystemBase} with a state machine implementation.
@@ -54,6 +57,7 @@ public abstract class StateMachine<S extends State> extends SubsystemBase {
    */
   protected StateMachine(S initialState) {
     currentState = initialState;
+    name = getName();
   }
 
   // region Commands
@@ -92,12 +96,12 @@ public abstract class StateMachine<S extends State> extends SubsystemBase {
   }
 
   /**
-   * Returns the last time that a state transition was performed.
+   * Returns the last time that a state change occurred.
    *
-   * @return The last time a state transition was performed.
+   * @return The last time a state change occurred.
    */
-  public double getLastTransitionTimestamp() {
-    return lastTransitionTimestamp;
+  public double getLastStateChangeTimestamp() {
+    return lastStateChangeTimestamp;
   }
 
   /**
@@ -126,10 +130,10 @@ public abstract class StateMachine<S extends State> extends SubsystemBase {
     // Only attempt transition if the new state is not equal to the current state
     if (newState != currentState) {
       // Log the new current state
-      Logger.recordOutput(this.getName() + "/CurrentState", (currentState = newState).toString());
+      Logger.recordOutput(name + "/CurrentState", (currentState = newState).toString());
 
-      // Record the transition time and perform the transition
-      lastTransitionTimestamp = Timer.getTimestamp();
+      // Record the last state change time and perform the transition
+      lastStateChangeTimestamp = Timer.getTimestamp();
       transition();
     }
   }
@@ -142,7 +146,7 @@ public abstract class StateMachine<S extends State> extends SubsystemBase {
    * @return Whether the current state has been active longer than the given duration.
    */
   public boolean timeout(double duration) {
-    return (Timer.getTimestamp() - lastTransitionTimestamp) > duration;
+    return (Timer.getTimestamp() - lastStateChangeTimestamp) > duration;
   }
 
   // endregion

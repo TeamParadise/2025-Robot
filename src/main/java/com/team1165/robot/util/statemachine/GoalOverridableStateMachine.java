@@ -52,7 +52,7 @@ public abstract class GoalOverridableStateMachine<S extends State>
    * command ends.
    *
    * <p>This command will never end without interruption. Make sure to interrupt it by using a
-   * Trigger or calling another override command. If interrupted, it'll disable the goal override
+   * Trigger or calling another override command. If interrupted, it'll disable the goal override,
    * and trying to get the goal will return its true status.
    *
    * @param goalValue Whether the goal should report as reached (true) or not reached (false).
@@ -65,8 +65,8 @@ public abstract class GoalOverridableStateMachine<S extends State>
 
   /** Disable the goal override system, causing the subsystem to report its real status. */
   public void disableGoalOverride() {
-    Logger.recordOutput(this.getName() + "GoalOverrideActive", goalOverrideActive = false);
-    Logger.recordOutput(this.getName() + "GoalOverrideValue", goalOverrideValue = false);
+    Logger.recordOutput(name + "GoalOverrideActive", goalOverrideActive = false);
+    Logger.recordOutput(name + "GoalOverrideValue", goalOverrideValue = false);
   }
 
   /**
@@ -76,8 +76,8 @@ public abstract class GoalOverridableStateMachine<S extends State>
    * @param goalValue Whether the goal should report as reached (true) or not reached (false).
    */
   public void enableGoalOverride(boolean goalValue) {
-    Logger.recordOutput(this.getName() + "GoalOverrideActive", goalOverrideActive = true);
-    Logger.recordOutput(this.getName() + "GoalOverrideValue", goalOverrideValue = goalValue);
+    Logger.recordOutput(name + "GoalOverrideActive", goalOverrideActive = true);
+    Logger.recordOutput(name + "GoalOverrideValue", goalOverrideValue = goalValue);
   }
 
   /**
