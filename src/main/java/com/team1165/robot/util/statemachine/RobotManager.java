@@ -7,9 +7,18 @@
 
 package com.team1165.robot.util.statemachine;
 
-public class RobotManager {
-  public static <S extends State> S getManagedState(StateMachine<S> subsystem)  {
-    // will eventually return the state it should be in
-    return null;
+public abstract class RobotManager<S extends Enum<S> & State> extends StateMachine<S> {
+  /**
+   * Creates a new {@link RobotManager} to manage a collection of robot subsystems.
+   *
+   * @param initialState The initial/default state of the manager..
+   * @see StateMachine
+   */
+  protected RobotManager(S initialState) {
+    super(initialState);
+  }
+
+  protected <T extends Enum<T> & State> void setSubsystemState(StateMachine<T> subsystem, T newState) {
+    subsystem.setState(newState);
   }
 }

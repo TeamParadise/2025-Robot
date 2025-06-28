@@ -43,7 +43,7 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
    */
   protected OverridableStateMachine(S initialState) {
     super(initialState);
-    setState(initialState);
+    managedState = initialState;
   }
 
   /**
