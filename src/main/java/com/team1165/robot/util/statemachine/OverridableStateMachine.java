@@ -36,7 +36,7 @@ public abstract class OverridableStateMachine<S extends State> extends StateMach
    * Creates a new {@link SubsystemBase} with an overridable state machine implementation.
    *
    * @param initialState The initial/default state of the state machine.
-   * @see StateMachine
+   * @see OverridableStateMachine
    */
   protected OverridableStateMachine(S initialState) {
     super(initialState);
