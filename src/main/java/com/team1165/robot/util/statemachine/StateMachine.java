@@ -39,15 +39,13 @@ import org.littletonrobotics.junction.Logger;
  *
  * @param <S> All possible states for this state machine.
  */
-public abstract class StateMachine<S extends State> extends SubsystemBase {
-  /** The current state that the subsystem is in. */
-  private S currentState;
-
-  /** The last time that a state change occurred. */
-  private double lastStateChangeTimestamp = 0.0;
-
+public abstract class StateMachine<S extends Enum<S> & State> extends SubsystemBase {
   /** The name of this subsystem. */
   protected final String name;
+  /** The current state that the subsystem is in. */
+  private S currentState;
+  /** The last time that a state change occurred. */
+  private double lastStateChangeTimestamp = 0.0;
 
   /**
    * Creates a new {@link SubsystemBase} with a state machine implementation.

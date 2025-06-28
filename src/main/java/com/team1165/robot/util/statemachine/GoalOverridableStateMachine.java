@@ -28,7 +28,7 @@ import org.littletonrobotics.junction.Logger;
  * @see OverridableStateMachine
  * @param <S> All possible states for this state machine.
  */
-public abstract class GoalOverridableStateMachine<S extends State>
+public abstract class GoalOverridableStateMachine<S extends Enum<S> & State>
     extends OverridableStateMachine<S> {
   /** Stores if a goal override is currently active. */
   private boolean goalOverrideActive = false;

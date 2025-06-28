@@ -28,7 +28,7 @@ import org.littletonrobotics.junction.Logger;
  * @see StateMachine
  * @param <S> All possible states for this state machine.
  */
-public abstract class OverridableStateMachine<S extends State> extends StateMachine<S> {
+public abstract class OverridableStateMachine<S extends Enum<S> & State> extends StateMachine<S> {
   /** Stores if a state override is currently active. */
   private boolean stateOverrideActive = false;
 
