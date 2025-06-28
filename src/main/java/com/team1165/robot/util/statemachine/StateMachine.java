@@ -130,10 +130,11 @@ public abstract class StateMachine<S extends Enum<S> & State> extends SubsystemB
       // Log the new current state
       Logger.recordOutput(name + "/CurrentState", (currentState = newState).toString());
 
-      // Record the last state change time and perform the transition
+      // Record the last state change time
       lastStateChangeTimestamp = Timer.getTimestamp();
-      transition();
     }
+    // Perform a transition
+    transition();
   }
 
   /**
@@ -155,9 +156,6 @@ public abstract class StateMachine<S extends Enum<S> & State> extends SubsystemB
    * Performs a transition to the new current state. This method contains most of the state
    * machine's logic and is where users should implement changes to subsystem behavior — such as
    * adjusting speed, position, and other parameters.
-   *
-   * <p>This can be also used by a {@link RobotManager} to reset the states of subsystems, and set
-   * the speed or positions of mechanisms back to the right state if they somehow become off.
    */
   protected abstract void transition();
 
