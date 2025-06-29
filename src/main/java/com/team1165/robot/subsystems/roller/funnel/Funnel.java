@@ -7,11 +7,12 @@
 
 package com.team1165.robot.subsystems.roller.funnel;
 
-import com.team1165.robot.subsystems.roller.funnel.constants.FunnelConstants;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import com.team1165.robot.util.statemachine.OverridableStateMachine;
+import com.team1165.robot.util.statemachine.StateUtils;
+import java.util.EnumMap;
 import org.littletonrobotics.junction.Logger;
 
 /** State-machine based Funnel subsystem, powered by two motors. */
@@ -19,20 +20,12 @@ public class Funnel extends OverridableStateMachine<FunnelState> {
   private final RollerIO io;
   private final RollerIOInputs inputs = new RollerIOInputs();
 
-  private final LoggedTunableNumber intakeVoltage =
-      new LoggedTunableNumber("Funnel/Speeds/Intake", FunnelConstants.Voltages.intake);
-  private final LoggedTunableNumber manualForwardVoltage =
-      new LoggedTunableNumber(
-          "Funnel/Speeds/ManualForward", FunnelConstants.Voltages.manualForward);
-  private final LoggedTunableNumber manualReverseVoltage =
-      new LoggedTunableNumber(
-          "Funnel/Speeds/ManualReverse", FunnelConstants.Voltages.manualReverse);
-  private final LoggedTunableNumber customManualVoltage =
-      new LoggedTunableNumber("Funnel/Speeds/CustomManual", 0.0);
+  private final EnumMap<FunnelState, LoggedTunableNumber> tunableMap;
 
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
     this.io = io;
+    tunableMap = StateUtils.createTunableNumberMap("Funnel/Voltages", FunnelState.class);
   }
 
   @Override
@@ -43,21 +36,6 @@ public class Funnel extends OverridableStateMachine<FunnelState> {
 
   @Override
   protected void transition() {
-    switch (getCurrentState()) {
-      case IDLE:
-        io.runVolts(0.0);
-        break;
-      case INTAKE:
-        io.runVolts(intakeVoltage.get());
-        break;
-      case MANUAL_FORWARD:
-        io.runVolts(manualForwardVoltage.get());
-        break;
-      case MANUAL_REVERSE:
-        io.runVolts(manualReverseVoltage.get());
-        break;
-      case CUSTOM_MANUAL:
-        io.runVolts(customManualVoltage.get());
-    }
+    tunableMap.get(getCurrentState());
   }
 }
