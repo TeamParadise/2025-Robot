@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
+ *
+ * Use of this source code is governed by the MIT License, which can be found in the LICENSE file at
+ * the root directory of this project.
+ */
+
+package com.team1165.robot.subsystems.roller.flywheel;
+
+import com.team1165.robot.util.statemachine.State;
+
+/** All the possible states for the {@link Flywheel} subsystem. */
+public enum FlywheelState implements State {
+  /** Idle, not moving. */
+  IDLE(0.0),
+  /** Default intake state to get a coral into the scoring mechanism. */
+  INTAKE(4.8),
+  /** Slow scoring speed. */
+  SLOW_SCORE(4.0),
+  /** Fast scoring speed. */
+  FAST_SCORE(6.0),
+  /** Spin forwards. */
+  MANUAL_FORWARD(3.0),
+  /** Spin backwards. */
+  MANUAL_REVERSE(-3.0),
+  /** Custom state modified on the fly. Avoid use. */
+  CUSTOM_MANUAL(0.0);
+
+  private final double voltage;
+
+  FlywheelState(double voltage) {
+    this.voltage = voltage;
+  }
+
+  public double get() {
+    return voltage;
+  }
+}
