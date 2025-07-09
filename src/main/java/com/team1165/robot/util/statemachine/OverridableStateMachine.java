@@ -66,19 +66,27 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
    * @param state The state to override with.
    */
   public Command overrideState(S state) {
-    // TODO: Try to find a solution to make sure we need to set managed state, and it won't just get
-    // overridden
-    var command =
-        Commands.runOnce(
-                () -> {
-                  super.setState(state);
-                  Logger.recordOutput(name + "/StateOverride", stateOverrideActive = true);
-                },
-                this)
-            .alongWith(Commands.idle())
-            .finallyDo(() -> setState(managedState));
+    return Commands.runOnce(
+            () -> {
+              super.setState(state);
+              Logger.recordOutput(name + "/StateOverride", stateOverrideActive = true);
+            },
+            this)
+        .alongWith(Commands.idle())
+        .finallyDo(
+            () -> {
+              Logger.recordOutput(name + "/StateOverride", stateOverrideActive = false);
+              // TODO: Test the speed of this compared to the solution in RobotManager
+              setManagedState();
+            });
+  }
 
-    return command;
+  /**
+   * Sets the state of the subsystem to the current managed state; if an override currently isn't
+   * active.
+   */
+  public void setManagedState() {
+    setState(managedState);
   }
 
   /**

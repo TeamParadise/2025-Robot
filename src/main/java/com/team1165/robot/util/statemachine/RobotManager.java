@@ -16,6 +16,29 @@ public abstract class RobotManager<S extends Enum<S> & State> extends StateMachi
    */
   protected RobotManager(S initialState) {
     super(initialState);
+
+    // TODO: Test this solution compared to just always setting the managed state in terms of time
+    /*
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            (cmd, interrupt) -> {
+              if (interrupt.isPresent()) {
+                var interruptRequirements = interrupt.get().getRequirements();
+                for (Subsystem subsystem : cmd.getRequirements()) {
+                  if ((!interruptRequirements.contains(subsystem))
+                      & subsystem instanceof OverridableStateMachine) {
+                    ((OverridableStateMachine<?>) subsystem).setManagedState();
+                  }
+                }
+              } else {
+                for (Subsystem subsystem : cmd.getRequirements()) {
+                  if (subsystem instanceof OverridableStateMachine) {
+                    ((OverridableStateMachine<?>) subsystem).setManagedState();
+                  }
+                }
+              }
+            });
+     */
   }
 
   protected <T extends Enum<T> & State> void setSubsystemState(
