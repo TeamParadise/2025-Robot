@@ -20,12 +20,12 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
   private final RollerIO io;
   private final RollerIOInputs inputs = new RollerIOInputs();
 
-  private final EnumMap<FlywheelState, LoggedTunableNumber> tunableMap;
+  private final EnumMap<FlywheelState, LoggedTunableNumber> tunableMap =
+      StateUtils.createTunableNumberMap(name + "/Voltages", FlywheelState.class);
 
   public Flywheel(RollerIO io) {
     super(FlywheelState.IDLE);
     this.io = io;
-    tunableMap = StateUtils.createTunableNumberMap(name + "/Voltages", FlywheelState.class);
   }
 
   @Override

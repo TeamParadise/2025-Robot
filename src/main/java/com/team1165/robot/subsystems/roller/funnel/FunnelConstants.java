@@ -14,22 +14,25 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.team1165.robot.globalconstants.Constants;
+import com.team1165.robot.globalconstants.CANConstants.IDs.RIO;
 import com.team1165.robot.util.vendor.rev.SparkConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import org.ironmaple.simulation.motorsims.SimMotorConfigs;
 
 /** Class to store constants for the {@link Funnel} subsystem of the robot. */
 public class FunnelConstants {
-  // SPARK MAX configurations
+  // Base SPARK configuration
   private static final SparkBaseConfig baseMotorConfig =
-      new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+      new SparkMaxConfig().smartCurrentLimit(40).idleMode(IdleMode.kBrake);
+
+  // Individual SPARK MAX configurations
   public static final SparkConfig primaryMotorConfig =
-      SparkConfig.sparkMax("FunnelPrimary", 3, MotorType.kBrushless, baseMotorConfig);
+      SparkConfig.sparkMax(
+          "FunnelPrimary", RIO.funnelPrimary, MotorType.kBrushless, baseMotorConfig);
   public static final SparkConfig secondaryMotorConfig =
       SparkConfig.sparkMax(
           "FunnelSecondary",
-          Constants.CANIDs,
+          RIO.funnelSecondary,
           MotorType.kBrushless,
           baseMotorConfig.follow(primaryMotorConfig.canId(), true));
 

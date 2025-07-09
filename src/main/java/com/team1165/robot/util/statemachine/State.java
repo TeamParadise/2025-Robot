@@ -14,5 +14,5 @@ package com.team1165.robot.util.statemachine;
  * represents a distinct state that the {@link StateMachine} can be in.
  */
 public interface State {
-  public double get();
+  double get();
 }

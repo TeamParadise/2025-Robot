@@ -20,12 +20,11 @@ public class Funnel extends OverridableStateMachine<FunnelState> {
   private final RollerIO io;
   private final RollerIOInputs inputs = new RollerIOInputs();
 
-  private final EnumMap<FunnelState, LoggedTunableNumber> tunableMap;
+  private final EnumMap<FunnelState, LoggedTunableNumber> tunableMap = StateUtils.createTunableNumberMap(name + "/Voltages", FunnelState.class);
 
   public Funnel(RollerIO io) {
     super(FunnelState.IDLE);
     this.io = io;
-    tunableMap = StateUtils.createTunableNumberMap("Funnel/Voltages", FunnelState.class);
   }
 
   @Override

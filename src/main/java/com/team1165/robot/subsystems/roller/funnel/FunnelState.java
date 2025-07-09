@@ -13,13 +13,13 @@ import com.team1165.robot.util.statemachine.State;
 public enum FunnelState implements State {
   /** Idle, not moving. */
   IDLE(0.0),
-  /** Default intake state to get a coral into the scoring mechanism. */
+  /** Default intake state to get coral into the scoring mechanism. */
   INTAKE(5.0),
   /** Spin forwards. */
   MANUAL_FORWARD(3.0),
   /** Spin backwards. */
   MANUAL_REVERSE(-3.0),
-  /** Custom state modified on the fly. Avoid use. */
+  /** Custom state modified on the fly. Used as an emergency backup or for tuning. */
   CUSTOM_MANUAL(0.0);
 
   private final double voltage;

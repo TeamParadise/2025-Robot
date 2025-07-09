@@ -13,7 +13,7 @@ import com.team1165.robot.util.statemachine.State;
 public enum FlywheelState implements State {
   /** Idle, not moving. */
   IDLE(0.0),
-  /** Default intake state to get a coral into the scoring mechanism. */
+  /** Default intake state to get coral into the scoring mechanism. */
   INTAKE(4.8),
   /** Slow scoring speed. */
   SLOW_SCORE(4.0),
