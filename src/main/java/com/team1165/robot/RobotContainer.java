@@ -16,8 +16,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
-import com.team1165.robot.commands.elevator.ElevatorPosition;
-import com.team1165.robot.commands.flywheels.FlywheelsPercenmt;
 import com.team1165.robot.globalconstants.Constants;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
@@ -29,9 +27,9 @@ import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOSim;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
-import com.team1165.robot.subsystems.flywheels.Flywheels;
-import com.team1165.robot.subsystems.flywheels.io.FlywheelsIO;
-import com.team1165.robot.subsystems.flywheels.io.FlywheelsIOSparkMax;
+import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
+import com.team1165.robot.subsystems.roller.flywheel.FlywheelConstants;
+import com.team1165.robot.subsystems.roller.flywheel.FlywheelState;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import com.team1165.robot.subsystems.roller.funnel.FunnelConstants;
 import com.team1165.robot.subsystems.roller.funnel.FunnelState;
@@ -56,7 +54,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import java.util.function.DoubleSupplier;
 
@@ -70,7 +68,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Elevator elevator;
-  private final Flywheels flywheels;
+  private final Flywheel flywheel;
   private final Funnel funnel;
   private final ATVision apriltagVision;
   private final OdysseusManager robot;
@@ -98,13 +96,19 @@ public class RobotContainer {
             new Drive(
                 new DriveIOReal(
                     DriveConstants.drivetrainConstants, DriveConstants.getModuleConstants()));
+
         elevator = new Elevator(new ElevatorIOTalonFX());
-        flywheels = new Flywheels(new FlywheelsIOSparkMax());
+
+        flywheel =
+            new Flywheel(
+                new RollerIOSpark(
+                    FlywheelConstants.primaryMotorConfig, FlywheelConstants.secondaryMotorConfig));
+
         funnel =
             new Funnel(
                 new RollerIOSpark(
-                    FunnelConstants.Configurations.primaryMotorConfig,
-                    FunnelConstants.Configurations.secondaryMotorConfig));
+                    FunnelConstants.primaryMotorConfig, FunnelConstants.secondaryMotorConfig));
+
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -133,9 +137,13 @@ public class RobotContainer {
                     DriveConstants.drivetrainConstants,
                     DriveConstants.simConfig,
                     DriveConstants.getModuleConstants()));
+
         elevator = new Elevator(new ElevatorIOSim());
-        flywheels = new Flywheels(new FlywheelsIO() {});
-        funnel = new Funnel(new RollerIOSim(FunnelConstants.Configurations.simConfig, Amps.of(50)));
+
+        flywheel = new Flywheel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(50)) {});
+
+        funnel = new Funnel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(40)));
+
         apriltagVision =
             new ATVision(
                 drive::addVisionMeasurement,
@@ -167,7 +175,7 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
         elevator = new Elevator(new ElevatorIO() {});
-        flywheels = new Flywheels(new FlywheelsIO() {});
+        flywheel = new Flywheel(new RollerIO() {});
         funnel = new Funnel(new RollerIO() {});
         apriltagVision =
             new ATVision(
@@ -177,7 +185,7 @@ public class RobotContainer {
       }
     }
 
-    robot = new OdysseusManager(FunnelState.IDLE, funnel);
+    robot = new OdysseusManager(OdysseusState.IDLE, funnel, flywheel);
 
     MaxSpeed =
         () ->
@@ -202,53 +210,12 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    // Bumpers
-    driverController
-        .leftBumper()
-        .whileTrue(
-            robot
-                .stateCommand(FunnelState.MANUAL_REVERSE)
-                .alongWith(new FlywheelsPercenmt(flywheels, () -> -0.15)))
-        .onFalse(robot.stateCommand(FunnelState.IDLE));
-    driverController
-        .rightBumper()
-        .whileTrue(
-            robot
-                .stateCommand(FunnelState.MANUAL_FORWARD)
-                .alongWith(new FlywheelsPercenmt(flywheels, () -> 0.15)))
-        .onFalse(robot.stateCommand(FunnelState.IDLE));
-    // Ideally, if both of the above subsystems were state-based, maybe do something like this?:
-    // driverController
-    // .onTrue(
-    //    funnel.stateCommand(FunnelState.MANUAL_FORWARD)
-    //      .alongWith(flywheels.stateCommand(FlywheelsState.MANUAL_FORWARD))
-    // .onFalse(
-    //    funnel.stateCommand(FunnelState.IDLE)
-    //      .alongWith(flywheels.stateCommand(FlywheelsState.IDLE));
-    // This is longer than the original pre-state machine code, but it is also MUCH more clear in
-    // exactly what it is doing, and allows more control outside of the command
-
-    // Center buttons
-    driverController.start().onTrue(new InstantCommand(drive::seedFieldCentric));
-    driverController
-        .back()
-        .onTrue(
-            new InstantCommand(() -> elevator.setEmergencyStop(!elevator.getEmergencyStopState())));
-
-    // ABXY
-    // driverController.a().onTrue(new FlywheelsPercenmt(flywheels, () -> 0.3).withTimeout(0.05));
-    // driverController.b().onTrue(new Intake(elevator, flywheels, funnel));
-    driverController.a().onTrue(robot.stateCommand(FunnelState.INTAKE));
-    driverController.b().whileTrue(funnel.overrideState(FunnelState.MANUAL_FORWARD));
-    driverController.x().onTrue(robot.stateCommand(FunnelState.IDLE));
-    driverController
-        .y()
-        .onTrue(new ElevatorPosition(elevator, () -> teleopDash.getLevel().getElevatorHeight()));
-    // driverController
-    //     .x()
-    //    .whileTrue(new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose()));
-
-    // RobotModeTriggers.teleop().onTrue(new InstantCommand(apriltagVision::enableSingleTagTrig));
+    driverController.a().onTrue(robot.stateCommand(OdysseusState.INTAKE));
+    driverController.b().onTrue(robot.stateCommand(OdysseusState.SCORE_L1));
+    driverController.y().onTrue(robot.stateCommand(OdysseusState.L1));
+    driverController.x().onTrue(robot.stateCommand(OdysseusState.IDLE));
+    driverController.leftBumper().whileTrue(flywheel.overrideState(FlywheelState.CUSTOM_MANUAL));
+    driverController.rightBumper().whileTrue(funnel.overrideState(FunnelState.CUSTOM_MANUAL));
   }
 
   /** Use this method to define default commands for subsystems. */
@@ -291,13 +258,14 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new InstantCommand(
-            () ->
-                drive.resetRotation(
-                    DriverStation.getAlliance().isPresent()
-                            && DriverStation.getAlliance().get() == Alliance.Red
-                        ? Rotation2d.kZero
-                        : Rotation2d.kPi))
-        .andThen(autoBuilder.buildAutoCommand(drive, elevator, flywheels, funnel));
+    //    return new InstantCommand(
+    //            () ->
+    //                drive.resetRotation(
+    //                    DriverStation.getAlliance().isPresent()
+    //                            && DriverStation.getAlliance().get() == Alliance.Red
+    //                        ? Rotation2d.kZero
+    //                        : Rotation2d.kPi))
+    //        .andThen(autoBuilder.buildAutoCommand(drive, elevator, flywheels, funnel));
+    return Commands.none();
   }
 }

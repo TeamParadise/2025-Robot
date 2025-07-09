@@ -21,25 +21,22 @@ import org.ironmaple.simulation.motorsims.SimMotorConfigs;
 
 /** Class to store constants for the {@link Flywheel} subsystem of the robot. */
 public class FlywheelConstants {
-  /** Class to store constants required for initial configuration of the Flywheel subsystem. */
-  public static final class Configurations {
-    // Base SPARK configuration
-    private static final SparkBaseConfig baseMotorConfig =
-        new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+  // Base SPARK configuration
+  public static final SparkBaseConfig baseMotorConfig =
+      new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake);
 
-    // Individual SPARK MAX configurations
-    public static final SparkConfig primaryMotorConfig =
-        SparkConfig.sparkMax(
-            "FlywheelPrimary", RIO.flywheelPrimary, MotorType.kBrushless, baseMotorConfig);
-    public static final SparkConfig secondaryMotorConfig =
-        SparkConfig.sparkMax(
-            "FlywheelSecondary",
-            RIO.funnelSecondary,
-            MotorType.kBrushless,
-            baseMotorConfig.inverted(true));
+  // Individual SPARK MAX configurations
+  public static final SparkConfig primaryMotorConfig =
+      SparkConfig.sparkMax(
+          "FlywheelPrimary", RIO.flywheelPrimary, MotorType.kBrushless, baseMotorConfig);
+  public static final SparkConfig secondaryMotorConfig =
+      SparkConfig.sparkMax(
+          "FlywheelSecondary",
+          RIO.funnelSecondary,
+          MotorType.kBrushless,
+          baseMotorConfig.inverted(true));
 
-    // Simulation motor configuration
-    public static final SimMotorConfigs simConfig =
-        new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.002), Volts.of(0.05));
-  }
+  // Simulation motor configuration
+  public static final SimMotorConfigs simConfig =
+      new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.002), Volts.of(0.05));
 }

@@ -22,7 +22,7 @@ import org.ironmaple.simulation.motorsims.SimMotorConfigs;
 /** Class to store constants for the {@link Funnel} subsystem of the robot. */
 public class FunnelConstants {
   // Base SPARK configuration
-  private static final SparkBaseConfig baseMotorConfig =
+  public static final SparkBaseConfig baseMotorConfig =
       new SparkMaxConfig().smartCurrentLimit(40).idleMode(IdleMode.kBrake);
 
   // Individual SPARK MAX configurations
@@ -34,7 +34,7 @@ public class FunnelConstants {
           "FunnelSecondary",
           RIO.funnelSecondary,
           MotorType.kBrushless,
-          baseMotorConfig.follow(primaryMotorConfig.canId(), true));
+          baseMotorConfig.inverted(true));
 
   // Simulation motor configuration
   public static final SimMotorConfigs simConfig =

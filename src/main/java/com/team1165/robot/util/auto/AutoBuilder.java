@@ -14,7 +14,7 @@ import com.team1165.robot.globalconstants.FieldConstants.CoralStationLocation;
 import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
-import com.team1165.robot.subsystems.flywheels.Flywheels;
+import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -87,7 +87,7 @@ public class AutoBuilder {
   }
 
   public Command buildAutoCommand(
-      Drive drive, Elevator elevator, Flywheels flywheels, Funnel funnel) {
+      Drive drive, Elevator elevator, Flywheel flywheel, Funnel funnel) {
     if (justLeave.get()) {
       return drive
           .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
@@ -126,7 +126,7 @@ public class AutoBuilder {
 
     var autoRoutine =
         new AutoRoutine(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
-    return autoRoutine.getAutoCommand(drive, elevator, flywheels, funnel);
+    return autoRoutine.getAutoCommand(drive, elevator, flywheel, funnel);
   }
 
   public static AutoBuilder getInstance() {

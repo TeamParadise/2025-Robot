@@ -8,14 +8,14 @@
 package com.team1165.robot.commands;
 
 import com.team1165.robot.subsystems.elevator.Elevator;
-import com.team1165.robot.subsystems.flywheels.Flywheels;
+import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class Intake extends Command {
   private final Elevator elevator;
-  private final Flywheels flywheels;
+  private final Flywheel flywheel;
   private final Funnel funnel;
   private final Timer timer = new Timer();
   private final double elapsedTime = 0.04;
@@ -24,13 +24,13 @@ public class Intake extends Command {
   private boolean didDrawHighCurrent = false;
   private boolean endCommand = false;
 
-  public Intake(Elevator elevator, Flywheels flywheels, Funnel funnel) {
+  public Intake(Elevator elevator, Flywheel flywheel, Funnel funnel) {
     this.elevator = elevator;
-    this.flywheels = flywheels;
+    this.flywheel = flywheel;
     this.funnel = funnel;
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
-    addRequirements(this.elevator, this.flywheels, this.funnel);
+    addRequirements(this.elevator, /* this.flywheels,*/ this.funnel);
   }
 
   @Override
@@ -43,27 +43,27 @@ public class Intake extends Command {
 
   @Override
   public void execute() {
-    if (timer.hasElapsed(0.15)) {
-      if (flywheels.isDrawingHighCurrent() && !didDrawHighCurrent) {
-        startingTimestampCurrent = timer.get();
-        didDrawHighCurrent = true;
-      }
-      if (flywheels.isDrawingHighCurrent()) {
-        didDrawHighCurrent = true;
-        if (timer.get() - startingTimestampCurrent > elapsedTime) {
-          endCommand = true;
-          flywheels.stop();
-          // funnel.setState(FunnelState.IDLE);
-        }
-      } else if (!flywheels.isDrawingHighCurrent() && didDrawHighCurrent) {
-        didDrawHighCurrent = false;
-      }
-    }
-
-    flywheels.runPercent(0.22);
-    // funnel.setState(FunnelState.INTAKE); // Ideally, this might go in init, to avoid repeat
-    // calls?
-    elevator.runToIntakePosition();
+    //    if (timer.hasElapsed(0.15)) {
+    //      if (flywheels.isDrawingHighCurrent() && !didDrawHighCurrent) {
+    //        startingTimestampCurrent = timer.get();
+    //        didDrawHighCurrent = true;
+    //      }
+    //      if (flywheels.isDrawingHighCurrent()) {
+    //        didDrawHighCurrent = true;
+    //        if (timer.get() - startingTimestampCurrent > elapsedTime) {
+    //          endCommand = true;
+    //          flywheels.stop();
+    //          // funnel.setState(FunnelState.IDLE);
+    //        }
+    //      } else if (!flywheels.isDrawingHighCurrent() && didDrawHighCurrent) {
+    //        didDrawHighCurrent = false;
+    //      }
+    //    }
+    //
+    //    flywheels.runPercent(0.22);
+    //    // funnel.setState(FunnelState.INTAKE); // Ideally, this might go in init, to avoid repeat
+    //    // calls?
+    //    elevator.runToIntakePosition();
   }
 
   @Override
@@ -74,7 +74,7 @@ public class Intake extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    flywheels.stop();
+    //    flywheels.stop();
     // funnel.setState(FunnelState.IDLE);
   }
 }

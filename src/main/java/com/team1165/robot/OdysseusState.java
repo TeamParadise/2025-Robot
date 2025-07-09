@@ -9,4 +9,20 @@ package com.team1165.robot;
 
 import com.team1165.robot.util.statemachine.State;
 
-public enum OdysseusState implements State {}
+public enum OdysseusState implements State {
+  IDLE,
+  INTAKE,
+  L1,
+  SCORE_L1,
+  L2,
+  SCORE_L2,
+  L3,
+  SCORE_L3,
+  L4,
+  SCORE_L4,
+  ZERO_ELEVATOR;
+
+  public double get() {
+    return 0;
+  }
+}

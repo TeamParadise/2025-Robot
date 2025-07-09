@@ -7,7 +7,10 @@
 
 package com.team1165.robot.globalconstants;
 
-/** Class containing constants for the CAN bus(ses) of the robot, mainly consisting of the IDs for all the different mechanisms. */
+/**
+ * Class containing constants for the CAN bus(ses) of the robot, mainly consisting of the IDs for
+ * all the different mechanisms.
+ */
 public class CANConstants {
   public static final class IDs {
     public static final class RIO {
