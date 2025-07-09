@@ -9,7 +9,7 @@
 
 package com.team1165.robot.util.logging;
 
-import com.team1165.robot.Constants;
+import com.team1165.robot.globalconstants.Constants;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

@@ -9,7 +9,6 @@ package com.team1165.robot.util.auto;
 
 import static edu.wpi.first.units.Units.Seconds;
 
-import com.team1165.robot.FieldConstants.*;
 import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.commands.elevator.ElevatorPosition;

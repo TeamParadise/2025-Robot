@@ -191,7 +191,7 @@ tasks.register('replayWatch', JavaExec) {
 project.compileJava.dependsOn(createVersionFile)
 gversion {
     srcDir = "src/main/java/"
-    classPackage = robotPackage
+    classPackage = robotPackage + ".globalconstants"
     className = "BuildConstants"
     dateFormat = "yyyy-MM-dd HH:mm:ss z"
     timeZone = "America/Phoenix"

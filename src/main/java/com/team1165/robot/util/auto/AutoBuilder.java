@@ -10,8 +10,8 @@ package com.team1165.robot.util.auto;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.team1165.robot.FieldConstants.CoralStationLocation;
-import com.team1165.robot.FieldConstants.Reef;
+import com.team1165.robot.globalconstants.FieldConstants.CoralStationLocation;
+import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;

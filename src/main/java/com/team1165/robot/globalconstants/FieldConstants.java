@@ -5,9 +5,9 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot;
+package com.team1165.robot.globalconstants;
 
-import com.team1165.robot.FieldConstants.Reef.Location;
+import com.team1165.robot.globalconstants.FieldConstants.Reef.Location;
 import com.team1165.robot.util.AllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;

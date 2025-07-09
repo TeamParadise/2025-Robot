@@ -7,7 +7,7 @@
 
 package com.team1165.robot.commands;
 
-import com.team1165.robot.FieldConstants.Reef;
+import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.flywheels.Flywheels;

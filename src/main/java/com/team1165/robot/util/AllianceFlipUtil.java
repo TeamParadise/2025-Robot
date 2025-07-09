@@ -9,7 +9,7 @@
 
 package com.team1165.robot.util;
 
-import com.team1165.robot.FieldConstants;
+import com.team1165.robot.globalconstants.FieldConstants;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
 

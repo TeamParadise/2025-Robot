@@ -7,7 +7,7 @@
 
 package com.team1165.robot.util.auto;
 
-import com.team1165.robot.FieldConstants.*;
+import com.team1165.robot.globalconstants.FieldConstants.*;
 import edu.wpi.first.units.measure.Time;
 
 /**

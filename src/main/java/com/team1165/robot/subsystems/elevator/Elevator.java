@@ -8,7 +8,7 @@
 package com.team1165.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.team1165.robot.FieldConstants.Reef;
+import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOInputsAutoLogged;

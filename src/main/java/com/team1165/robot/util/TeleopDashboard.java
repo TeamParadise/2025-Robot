@@ -7,7 +7,7 @@
 
 package com.team1165.robot.util;
 
-import com.team1165.robot.FieldConstants.Reef.*;
+import com.team1165.robot.globalconstants.FieldConstants.Reef.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;

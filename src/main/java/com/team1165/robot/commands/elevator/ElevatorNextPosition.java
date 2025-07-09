@@ -7,7 +7,7 @@
 
 package com.team1165.robot.commands.elevator;
 
-import com.team1165.robot.FieldConstants.Reef;
+import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.elevator.constants.ElevatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;

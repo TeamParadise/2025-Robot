@@ -5,7 +5,7 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot;
+package com.team1165.robot.globalconstants;
 
 public class Constants {
   /** The running mode of the robot (REAL, SIM, or REPLAY). By default, set to REAL. */

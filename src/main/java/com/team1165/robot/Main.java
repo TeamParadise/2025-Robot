@@ -7,7 +7,8 @@
 
 package com.team1165.robot;
 
-import com.team1165.robot.Constants.Mode;
+import com.team1165.robot.globalconstants.Constants;
+import com.team1165.robot.globalconstants.Constants.Mode;
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.Arrays;
 
