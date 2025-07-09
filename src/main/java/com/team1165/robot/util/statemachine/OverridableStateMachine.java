@@ -12,8 +12,6 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -68,6 +66,8 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
    * @param state The state to override with.
    */
   public Command overrideState(S state) {
+    // TODO: Try to find a solution to make sure we need to set managed state, and it won't just get
+    // overridden
     var command =
         Commands.runOnce(
                 () -> {
@@ -75,25 +75,8 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
                   Logger.recordOutput(name + "/StateOverride", stateOverrideActive = true);
                 },
                 this)
-            .alongWith(Commands.idle());
-
-    // TODO: FIX THIS!!! Will kill the RIO.
-    BiConsumer<Command, Optional<Command>> lambda =
-        (cmd, interupt) -> {
-          Logger.recordOutput(name + "/StateOverride", stateOverrideActive = false);
-          if (interupt.isEmpty()) { // If it wasn't interrupted by another command
-            setState(managedState);
-          }
-        };
-
-    // Run this when the override command is interrupted
-    CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            (cmd, interupt) -> {
-              if (command.equals(cmd)) {
-                lambda.accept(cmd, interupt);
-              }
-            });
+            .alongWith(Commands.idle())
+            .finallyDo(() -> setState(managedState));
 
     return command;
   }
