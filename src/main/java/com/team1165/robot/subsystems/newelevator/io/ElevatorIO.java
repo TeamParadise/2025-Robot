@@ -69,6 +69,13 @@ public interface ElevatorIO {
    */
   default void runPosition(double position) {}
 
+  /**
+   * Run the motors together at a specific voltage.
+   *
+   * @param voltage The voltage to run the motors at.
+   */
+  default void runVolts(double voltage) {}
+
   /** Stops both of the motors (sets the output to zero). */
   default void stop() {}
 
