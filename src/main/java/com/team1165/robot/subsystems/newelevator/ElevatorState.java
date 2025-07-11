@@ -15,6 +15,8 @@ import java.util.OptionalDouble;
 public enum ElevatorState implements State {
   /** Idle, at base position. */
   IDLE(0.0),
+  /** Tells the motors to stop output. */
+  STOP(Double.NaN),
   /** State that should push the second stage into the first stage, allowing for zeroing. */
   ZEROING(-0.2),
   /** Default intake state to get coral into the scoring mechanism. */
@@ -43,6 +45,6 @@ public enum ElevatorState implements State {
   }
 
   public OptionalDouble get() {
-    return OptionalDouble.of(position);
+    return Double.isNaN(position) ? OptionalDouble.of(position) : OptionalDouble.empty();
   }
 }
