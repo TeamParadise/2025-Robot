@@ -19,5 +19,11 @@ public class CANConstants {
       public static final int funnelPrimary = 3;
       public static final int funnelSecondary = 4;
     }
+
+    public static final class CANivore {
+      public static final String name = "canivore";
+      public static final int elevatorPrimary = 14;
+      public static final int elevatorSecondary = 15;
+    }
   }
 }
