@@ -8,6 +8,7 @@
 package com.team1165.robot;
 
 import com.team1165.robot.util.statemachine.State;
+import java.util.OptionalDouble;
 
 public enum OdysseusState implements State {
   IDLE,
@@ -22,7 +23,7 @@ public enum OdysseusState implements State {
   SCORE_L4,
   ZERO_ELEVATOR;
 
-  public double get() {
-    return 0;
+  public OptionalDouble get() {
+    return OptionalDouble.empty();
   }
 }

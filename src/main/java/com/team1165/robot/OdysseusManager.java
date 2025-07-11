@@ -7,6 +7,8 @@
 
 package com.team1165.robot;
 
+import com.team1165.robot.subsystems.elevator.Elevator;
+import com.team1165.robot.subsystems.elevator.ElevatorState;
 import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelState;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
@@ -17,8 +19,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class OdysseusManager extends RobotManager<OdysseusState> {
-  private final Funnel funnel;
+  private final Elevator elevator;
   private final Flywheel flywheel;
+  private final Funnel funnel;
 
   /**
    * Creates a new {@link RobotManager} to manage a collection of robot subsystems.
@@ -26,10 +29,12 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
    * @param initialState The initial/default state of the manager.
    * @see StateMachine
    */
-  protected OdysseusManager(OdysseusState initialState, Funnel funnel, Flywheel flywheel) {
+  protected OdysseusManager(
+      OdysseusState initialState, Elevator elevator, Flywheel flywheel, Funnel funnel) {
     super(initialState);
-    this.funnel = funnel;
+    this.elevator = elevator;
     this.flywheel = flywheel;
+    this.funnel = funnel;
   }
 
   public Command stateCommand(OdysseusState state) {
@@ -39,17 +44,61 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
   @Override
   protected void transition() {
     switch (getCurrentState()) {
-      case L1, L2, L3, L4, IDLE, ZERO_ELEVATOR:
+      // TODO: Maybe add a method to ElevatorState to get the specified state for a specific reef
+      // TODO: level, to prevent having to copy and paste code over and over?
+      case IDLE -> {
+        setSubsystemState(elevator, ElevatorState.IDLE);
+        setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.IDLE);
-        setSubsystemState(funnel, FunnelState.IDLE);
-        break;
-      case INTAKE:
-        setSubsystemState(flywheel, FlywheelState.INTAKE);
+      }
+      case INTAKE -> {
+        setSubsystemState(elevator, ElevatorState.INTAKE);
         setSubsystemState(funnel, FunnelState.INTAKE);
-        break;
-      case SCORE_L1, SCORE_L2, SCORE_L3, SCORE_L4:
-        setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
+        setSubsystemState(flywheel, FlywheelState.INTAKE);
+      }
+      case L1 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L1);
         setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.IDLE);
+      }
+      case SCORE_L1 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L1);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
+      }
+      case L2 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L2);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.IDLE);
+      }
+      case SCORE_L2 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L2);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
+      }
+      case L3 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L3);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.IDLE);
+      }
+      case SCORE_L3 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L3);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
+      }
+      case L4 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L4);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.IDLE);
+      }
+      case SCORE_L4 -> {
+        setSubsystemState(elevator, ElevatorState.ADAPTIVE_L4);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
+      }
+      case ZERO_ELEVATOR -> {
+        setSubsystemState(elevator, ElevatorState.ZEROING);
+      }
     }
   }
 }
