@@ -7,6 +7,8 @@
 
 package com.team1165.robot.util.statemachine;
 
+import java.util.OptionalDouble;
+
 /**
  * An interface for an {@link Enum} used to define all possible states for a {@link StateMachine}.
  *
@@ -14,5 +16,5 @@ package com.team1165.robot.util.statemachine;
  * represents a distinct state that the {@link StateMachine} can be in.
  */
 public interface State {
-  double get();
+  OptionalDouble get();
 }

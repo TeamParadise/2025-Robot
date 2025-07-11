@@ -11,17 +11,20 @@ import com.team1165.robot.util.logging.LoggedTunableNumber;
 import java.util.EnumMap;
 
 public class StateUtils {
+  @SafeVarargs
   public static <S extends Enum<S> & State> EnumMap<S, LoggedTunableNumber> createTunableNumberMap(
       String key, S... states) {
     if (states.length != 0) {
       EnumMap<S, LoggedTunableNumber> map = new EnumMap<>(states[0].getDeclaringClass());
       for (S state : states) {
-        map.put(state, new LoggedTunableNumber(key + "/" + state.name(), state.get()));
+        var stateValue = state.get();
+        if (stateValue.isPresent()) {
+          map.put(state, new LoggedTunableNumber(key + "/" + state.name(), stateValue.getAsDouble()));
+        }
       }
       return map;
     } else {
-      // TODO: Put fallback here
-      return null;
+      throw new IllegalArgumentException("Must provide at least one state to create a map.");
     }
   }
 
@@ -29,7 +32,10 @@ public class StateUtils {
       String key, Class<S> stateEnum) {
     EnumMap<S, LoggedTunableNumber> map = new EnumMap<>(stateEnum);
     for (S state : stateEnum.getEnumConstants()) {
-      map.put(state, new LoggedTunableNumber(key + "/" + state.name(), state.get()));
+      var stateValue = state.get();
+      if (stateValue.isPresent()){
+        map.put(state, new LoggedTunableNumber(key + "/" + state.name(), stateValue.getAsDouble()));
+      }
     }
     return map;
   }

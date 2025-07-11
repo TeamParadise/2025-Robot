@@ -8,6 +8,7 @@
 package com.team1165.robot.subsystems.roller.flywheel;
 
 import com.team1165.robot.util.statemachine.State;
+import java.util.OptionalDouble;
 
 /** All the possible states for the {@link Flywheel} subsystem. */
 public enum FlywheelState implements State {
@@ -32,7 +33,7 @@ public enum FlywheelState implements State {
     this.voltage = voltage;
   }
 
-  public double get() {
-    return voltage;
+  public OptionalDouble get() {
+    return OptionalDouble.of(voltage);
   }
 }

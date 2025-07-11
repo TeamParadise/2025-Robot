@@ -8,6 +8,7 @@
 package com.team1165.robot.subsystems.roller.funnel;
 
 import com.team1165.robot.util.statemachine.State;
+import java.util.OptionalDouble;
 
 /** All the possible states for the {@link Funnel} subsystem. */
 public enum FunnelState implements State {
@@ -28,7 +29,7 @@ public enum FunnelState implements State {
     this.voltage = voltage;
   }
 
-  public double get() {
-    return voltage;
+  public OptionalDouble get() {
+    return OptionalDouble.of(voltage);
   }
 }
