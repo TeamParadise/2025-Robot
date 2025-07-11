@@ -19,7 +19,8 @@ public class StateUtils {
       for (S state : states) {
         var stateValue = state.get();
         if (stateValue.isPresent()) {
-          map.put(state, new LoggedTunableNumber(key + "/" + state.name(), stateValue.getAsDouble()));
+          map.put(
+              state, new LoggedTunableNumber(key + "/" + state.name(), stateValue.getAsDouble()));
         }
       }
       return map;
@@ -33,7 +34,7 @@ public class StateUtils {
     EnumMap<S, LoggedTunableNumber> map = new EnumMap<>(stateEnum);
     for (S state : stateEnum.getEnumConstants()) {
       var stateValue = state.get();
-      if (stateValue.isPresent()){
+      if (stateValue.isPresent()) {
         map.put(state, new LoggedTunableNumber(key + "/" + state.name(), stateValue.getAsDouble()));
       }
     }

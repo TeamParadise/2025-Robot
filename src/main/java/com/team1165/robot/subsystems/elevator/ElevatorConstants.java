@@ -41,7 +41,8 @@ public class ElevatorConstants {
       // Elevator motors will provide feedback in INCHES the carriage has moved
       // TODO: Fix this math
       baseMotorConfig.Feedback.SensorToMechanismRatio =
-          (2 * Math.PI * (2 * ElevatorCharacteristics.sprocketRadiusInches)) / ElevatorCharacteristics.gearRatio;
+          (2 * Math.PI * (2 * ElevatorCharacteristics.sprocketRadiusInches))
+              / ElevatorCharacteristics.gearRatio;
 
       baseMotorConfig.Slot0 =
           new Slot0Configs()

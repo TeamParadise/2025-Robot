@@ -24,8 +24,8 @@ import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
 import com.team1165.robot.subsystems.elevator.Elevator;
+import com.team1165.robot.subsystems.elevator.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
-import com.team1165.robot.subsystems.elevator.io.ElevatorIOSim;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
 import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelConstants;
@@ -97,7 +97,11 @@ public class RobotContainer {
                 new DriveIOReal(
                     DriveConstants.drivetrainConstants, DriveConstants.getModuleConstants()));
 
-        elevator = new Elevator(new ElevatorIOTalonFX());
+        elevator =
+            new Elevator(
+                new ElevatorIOTalonFX(
+                    ElevatorConstants.Motors.primaryMotorConfig,
+                    ElevatorConstants.Motors.secondaryMotorConfig));
 
         flywheel =
             new Flywheel(
@@ -138,7 +142,8 @@ public class RobotContainer {
                     DriveConstants.simConfig,
                     DriveConstants.getModuleConstants()));
 
-        elevator = new Elevator(new ElevatorIOSim());
+        // TODO: Add simulation IO for Elevator
+        elevator = new Elevator(new ElevatorIO() {});
 
         flywheel = new Flywheel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(50)) {});
 
@@ -185,16 +190,16 @@ public class RobotContainer {
       }
     }
 
-    robot = new OdysseusManager(OdysseusState.IDLE, funnel, flywheel);
+    robot = new OdysseusManager(OdysseusState.IDLE, elevator, flywheel, funnel);
 
     MaxSpeed =
         () ->
-            elevator.getPosition() >= 6.5
+            elevator.getRealPosition() >= 6.5
                 ? TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3
                 : TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     MaxAngularRate =
         () ->
-            elevator.getPosition() >= 6.5
+            elevator.getRealPosition() >= 6.5
                 ? RotationsPerSecond.of(2).in(RadiansPerSecond) / 3
                 : RotationsPerSecond.of(2).in(RadiansPerSecond);
 

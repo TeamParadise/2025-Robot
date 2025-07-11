@@ -20,7 +20,8 @@ import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.TalonFXConfig;
 import com.team1165.robot.util.vendor.ctre.PhoenixUtil;
 
 /**
- * A hardware interface/implementation layer for a basic elevator subsystem powered by two motors with Talon FX motor controllers.
+ * A hardware interface/implementation layer for a basic elevator subsystem powered by two motors
+ * with Talon FX motor controllers.
  */
 public class ElevatorIOTalonFX implements ElevatorIO {
   // Motor (controllers)
@@ -56,8 +57,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         primaryConfig.canBus(),
         CANFrequency.FAST,
         primaryMotor.getPosition(),
-        primaryMotor.getTorqueCurrent()
-    );
+        primaryMotor.getTorqueCurrent());
   }
 
   @Override

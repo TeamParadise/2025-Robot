@@ -29,6 +29,10 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
     this.io = io;
   }
 
+  public double getRealPosition() {
+    return inputs.primaryMotor.position;
+  }
+
   @Override
   protected void update() {
     io.updateInputs(inputs);

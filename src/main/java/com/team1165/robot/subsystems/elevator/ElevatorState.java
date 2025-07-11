@@ -45,6 +45,6 @@ public enum ElevatorState implements State {
   }
 
   public OptionalDouble get() {
-    return Double.isNaN(position) ? OptionalDouble.of(position) : OptionalDouble.empty();
+    return Double.isNaN(position) ? OptionalDouble.empty() : OptionalDouble.of(position);
   }
 }

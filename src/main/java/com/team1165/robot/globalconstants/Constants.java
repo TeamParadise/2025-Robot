@@ -16,7 +16,7 @@ public class Constants {
    * changed through a dashboard. Most subsystems will be forced to use these values, which means
    * normal operation likely will not work.
    */
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
 
   /** The possible modes that a robot can run in. */
   public enum Mode {

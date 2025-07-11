@@ -44,8 +44,8 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
   @Override
   protected void transition() {
     switch (getCurrentState()) {
-      // TODO: Maybe add a method to ElevatorState to get the specified state for a specific reef
-      // TODO: level, to prevent having to copy and paste code over and over?
+        // TODO: Maybe add a method to ElevatorState to get the specified state for a specific reef
+        // TODO: level, to prevent having to copy and paste code over and over?
       case IDLE -> {
         setSubsystemState(elevator, ElevatorState.IDLE);
         setSubsystemState(funnel, FunnelState.IDLE);
