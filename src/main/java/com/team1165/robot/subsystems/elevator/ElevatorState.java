@@ -5,7 +5,7 @@
  * the root directory of this project.
  */
 
-package com.team1165.robot.subsystems.newelevator;
+package com.team1165.robot.subsystems.elevator;
 
 import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.util.statemachine.State;
