@@ -101,7 +101,9 @@ public class RobotContainer {
             new Elevator(
                 new ElevatorIOTalonFX(
                     ElevatorConstants.Motors.primaryMotorConfig,
-                    ElevatorConstants.Motors.secondaryMotorConfig));
+                    ElevatorConstants.Motors.secondaryMotorConfig),
+                drive::getPose,
+                () -> TeleopDashboard.getInstance().getReefLocation().getPose());
 
         flywheel =
             new Flywheel(
@@ -143,7 +145,11 @@ public class RobotContainer {
                     DriveConstants.getModuleConstants()));
 
         // TODO: Add simulation IO for Elevator
-        elevator = new Elevator(new ElevatorIO() {});
+        elevator =
+            new Elevator(
+                new ElevatorIO() {},
+                drive::getPose,
+                () -> TeleopDashboard.getInstance().getReefLocation().getPose());
 
         flywheel = new Flywheel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(50)) {});
 
@@ -179,7 +185,11 @@ public class RobotContainer {
       default -> {
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
-        elevator = new Elevator(new ElevatorIO() {});
+        elevator =
+            new Elevator(
+                new ElevatorIO() {},
+                drive::getPose,
+                () -> TeleopDashboard.getInstance().getReefLocation().getPose());
         flywheel = new Flywheel(new RollerIO() {});
         funnel = new Funnel(new RollerIO() {});
         apriltagVision =

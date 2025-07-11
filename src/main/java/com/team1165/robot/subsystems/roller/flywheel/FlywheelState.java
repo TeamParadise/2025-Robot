@@ -33,6 +33,7 @@ public enum FlywheelState implements State {
     this.voltage = voltage;
   }
 
+  @Override
   public OptionalDouble get() {
     return OptionalDouble.of(voltage);
   }

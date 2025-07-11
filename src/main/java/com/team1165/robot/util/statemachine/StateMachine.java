@@ -117,6 +117,7 @@ public abstract class StateMachine<S extends Enum<S> & State> extends SubsystemB
    * Periodic method called by the {@link edu.wpi.first.wpilibj2.command.CommandScheduler} each
    * loop, that calls the {@link #update()} method.
    */
+  @Override
   public void periodic() {
     update();
   }

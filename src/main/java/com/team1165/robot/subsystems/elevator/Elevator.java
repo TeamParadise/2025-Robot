@@ -12,8 +12,10 @@ import com.team1165.robot.subsystems.elevator.io.ElevatorIO.ElevatorIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import com.team1165.robot.util.statemachine.GoalOverridableStateMachine;
 import com.team1165.robot.util.statemachine.StateUtils;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import java.util.EnumMap;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /** State-machine-based Elevator subsystem, powered by two motors. */
@@ -24,9 +26,15 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
   private final EnumMap<ElevatorState, LoggedTunableNumber> tunableMap =
       StateUtils.createTunableNumberMap(name + "/Positions", ElevatorState.class);
 
-  public Elevator(ElevatorIO io) {
+  private final Supplier<Pose2d> drivetrainPose;
+  private final Supplier<Pose2d> goalPose;
+  private double setpoint = 0.0;
+
+  public Elevator(ElevatorIO io, Supplier<Pose2d> drivetrainPose, Supplier<Pose2d> goalPose) {
     super(ElevatorState.IDLE);
     this.io = io;
+    this.drivetrainPose = drivetrainPose;
+    this.goalPose = goalPose;
   }
 
   public double getRealPosition() {
@@ -44,7 +52,13 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
     switch (getCurrentState()) {
       case STOP -> io.stop();
       case ADAPTIVE_L1, ADAPTIVE_L2, ADAPTIVE_L3, ADAPTIVE_L4 -> {
-        // TODO: Add adaptive code
+        //        Logger.recordOutput(
+        //            name + "/AdaptivePosition",
+        //            setpoint =
+        //                Math.sin(0.959931)
+        //                    * (new Transform2d(goalPose.get(), drivetrainPose.get()).getX()
+        //                        / Math.sin(0.610865)));
+        //        io.runPosition(setpoint);
         break;
       }
       default -> {

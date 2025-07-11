@@ -23,6 +23,7 @@ public enum OdysseusState implements State {
   SCORE_L4,
   ZERO_ELEVATOR;
 
+  @Override
   public OptionalDouble get() {
     return OptionalDouble.empty();
   }
