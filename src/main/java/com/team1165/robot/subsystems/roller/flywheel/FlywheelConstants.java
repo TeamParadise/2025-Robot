@@ -32,7 +32,7 @@ public class FlywheelConstants {
   public static final SparkConfig secondaryMotorConfig =
       SparkConfig.sparkMax(
           "FlywheelSecondary",
-          RIO.funnelSecondary,
+          RIO.flywheelSecondary,
           MotorType.kBrushless,
           baseMotorConfig.inverted(true));
 
