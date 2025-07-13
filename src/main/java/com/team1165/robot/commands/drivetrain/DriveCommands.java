@@ -66,9 +66,10 @@ public class DriveCommands {
               getLinearVelocityFromJoysticks(
                   xSupplier.getAsDouble(), ySupplier.getAsDouble(), true);
 
-          // Apply rotation deadband and square for more precise control
+          // Apply rotation deadband and
           double omega = MathUtil.applyDeadband(rotationSupplier.getAsDouble(), rotationDeadband);
-          omega = Math.copySign(omega * omega, omega);
+          // Squaring probably isn't needed for trigger rotation, but uncomment if preferred
+          // omega = Math.copySign(omega * omega, omega);
 
           // Set the control of the drive to our new speeds
           drive.setControl(
