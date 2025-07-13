@@ -216,8 +216,8 @@ public class RobotContainer {
             drive,
             () -> -driverController.getLeftY(),
             () -> -driverController.getLeftX(),
-            () ->
-                (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis())));
+            () -> (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis()),
+            true));
   }
 
   public Command getAutonomousCommand() {
