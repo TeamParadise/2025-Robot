@@ -47,6 +47,12 @@ public class Drive extends SubsystemBase {
   private final DriveIO io;
   private final DriveIOInputs inputs = new DriveIOInputs();
 
+  // Store absolute max velocity and rotational speeds
+  private final double absoluteMaxVelocity = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+  private final double absoluteMaxRotationalRate =
+      TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
+          / Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontRight.LocationY);
+
   // Create robot speed SwerveRequest for path following/drive to pose
   private final SwerveRequest.ApplyRobotSpeeds applyRobotSpeeds =
       new SwerveRequest.ApplyRobotSpeeds().withDriveRequestType(DriveRequestType.Velocity);
@@ -119,6 +125,17 @@ public class Drive extends SubsystemBase {
   // endregion
 
   // region Getters (for rotation, pose, speeds, etc)
+
+  /** Gets the absolute maximum speed/velocity of the robot in meters per second. */
+  public double getAbsoluteMaxSpeed() {
+    return absoluteMaxVelocity;
+  }
+
+  /** Gets the absolute maximum rotational rate of the robot in radians per second. */
+  public double getAbsoluteMaxRotationalRate() {
+    return absoluteMaxRotationalRate;
+  }
+
   /**
    * Get the current {@link Pose2d} of the drivetrain.
    *

@@ -9,17 +9,14 @@ package com.team1165.robot;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
+import com.team1165.robot.commands.drivetrain.DriveCommands;
 import com.team1165.robot.globalconstants.Constants;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
-import com.team1165.robot.subsystems.drive.constants.TunerConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
 import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
@@ -44,19 +41,11 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import com.team1165.robot.util.TeleopDashboard;
 import com.team1165.robot.util.auto.AutoBuilder;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -79,8 +68,6 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   // Testing, likely will be changed later
-  private final DoubleSupplier MaxSpeed;
-  private final DoubleSupplier MaxAngularRate;
   private final SwerveRequest.FieldCentric fieldCentric;
   private final SwerveRequest.SwerveDriveBrake brake;
   private final AutoBuilder autoBuilder;
@@ -202,17 +189,6 @@ public class RobotContainer {
 
     robot = new OdysseusManager(OdysseusState.IDLE, elevator, flywheel, funnel);
 
-    MaxSpeed =
-        () ->
-            elevator.getRealPosition() >= 6.5
-                ? TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3
-                : TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    MaxAngularRate =
-        () ->
-            elevator.getRealPosition() >= 6.5
-                ? RotationsPerSecond.of(2).in(RadiansPerSecond) / 3
-                : RotationsPerSecond.of(2).in(RadiansPerSecond);
-
     fieldCentric = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.Velocity);
 
     brake = new SwerveDriveBrake();
@@ -236,40 +212,12 @@ public class RobotContainer {
   /** Use this method to define default commands for subsystems. */
   private void configureDefaultCommands() {
     drive.setDefaultCommand(
-        drive.run(
-            () -> {
-              var joystickX = -driverController.getLeftY();
-              var joystickY = -driverController.getLeftX();
-              var joystickRotation =
-                  (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis());
-
-              // Apply deadband
-              double linearMagnitude =
-                  MathUtil.applyDeadband(Math.hypot(joystickX, joystickY), 0.05);
-              Rotation2d linearDirection =
-                  new Rotation2d(Math.atan2(joystickX, joystickY))
-                      .plus(
-                          DriverStation.getAlliance().isPresent()
-                                  && DriverStation.getAlliance().get() == Alliance.Red
-                              ? Rotation2d.kPi
-                              : Rotation2d.kZero);
-
-              linearMagnitude = linearMagnitude * linearMagnitude;
-
-              // Return new linear velocity
-              Translation2d linearVelocity =
-                  new Pose2d(Translation2d.kZero, linearDirection)
-                      .transformBy(new Transform2d(linearMagnitude, 0.0, Rotation2d.kZero))
-                      .getTranslation();
-
-              drive.setControl(
-                  fieldCentric
-                      .withVelocityX(linearVelocity.getY() * MaxSpeed.getAsDouble())
-                      .withVelocityY(linearVelocity.getX() * MaxSpeed.getAsDouble())
-                      .withRotationalRate(
-                          MathUtil.applyDeadband(joystickRotation, 0.05)
-                              * MaxAngularRate.getAsDouble()));
-            }));
+        DriveCommands.teleopManualDrive(
+            drive,
+            () -> -driverController.getLeftY(),
+            () -> -driverController.getLeftX(),
+            () ->
+                (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis())));
   }
 
   public Command getAutonomousCommand() {
