@@ -10,9 +10,6 @@ package com.team1165.robot;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
 import com.team1165.robot.commands.drivetrain.DriveCommands;
 import com.team1165.robot.globalconstants.Constants;
 import com.team1165.robot.subsystems.drive.Drive;
@@ -68,11 +65,7 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(0);
 
   // Testing, likely will be changed later
-  private final SwerveRequest.FieldCentric fieldCentric;
-  private final SwerveRequest.SwerveDriveBrake brake;
   private final AutoBuilder autoBuilder;
-
-  private double manualPosition = 0.0;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -189,10 +182,6 @@ public class RobotContainer {
 
     robot = new OdysseusManager(OdysseusState.IDLE, elevator, flywheel, funnel);
 
-    fieldCentric = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.Velocity);
-
-    brake = new SwerveDriveBrake();
-
     autoBuilder = AutoBuilder.getInstance();
 
     configureButtonBindings();
@@ -205,8 +194,22 @@ public class RobotContainer {
     driverController.b().onTrue(robot.stateCommand(OdysseusState.SCORE_L1));
     driverController.y().onTrue(robot.stateCommand(OdysseusState.L1));
     driverController.x().onTrue(robot.stateCommand(OdysseusState.IDLE));
-    driverController.leftBumper().whileTrue(flywheel.overrideState(FlywheelState.CUSTOM_MANUAL));
-    driverController.rightBumper().whileTrue(funnel.overrideState(FunnelState.CUSTOM_MANUAL));
+
+    // Bumpers
+    driverController
+        .leftBumper()
+        .whileTrue(
+            flywheel
+                .overrideState(FlywheelState.MANUAL_REVERSE)
+                .alongWith(funnel.overrideState(FunnelState.MANUAL_REVERSE))
+                .withName("Left Bumper - Manual Reverse"));
+    driverController
+        .rightBumper()
+        .whileTrue(
+            flywheel
+                .overrideState(FlywheelState.MANUAL_FORWARD)
+                .alongWith(funnel.overrideState(FunnelState.MANUAL_FORWARD))
+                .withName("Right Bumper - Manual Forward"));
   }
 
   /** Use this method to define default commands for subsystems. */

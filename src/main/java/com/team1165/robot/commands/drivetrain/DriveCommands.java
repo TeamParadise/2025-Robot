@@ -27,6 +27,8 @@ public class DriveCommands {
   private static final double rotationDeadband = 0.05;
 
   // Control requests for CTRE swerve
+  private static final SwerveRequest.SwerveDriveBrake brakeRequest =
+      new SwerveRequest.SwerveDriveBrake().withDriveRequestType(DriveRequestType.Velocity);
   private static final SwerveRequest.FieldCentric fieldCentricRequest =
       new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.Velocity);
   private static final SwerveRequest.RobotCentric robotCentricRequest =
@@ -57,6 +59,15 @@ public class DriveCommands {
                             && DriverStation.getAlliance().get() == Alliance.Red
                         ? Math.PI
                         : 0)));
+  }
+
+  /**
+   * Command to put the swerve drive into a brake mode, putting the wheels into an X formation.
+   *
+   * @param drive The {@link Drive} subsystem to control.
+   */
+  public static Command brake(Drive drive) {
+    return drive.run(() -> drive.setControl(brakeRequest));
   }
 
   /**
