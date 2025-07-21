@@ -101,25 +101,8 @@ public class Drive extends SubsystemBase {
   }
 
   // region Automation and path following
-  public void goToPose(Pose2d pose) {
-    double xVelocity = xController.calculate(inputs.Pose.getX(), pose.getX());
-    double yVelocity = yController.calculate(inputs.Pose.getY(), pose.getY());
-    ChassisSpeeds speeds =
-        new ChassisSpeeds(
-            Math.copySign(
-                Math.min(
-                    Math.abs(xController.calculate(inputs.Pose.getX(), pose.getX())),
-                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3),
-                xVelocity),
-            Math.copySign(
-                Math.min(
-                    Math.abs(yController.calculate(inputs.Pose.getY(), pose.getY())),
-                    TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 3),
-                yVelocity),
-            rotationController.calculate(
-                inputs.Pose.getRotation().getRadians(), pose.getRotation().getRadians()));
-
-    io.setControl(applyFieldSpeeds.withSpeeds(speeds));
+  public void runRobotSpeeds(ChassisSpeeds speeds) {
+    io.setControl(applyRobotSpeeds.withSpeeds(speeds));
   }
 
   // endregion

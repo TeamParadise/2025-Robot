@@ -11,7 +11,9 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.team1165.robot.commands.drivetrain.DriveCommands;
+import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.globalconstants.Constants;
+import com.team1165.robot.globalconstants.FieldConstants.CoralStationLocation;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -210,6 +212,8 @@ public class RobotContainer {
                 .overrideState(FlywheelState.MANUAL_FORWARD)
                 .alongWith(funnel.overrideState(FunnelState.MANUAL_FORWARD))
                 .withName("Right Bumper - Manual Forward"));
+
+    driverController.povUp().whileTrue(new DriveToPose(drive, CoralStationLocation.LCS::getPose));
   }
 
   /** Use this method to define default commands for subsystems. */
