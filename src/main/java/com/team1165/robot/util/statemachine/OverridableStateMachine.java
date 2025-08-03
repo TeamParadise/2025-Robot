@@ -85,7 +85,7 @@ public abstract class OverridableStateMachine<S extends Enum<S> & State> extends
    * Sets the state of the subsystem to the current managed state; if an override currently isn't
    * active.
    */
-  public void setManagedState() {
+  protected void setManagedState() {
     setState(managedState);
   }
 
