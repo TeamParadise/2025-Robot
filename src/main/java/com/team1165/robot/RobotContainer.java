@@ -10,10 +10,11 @@ package com.team1165.robot;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 
+import com.team1165.robot.commands.Intake;
+import com.team1165.robot.commands.RobotCommands;
 import com.team1165.robot.commands.drivetrain.DriveCommands;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.globalconstants.Constants;
-import com.team1165.robot.globalconstants.FieldConstants.CoralStationLocation;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -21,6 +22,7 @@ import com.team1165.robot.subsystems.drive.io.DriveIOMapleSim;
 import com.team1165.robot.subsystems.drive.io.DriveIOReal;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.elevator.ElevatorConstants;
+import com.team1165.robot.subsystems.elevator.ElevatorState;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
 import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
@@ -43,6 +45,8 @@ import com.team1165.robot.util.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -192,10 +196,24 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    driverController.a().onTrue(robot.stateCommand(OdysseusState.INTAKE));
-    driverController.b().onTrue(robot.stateCommand(OdysseusState.SCORE_L1));
-    driverController.y().onTrue(robot.stateCommand(OdysseusState.L1));
-    driverController.x().onTrue(robot.stateCommand(OdysseusState.IDLE));
+    // Face Buttons
+    // TODO: Score at current height, not the set height. Maybe add auto score in teleop
+    driverController
+        .a()
+        .onTrue(
+            RobotCommands.setScoreLevelState(robot, teleopDash.getLevel())
+                .withName("Controller - A - Score At Level"));
+    driverController.b().onTrue(new Intake(robot).withName("Controller - B - Intake"));
+    driverController
+        .x()
+        .whileTrue(
+            new DriveToPose(drive, () -> teleopDash.getReefLocation().getPose())
+                .withName("Controller - X - Drive To Reef"));
+    driverController
+        .y()
+        .onTrue(
+            RobotCommands.setLevelState(robot, teleopDash.getLevel())
+                .withName("Controller - Y - Set Level"));
 
     // Bumpers
     driverController
@@ -204,16 +222,31 @@ public class RobotContainer {
             flywheel
                 .overrideState(FlywheelState.MANUAL_REVERSE)
                 .alongWith(funnel.overrideState(FunnelState.MANUAL_REVERSE))
-                .withName("Left Bumper - Manual Reverse"));
+                .withName("Controller - Left Bumper - Manual Reverse"));
     driverController
         .rightBumper()
         .whileTrue(
             flywheel
                 .overrideState(FlywheelState.MANUAL_FORWARD)
                 .alongWith(funnel.overrideState(FunnelState.MANUAL_FORWARD))
-                .withName("Right Bumper - Manual Forward"));
+                .withName("Controller - Right Bumper - Manual Forward"));
 
-    driverController.povUp().whileTrue(new DriveToPose(drive, CoralStationLocation.LCS::getPose));
+    // Start (Plus) and Back (Minus)
+    driverController
+        .start()
+        .onTrue( // If pressed, estop elevator, if already stopped, return to normal functionality.
+            elevator.getCurrentState() == ElevatorState.STOP
+                ? elevator
+                    .overrideState(ElevatorState.STOP)
+                    .withName("Controller - Start - Elevator Emergency Stop")
+                    .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                : Commands.runOnce(
+                        () -> CommandScheduler.getInstance().cancel(elevator.getCurrentCommand()))
+                    .withName("Controller - Start - Cancel Elevator Command/Disable EStop"));
+    driverController
+        .back()
+        .onTrue(
+            Commands.runOnce(drive::seedFieldCentric).withName("Controller - Back - Reset Gyro"));
   }
 
   /** Use this method to define default commands for subsystems. */
