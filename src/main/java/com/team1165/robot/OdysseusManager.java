@@ -43,6 +43,10 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
     return flywheel.getSupplyCurrent();
   }
 
+  public boolean getElevatorAtGoal(double tolerance) {
+    return elevator.atGoal(tolerance);
+  }
+
   public void setState(OdysseusState state) {
     super.setState(state);
   }

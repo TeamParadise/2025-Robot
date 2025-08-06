@@ -37,6 +37,10 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
     this.goalPose = goalPose;
   }
 
+  public boolean atGoal(double tolerance) {
+    return Math.abs(setpoint - inputs.primaryMotor.position) > tolerance;
+  }
+
   public double getRealPosition() {
     return inputs.primaryMotor.position;
   }
@@ -63,7 +67,8 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
       }
       default -> {
         if (tunableMap.containsKey(getCurrentState())) {
-          io.runPosition(tunableMap.get(getCurrentState()).get());
+          setpoint = tunableMap.get(getCurrentState()).get()
+          io.runPosition(setpoint);
         } else {
           DriverStation.reportError(
               "Elevator state "

@@ -31,7 +31,13 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreFirstPoseOffset =
       new LoggedTunableNumber("Commands/AutoScore/FirstPoseOffset", -0.3);
   private static final LoggedTunableNumber autoScoreElevatorRaiseDistance =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1.0);
+  private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 1.0);
+  private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
+      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.1);
+  private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
+      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.25);
 
   // region Score Automation
   public static Command score(OdysseusManager robot) {
@@ -78,7 +84,28 @@ public class RobotCommands {
     var driveToFace = new DriveToPose(drive, () -> face.get().getPose());
     var score = score(robot);
 
-    return idleCommand.andThen(driveCloseToFace);
+    return idleCommand
+        .andThen(
+            driveCloseToFace
+                .alongWith(
+                    new WaitUntilCommand(
+                            () ->
+                                drive
+                                        .getPose()
+                                        .getTranslation()
+                                        .getDistance(face.get().getPose().getTranslation())
+                                    < autoScoreElevatorRaiseDistance.get())
+                        .andThen(switchToHeight))
+                .until(() -> robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get())))
+        .andThen(driveToFace)
+        .raceWith(
+            new WaitUntilCommand(
+                () ->
+                    drive
+                            .getPose()
+                            .getTranslation()
+                            .getDistance(face.get().getPose().getTranslation())
+                        < autoScoreDistanceToleranceBeforeScore.get()));
   }
 
   // endregion
