@@ -9,8 +9,13 @@ package com.team1165.robot.commands;
 
 import com.team1165.robot.OdysseusManager;
 import com.team1165.robot.OdysseusState;
+import com.team1165.robot.commands.drivetrain.DriveToPose;
+import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.globalconstants.FieldConstants.Reef.Level;
+import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -18,8 +23,15 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import java.util.function.Supplier;
 
 public class RobotCommands {
+  // Score command tunables
   private static final LoggedTunableNumber scoreEndCurrent =
       new LoggedTunableNumber("Commands/Score/EndingCurrent", 10.0);
+
+  // Auto score command tunables
+  private static final LoggedTunableNumber autoScoreFirstPoseOffset =
+      new LoggedTunableNumber("Commands/AutoScore/FirstPoseOffset", -0.3);
+  private static final LoggedTunableNumber autoScoreElevatorRaiseDistance =
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1);
 
   // region Score Automation
   public static Command score(OdysseusManager robot) {
@@ -48,32 +60,49 @@ public class RobotCommands {
                 || robot.getCurrentState() == OdysseusState.L4);
   }
 
+  public static Command autoScore(
+      OdysseusManager robot,
+      Drive drive,
+      Supplier<Reef.Location> face,
+      Supplier<Reef.Level> level) {
+    var idleCommand = robot.stateCommand(OdysseusState.IDLE);
+    var driveCloseToFace =
+        new DriveToPose(
+            drive,
+            () ->
+                face.get()
+                    .getPose()
+                    .transformBy(
+                        new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
+    var switchToHeight = setLevelState(robot, level);
+    var driveToFace = new DriveToPose(drive, () -> face.get().getPose());
+    var score = score(robot);
+
+    return idleCommand.andThen(driveCloseToFace);
+  }
+
   // endregion
   // TODO: Fix this class.
 
   public static Command setLevelState(OdysseusManager robot, Supplier<Level> level) {
-    //    OdysseusState state =
-    //        switch (level.get()) {
-    //          case L1 -> OdysseusState.L1;
-    //          case L2 -> OdysseusState.L2;
-    //          case L3 -> OdysseusState.L3;
-    //          case L4 -> OdysseusState.L4;
-    //        };
-    //
-    //    return robot.stateCommand(state);
-    return Commands.none();
+    return robot.stateSupplierCommand(
+        () ->
+            switch (level.get()) {
+              case L1 -> OdysseusState.L1;
+              case L2 -> OdysseusState.L2;
+              case L3 -> OdysseusState.L3;
+              case L4 -> OdysseusState.L4;
+            });
   }
 
   public static Command setScoreLevelState(OdysseusManager robot, Supplier<Level> level) {
-    //    OdysseusState state =
-    //        switch (level.get()) {
-    //          case L1 -> OdysseusState.SCORE_L1;
-    //          case L2 -> OdysseusState.SCORE_L2;
-    //          case L3 -> OdysseusState.SCORE_L3;
-    //          case L4 -> OdysseusState.SCORE_L4;
-    //        };
-    //
-    //    return robot.stateCommand(state);
-    return Commands.none();
+    return robot.stateSupplierCommand(
+        () ->
+            switch (level.get()) {
+              case L1 -> OdysseusState.SCORE_L1;
+              case L2 -> OdysseusState.SCORE_L2;
+              case L3 -> OdysseusState.SCORE_L3;
+              case L4 -> OdysseusState.SCORE_L4;
+            });
   }
 }
