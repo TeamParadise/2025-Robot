@@ -14,7 +14,6 @@ import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.RobotCommands;
 import com.team1165.robot.commands.drivetrain.DriveCommands;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
-import com.team1165.robot.globalconstants.Constants;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.drive.constants.DriveConstants;
 import com.team1165.robot.subsystems.drive.io.DriveIO;
@@ -42,6 +41,7 @@ import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOPhotonSim.ATVisionIOPhotonSimConfig;
 import com.team1165.robot.util.TeleopDashboard;
 import com.team1165.robot.util.auto.AutoBuilder;
+import com.team1165.robot.util.constants.RobotMode;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,7 +75,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
-    switch (Constants.robotMode) {
+    switch (RobotMode.get()) {
       case REAL -> {
         // Real robot, instantiate hardware IO implementations
         drive =
@@ -201,7 +201,7 @@ public class RobotContainer {
     driverController
         .a()
         .onTrue(
-            RobotCommands.setScoreLevelState(robot, teleopDash.getLevel())
+            RobotCommands.setScoreLevelState(robot, teleopDash::getLevel)
                 .withName("Controller - A - Score At Level"));
     driverController.b().onTrue(new Intake(robot).withName("Controller - B - Intake"));
     driverController
@@ -212,7 +212,7 @@ public class RobotContainer {
     driverController
         .y()
         .onTrue(
-            RobotCommands.setLevelState(robot, teleopDash.getLevel())
+            RobotCommands.setLevelState(robot, teleopDash::getLevel)
                 .withName("Controller - Y - Set Level"));
 
     // Bumpers

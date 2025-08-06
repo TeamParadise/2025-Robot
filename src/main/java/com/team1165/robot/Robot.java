@@ -1,13 +1,15 @@
-// Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
-//
-// Use of this source code is governed by the MIT License, which can be found in the LICENSE file at
-// the root directory of this project.
+/*
+ * Copyright (c) 2025 Team Paradise - FRC 1165 (https://github.com/TeamParadise)
+ *
+ * Use of this source code is governed by the MIT License, which can be found in the LICENSE file at
+ * the root directory of this project.
+ */
 
 package com.team1165.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.team1165.robot.globalconstants.BuildConstants;
-import com.team1165.robot.globalconstants.Constants;
+import com.team1165.robot.util.constants.RobotMode;
 import com.team1165.robot.util.vendor.ctre.PhoenixUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -29,7 +31,7 @@ public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
 
   public Robot() {
-    // Record metadata
+    // Record Git metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -48,7 +50,7 @@ public class Robot extends LoggedRobot {
     }
 
     // Set up data receivers & replay source. Replay will only work in simulation.
-    switch (Constants.robotMode) {
+    switch (RobotMode.get()) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());

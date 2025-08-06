@@ -13,7 +13,6 @@ import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelState;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import com.team1165.robot.subsystems.roller.funnel.FunnelState;
-import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.statemachine.RobotManager;
 import com.team1165.robot.util.statemachine.StateMachine;
 import edu.wpi.first.wpilibj2.command.Command;

@@ -7,26 +7,9 @@
 
 package com.team1165.robot.globalconstants;
 
+/**
+ * Global robot constants, typically ones that distinguish major functionality changes in the code.
+ */
 public class Constants {
-  /** The running mode of the robot (REAL, SIM, or REPLAY). By default, set to REAL. */
-  public static Mode robotMode = Mode.REAL;
-
-  /**
-   * Whether or not the robot has some extra tuning values (PID, setpoints, etc) enabled that can be
-   * changed through a dashboard. Most subsystems will be forced to use these values, which means
-   * normal operation likely will not work.
-   */
   public static final boolean tuningMode = true;
-
-  /** The possible modes that a robot can run in. */
-  public enum Mode {
-    /** Running on a real robot. */
-    REAL,
-
-    /** Running a physics simulator. */
-    SIM,
-
-    /** Replaying from a log file. */
-    REPLAY
-  }
 }

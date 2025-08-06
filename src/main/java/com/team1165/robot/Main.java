@@ -7,8 +7,8 @@
 
 package com.team1165.robot;
 
-import com.team1165.robot.globalconstants.Constants;
-import com.team1165.robot.globalconstants.Constants.Mode;
+import static com.team1165.robot.util.constants.RobotMode.*;
+
 import edu.wpi.first.wpilibj.RobotBase;
 import java.util.Arrays;
 
@@ -21,16 +21,17 @@ public final class Main {
   private Main() {}
 
   /**
-   * Main initialization method. Do not perform any initialization here.
+   * Main initialization method.
    *
    * <p>If you change your main Robot class (name), change the parameter type.
    */
   public static void main(String... args) {
     // Set the robot mode based on current running conditions
-    Constants.robotMode =
+    setMode(
         RobotBase.isReal()
             ? Mode.REAL
-            : (Arrays.asList(args).contains("--replay") ? Mode.REPLAY : Mode.SIM);
+            : (Arrays.asList(args).contains("--replay") ? Mode.REPLAY : Mode.SIM));
+
     // Start the main Robot class
     RobotBase.startRobot(Robot::new);
   }
