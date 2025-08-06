@@ -13,7 +13,7 @@ public class RobotMode {
   private static Mode robotMode = Mode.REAL;
 
   /** If the robot mode has been set once, prevent further modifications. */
-  private static final boolean modeSet = true;
+  private static final boolean modeSet = false;
 
   /**
    * Get the current robot {@link Mode}.

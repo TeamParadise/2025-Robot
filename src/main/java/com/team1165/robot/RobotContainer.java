@@ -137,7 +137,7 @@ public class RobotContainer {
                 drive::getPose,
                 () -> TeleopDashboard.getInstance().getReefLocation().getPose());
 
-        flywheel = new Flywheel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(50)) {});
+        flywheel = new Flywheel(new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)) {});
 
         funnel = new Funnel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(40)));
 
@@ -196,13 +196,17 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
+    // Temporary
+    driverController.povUp().onTrue(robot.stateCommand(OdysseusState.L3));
+    driverController.povDown().onTrue(robot.stateCommand(OdysseusState.L2));
     // Face Buttons
     // TODO: Score at current height, not the set height. Maybe add auto score in teleop
     driverController
         .a()
         .onTrue(
-            RobotCommands.setScoreLevelState(robot, teleopDash::getLevel)
-                .withName("Controller - A - Score At Level"));
+            RobotCommands.score(robot)
+                .andThen(robot.stateCommand(OdysseusState.IDLE))
+                .withName("Controller - A - Basic Score"));
     driverController.b().onTrue(new Intake(robot).withName("Controller - B - Intake"));
     driverController
         .x()

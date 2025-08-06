@@ -17,6 +17,7 @@ import com.team1165.robot.util.statemachine.RobotManager;
 import com.team1165.robot.util.statemachine.StateMachine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.function.Supplier;
 
 public class OdysseusManager extends RobotManager<OdysseusState> {
   private final Elevator elevator;
@@ -47,7 +48,11 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
   }
 
   public Command stateCommand(OdysseusState state) {
-    return Commands.runOnce(() -> setState(state));
+    return Commands.runOnce(() -> setState(state), this);
+  }
+
+  public Command stateSupplierCommand(Supplier<OdysseusState> stateSupplier) {
+    return Commands.runOnce(() -> setState(stateSupplier.get()), this);
   }
 
   @Override

@@ -49,7 +49,7 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    // Set up data receivers & replay source. Replay will only work in simulation.
+    // Set up data receivers and replay source. Replay will only work in simulation.
     switch (RobotMode.get()) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
