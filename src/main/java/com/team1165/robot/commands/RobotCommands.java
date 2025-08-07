@@ -116,7 +116,7 @@ public class RobotCommands {
                         < autoScoreDistanceToleranceBeforeScore.get()))
         .andThen(score(robot))
         .andThen(
-            driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(1));
+            driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(0.2));
   }
 
   // endregion
