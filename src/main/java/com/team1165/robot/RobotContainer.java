@@ -91,9 +91,7 @@ public class RobotContainer {
             new Elevator(
                 new ElevatorIOTalonFX(
                     ElevatorConstants.Motors.primaryMotorConfig,
-                    ElevatorConstants.Motors.secondaryMotorConfig),
-                drive::getPose,
-                () -> TeleopDashboard.getInstance().getReefLocation().getPose());
+                    ElevatorConstants.Motors.secondaryMotorConfig));
 
         flywheel =
             new Flywheel(
@@ -135,11 +133,7 @@ public class RobotContainer {
                     DriveConstants.getModuleConstants()));
 
         // TODO: Add simulation IO for Elevator
-        elevator =
-            new Elevator(
-                new ElevatorIOTempSim(),
-                drive::getPose,
-                () -> TeleopDashboard.getInstance().getReefLocation().getPose());
+        elevator = new Elevator(new ElevatorIOTempSim());
 
         flywheel = new Flywheel(new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)) {});
 
@@ -175,11 +169,7 @@ public class RobotContainer {
       default -> {
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
-        elevator =
-            new Elevator(
-                new ElevatorIO() {},
-                drive::getPose,
-                () -> TeleopDashboard.getInstance().getReefLocation().getPose());
+        elevator = new Elevator(new ElevatorIO() {});
         flywheel = new Flywheel(new RollerIO() {});
         funnel = new Funnel(new RollerIO() {});
         apriltagVision =
@@ -262,7 +252,7 @@ public class RobotContainer {
             Commands.runOnce(drive::seedFieldCentric).withName("Controller - Back - Reset Gyro"));
 
     // Joystick Buttons
-    driverController.rightStick().onTrue(RobotCommands.zeroElevator(robot, elevator))
+    // driverController.rightStick().onTrue(RobotCommands.zeroElevator(robot, elevator));
   }
 
   /** Use this method to define default commands for subsystems. */

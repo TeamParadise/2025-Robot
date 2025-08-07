@@ -99,8 +99,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
-  public void setMotionMagic(MotionMagicConfigs mmConfig) {
-    primaryMotor.getConfigurator().apply(mmConfig);
-    secondaryMotor.getConfigurator().apply(mmConfig);
+  public void setMotionProfiling(MotionMagicConfigs config) {
+    primaryMotor.getConfigurator().apply(config);
+    secondaryMotor.getConfigurator().apply(config);
   }
 }

@@ -13,7 +13,7 @@ import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.globalconstants.FieldConstants.Reef.Level;
 import com.team1165.robot.subsystems.drive.Drive;
-import com.team1165.robot.subsystems.elevator.io.ElevatorIO.ElevatorIOInputs;
+import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -119,6 +119,7 @@ public class RobotCommands {
         .andThen(
             driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(0.2));
   }
+
   // endregion
 
   public static Command setLevelState(OdysseusManager robot, Supplier<Level> level) {
@@ -143,7 +144,7 @@ public class RobotCommands {
             });
   }
 
-  public static Command zeroElevator(OdysseusManager robot, ElevatorIOInputs elevatorData) {
-
+  public static Command zeroElevator(OdysseusManager robot, Elevator elevatorInputs) {
+    return Commands.none();
   }
 }

@@ -87,9 +87,9 @@ public interface ElevatorIO {
   default void setPID(Slot0Configs gains) {}
 
   /**
-   * Configures the Motion Magic settings for both of the motors. Only applies to CTRE motor controllers.
+   * Configures the Motion Profiling settings for both of the motors.
    *
-   * @param mmConfig The Motion Magic configuration to apply to the motors.
+   * @param config The Motion Profiling configuration to apply to the motors.
    */
-  default void setMotionMagic(MotionMagicConfigs mmConfig) {}
+  default void setMotionProfiling(MotionMagicConfigs Config) {}
 }

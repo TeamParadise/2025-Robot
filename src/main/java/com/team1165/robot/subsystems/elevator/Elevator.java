@@ -23,11 +23,13 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
 
   private final EnumMap<ElevatorState, LoggedTunableNumber> tunableMap =
       StateUtils.createTunableNumberMap(name + "/Positions", ElevatorState.class);
-  private final LoggedTunableNumber zeroingSpeed = new LoggedTunableNumber(name + "/ZeroingSpeed", 0.05);
+  private final LoggedTunableNumber zeroingSpeed =
+      new LoggedTunableNumber(name + "/ZeroingSpeed", 0.05);
 
   private double setpoint = 0.0;
 
-  /** State-machine-based Elevator subsystem, powered by two motors.
+  /**
+   * State-machine-based Elevator subsystem, powered by two motors.
    *
    * @param io The {@link ElevatorIO} class to use for this subsystem.
    */
@@ -38,7 +40,13 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
 
   public boolean atGoal(double tolerance) {
     // TODO: Maybe take the average of both motor positions?
-    return getGoalOverrideActive() ? getGoalOverrideValue() : Math.abs(setpoint - inputs.primaryMotor.position) > tolerance;
+    return getGoalOverrideActive()
+        ? getGoalOverrideValue()
+        : Math.abs(setpoint - inputs.primaryMotor.position) > tolerance;
+  }
+
+  public double getCurrent() {
+    return (inputs.primaryMotor.supplyCurrentAmps + inputs.secondaryMotor.supplyCurrentAmps) / 2.0;
   }
 
   @Override
