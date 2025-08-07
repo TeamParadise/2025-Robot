@@ -12,10 +12,8 @@ import com.team1165.robot.subsystems.elevator.io.ElevatorIO.ElevatorIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import com.team1165.robot.util.statemachine.GoalOverridableStateMachine;
 import com.team1165.robot.util.statemachine.StateUtils;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import java.util.EnumMap;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /** State-machine-based Elevator subsystem, powered by two motors. */
@@ -25,28 +23,31 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
 
   private final EnumMap<ElevatorState, LoggedTunableNumber> tunableMap =
       StateUtils.createTunableNumberMap(name + "/Positions", ElevatorState.class);
+  private final LoggedTunableNumber zeroingSpeed = new LoggedTunableNumber(name + "/ZeroingSpeed", 0.05);
 
-  private final Supplier<Pose2d> drivetrainPose;
-  private final Supplier<Pose2d> goalPose;
   private double setpoint = 0.0;
 
-  public Elevator(ElevatorIO io, Supplier<Pose2d> drivetrainPose, Supplier<Pose2d> goalPose) {
+  /** State-machine-based Elevator subsystem, powered by two motors.
+   *
+   * @param io The {@link ElevatorIO} class to use for this subsystem.
+   */
+  public Elevator(ElevatorIO io) {
     super(ElevatorState.IDLE);
     this.io = io;
-    this.drivetrainPose = drivetrainPose;
-    this.goalPose = goalPose;
   }
 
   public boolean atGoal(double tolerance) {
-    return Math.abs(setpoint - inputs.primaryMotor.position) > tolerance;
-  }
-
-  public double getRealPosition() {
-    return inputs.primaryMotor.position;
+    // TODO: Maybe take the average of both motor positions?
+    return getGoalOverrideActive() ? getGoalOverrideValue() : Math.abs(setpoint - inputs.primaryMotor.position) > tolerance;
   }
 
   @Override
   protected void update() {
+    // If the elevator is in ZEROING, slowly move it down
+    if (getCurrentState() == ElevatorState.ZEROING) {
+      io.runPosition(setpoint = setpoint - zeroingSpeed.get());
+    }
+
     io.updateInputs(inputs);
     Logger.processInputs(name, inputs);
   }
@@ -55,16 +56,6 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
   protected void transition() {
     switch (getCurrentState()) {
       case STOP -> io.stop();
-      case ADAPTIVE_L1, ADAPTIVE_L2, ADAPTIVE_L3, ADAPTIVE_L4 -> {
-        //        Logger.recordOutput(
-        //            name + "/AdaptivePosition",
-        //            setpoint =
-        //                Math.sin(0.959931)
-        //                    * (new Transform2d(goalPose.get(), drivetrainPose.get()).getX()
-        //                        / Math.sin(0.610865)));
-        //        io.runPosition(setpoint);
-        break;
-      }
       default -> {
         if (tunableMap.containsKey(getCurrentState())) {
           setpoint = tunableMap.get(getCurrentState()).get();

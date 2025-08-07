@@ -116,6 +116,8 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
       }
       case ZERO_ELEVATOR -> {
         setSubsystemState(elevator, ElevatorState.ZEROING);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.IDLE);
       }
     }
   }
