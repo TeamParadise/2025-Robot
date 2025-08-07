@@ -67,7 +67,7 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
       }
       default -> {
         if (tunableMap.containsKey(getCurrentState())) {
-          setpoint = tunableMap.get(getCurrentState()).get()
+          setpoint = tunableMap.get(getCurrentState()).get();
           io.runPosition(setpoint);
         } else {
           DriverStation.reportError(

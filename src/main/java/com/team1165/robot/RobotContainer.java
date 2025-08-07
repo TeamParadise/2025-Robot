@@ -24,6 +24,7 @@ import com.team1165.robot.subsystems.elevator.ElevatorConstants;
 import com.team1165.robot.subsystems.elevator.ElevatorState;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIO;
 import com.team1165.robot.subsystems.elevator.io.ElevatorIOTalonFX;
+import com.team1165.robot.subsystems.elevator.io.ElevatorIOTempSim;
 import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelConstants;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelState;
@@ -133,7 +134,7 @@ public class RobotContainer {
         // TODO: Add simulation IO for Elevator
         elevator =
             new Elevator(
-                new ElevatorIO() {},
+                new ElevatorIOTempSim(),
                 drive::getPose,
                 () -> TeleopDashboard.getInstance().getReefLocation().getPose());
 
@@ -199,6 +200,11 @@ public class RobotContainer {
     // Temporary
     driverController.povUp().onTrue(robot.stateCommand(OdysseusState.L3));
     driverController.povDown().onTrue(robot.stateCommand(OdysseusState.L2));
+    driverController
+        .rightStick()
+        .onTrue(
+            RobotCommands.autoScore(
+                robot, drive, teleopDash::getReefLocation, teleopDash::getLevel));
     // Face Buttons
     // TODO: Score at current height, not the set height. Maybe add auto score in teleop
     driverController

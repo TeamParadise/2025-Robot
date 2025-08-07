@@ -35,7 +35,7 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 1.0);
   private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.1);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.04);
   private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.25);
 
@@ -71,8 +71,7 @@ public class RobotCommands {
       Drive drive,
       Supplier<Reef.Location> face,
       Supplier<Reef.Level> level) {
-    var idleCommand = robot.stateCommand(OdysseusState.IDLE);
-    var driveCloseToFace =
+    var driveCloseToFaceStart =
         new DriveToPose(
             drive,
             () ->
@@ -82,11 +81,20 @@ public class RobotCommands {
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var switchToHeight = setLevelState(robot, level);
     var driveToFace = new DriveToPose(drive, () -> face.get().getPose());
-    var score = score(robot);
+    var driveCloseToFaceEnd =
+        new DriveToPose(
+            drive,
+            () ->
+                face.get()
+                    .getPose()
+                    .transformBy(
+                        new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
 
-    return idleCommand
+    // TODO: Add debounce before scoring
+    return robot
+        .stateCommand(OdysseusState.IDLE)
         .andThen(
-            driveCloseToFace
+            driveCloseToFaceStart
                 .alongWith(
                     new WaitUntilCommand(
                             () ->
@@ -105,7 +113,10 @@ public class RobotCommands {
                             .getPose()
                             .getTranslation()
                             .getDistance(face.get().getPose().getTranslation())
-                        < autoScoreDistanceToleranceBeforeScore.get()));
+                        < autoScoreDistanceToleranceBeforeScore.get()))
+        .andThen(score(robot))
+        .andThen(
+            driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(1));
   }
 
   // endregion
