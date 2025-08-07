@@ -91,5 +91,5 @@ public interface ElevatorIO {
    *
    * @param config The Motion Profiling configuration to apply to the motors.
    */
-  default void setMotionProfiling(MotionMagicConfigs Config) {}
+  default void setMotionProfiling(MotionMagicConfigs config) {}
 }
