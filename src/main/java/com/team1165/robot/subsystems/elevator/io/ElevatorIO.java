@@ -92,4 +92,11 @@ public interface ElevatorIO {
    * @param config The Motion Profiling configuration to apply to the motors.
    */
   default void setMotionProfiling(MotionMagicConfigs config) {}
+
+  /**
+   * Sets the motors' position in mechanism/elevator rotations.
+   *
+   * @param position The position to set the motors' position to.
+   */
+  default void setPosition(double position) {}
 }

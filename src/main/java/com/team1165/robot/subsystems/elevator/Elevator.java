@@ -24,7 +24,7 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
   private final EnumMap<ElevatorState, LoggedTunableNumber> tunableMap =
       StateUtils.createTunableNumberMap(name + "/Positions", ElevatorState.class);
   private final LoggedTunableNumber zeroingSpeed =
-      new LoggedTunableNumber(name + "/ZeroingSpeed", 0.05);
+      new LoggedTunableNumber(name + "/ZeroingSpeed", 0.03);
 
   private double setpoint = 0.0;
 
@@ -47,6 +47,10 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
 
   public double getCurrent() {
     return (inputs.primaryMotor.supplyCurrentAmps + inputs.secondaryMotor.supplyCurrentAmps) / 2.0;
+  }
+
+  public void setPositionToZero() {
+    io.setPosition(0);
   }
 
   @Override

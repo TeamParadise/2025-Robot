@@ -40,6 +40,10 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.25);
 
+  // Zeroing command tunables
+  private static final LoggedTunableNumber zeroingCurrent =
+      new LoggedTunableNumber("Commands/Zeroing/Current", 30.0);
+
   // region Score Automation
   public static Command score(OdysseusManager robot) {
     return new ConditionalCommand(
@@ -144,7 +148,11 @@ public class RobotCommands {
             });
   }
 
-  public static Command zeroElevator(OdysseusManager robot, Elevator elevatorInputs) {
-    return Commands.none();
+  public static Command zeroElevator(OdysseusManager robot, Elevator elevator) {
+    return robot
+        .stateCommand(OdysseusState.ZERO_ELEVATOR)
+        .alongWith(new WaitUntilCommand(() -> elevator.getCurrent() > zeroingCurrent.get()))
+        .andThen(Commands.runOnce(elevator::setPositionToZero))
+        .andThen(robot.stateCommand(OdysseusState.IDLE));
   }
 }

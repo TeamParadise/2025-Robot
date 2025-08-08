@@ -252,7 +252,7 @@ public class RobotContainer {
             Commands.runOnce(drive::seedFieldCentric).withName("Controller - Back - Reset Gyro"));
 
     // Joystick Buttons
-    // driverController.rightStick().onTrue(RobotCommands.zeroElevator(robot, elevator));
+    driverController.rightStick().onTrue(RobotCommands.zeroElevator(robot, elevator));
   }
 
   /** Use this method to define default commands for subsystems. */

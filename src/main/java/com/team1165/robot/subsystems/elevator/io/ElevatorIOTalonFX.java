@@ -103,4 +103,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     primaryMotor.getConfigurator().apply(config);
     secondaryMotor.getConfigurator().apply(config);
   }
+
+  @Override
+  public void setPosition(double position) {
+    primaryMotor.setPosition(position);
+    secondaryMotor.setPosition(position);
+  }
 }
