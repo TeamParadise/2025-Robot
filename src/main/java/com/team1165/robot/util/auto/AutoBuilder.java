@@ -42,26 +42,12 @@ public class AutoBuilder {
       new LoggedNetworkNumber("Auto/StartDelay", 0.0);
   private static final LoggedNetworkBoolean justLeave =
       new LoggedNetworkBoolean("Auto/JustLeave", false);
-  private static final LoggedNetworkBoolean pushPartner =
-      new LoggedNetworkBoolean("Auto/PushPartner", false);
-  private static final LoggedNetworkNumber scoreDelay1 =
-      new LoggedNetworkNumber("Auto/Score/FirstDelay", 0.0);
-  private static final LoggedNetworkNumber scoreDelay2 =
-      new LoggedNetworkNumber("Auto/Score/SecondDelay", 0.0);
-  private static final LoggedNetworkNumber scoreDelay3 =
-      new LoggedNetworkNumber("Auto/Score/ThirdDelay", 0.0);
   private static final LoggedDashboardChooser<CoralStationLocation> cs1 =
       new LoggedDashboardChooser<>("Auto/CS/First", new SendableChooser<>());
   private static final LoggedDashboardChooser<CoralStationLocation> cs2 =
       new LoggedDashboardChooser<>("Auto/CS/Second", new SendableChooser<>());
   private static final LoggedDashboardChooser<CoralStationLocation> cs3 =
       new LoggedDashboardChooser<>("Auto/CS/Third", new SendableChooser<>());
-  private static final LoggedNetworkNumber csDelay1 =
-      new LoggedNetworkNumber("Auto/CS/FirstDelay", 0.5);
-  private static final LoggedNetworkNumber csDelay2 =
-      new LoggedNetworkNumber("Auto/CS/SecondDelay", 0.5);
-  private static final LoggedNetworkNumber csDelay3 =
-      new LoggedNetworkNumber("Auto/CS/ThirdDelay", 0.5);
   private static final LoggedNetworkNumber sequencesToRun =
       new LoggedNetworkNumber("Auto/SequencesToRun", 3);
 

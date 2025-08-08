@@ -9,41 +9,30 @@ package com.team1165.robot.util.auto;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.team1165.robot.OdysseusManager;
+import com.team1165.robot.commands.RobotCommands;
+import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.subsystems.drive.Drive;
-import com.team1165.robot.subsystems.elevator.Elevator;
-import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
-import com.team1165.robot.subsystems.roller.funnel.Funnel;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 /** Class that represents a full auto routine. */
 public class AutoRoutine {
-  private final Time delayBeforeStart;
-  private final boolean pushPartner;
   private final AutoSegmentConfig[] segments;
-  private static final double translationToleranceBeforeScoring = 0.4;
-  private static final double rotationToleranceBeforeScoring = 0.78539816339;
 
-  public AutoRoutine(Time delayBeforeStart, boolean pushPartner, AutoSegmentConfig... segments) {
-    this.delayBeforeStart = delayBeforeStart;
-    this.pushPartner = pushPartner;
+  public AutoRoutine(AutoSegmentConfig... segments) {
     this.segments = segments;
   }
 
-  public AutoRoutine(Time delayBeforeStart, AutoSegmentConfig... segments) {
-    this(delayBeforeStart, false, segments);
-  }
+  public Command getAutoCommand(OdysseusManager robot, Drive drive) {
+    var autoCommand = Commands.none();
 
-  public AutoRoutine(boolean pushPartner, AutoSegmentConfig... segments) {
-    this(Seconds.zero(), pushPartner, segments);
-  }
-
-  public AutoRoutine(AutoSegmentConfig... segments) {
-    this(Seconds.zero(), false, segments);
-  }
-
-  public Command getAutoCommand(Drive drive, Elevator elevator, Flywheel flywheels, Funnel funnel) {
+    for (AutoSegmentConfig segment : segments) {
+      autoCommand =
+          autoCommand.andThen(
+              RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel)
+                  .andThen(new DriveToPose(drive, () -> segment.coralStation().getPose())));
+    }
     //    var initialDriveCommand =
     //        new DriveToPose(
     //            drive,
@@ -114,6 +103,5 @@ public class AutoRoutine {
     //                            .getPose()
     //                            .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)))
     //                .alongWith(new ElevatorPosition(elevator, () -> 0)));
-    return Commands.none();
   }
 }

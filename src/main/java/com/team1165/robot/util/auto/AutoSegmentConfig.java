@@ -18,7 +18,5 @@ import edu.wpi.first.units.measure.Time;
 public record AutoSegmentConfig(
     Reef.Location reefLocation,
     Reef.Level reefLevel,
-    Time delayAfterScoring,
-    CoralStationLocation coralStation,
-    Time delayAfterIntake) {}
+    CoralStationLocation coralStation) {}
 ;
