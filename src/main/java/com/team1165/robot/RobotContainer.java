@@ -238,7 +238,7 @@ public class RobotContainer {
     driverController
         .start()
         .onTrue( // If pressed, estop elevator, if already stopped, return to normal functionality.
-            elevator.getCurrentState() == ElevatorState.STOP
+            elevator.getCurrentState() != ElevatorState.STOP
                 ? elevator
                     .overrideState(ElevatorState.STOP)
                     .withName("Controller - Start - Elevator Emergency Stop")
