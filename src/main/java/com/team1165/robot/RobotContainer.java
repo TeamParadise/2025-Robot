@@ -61,6 +61,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
   // Subsystems
   private final Drive drive;
   private final Elevator elevator;
@@ -238,20 +239,31 @@ public class RobotContainer {
     driverController
         .start()
         .onTrue( // If pressed, estop elevator, if already stopped, return to normal functionality.
-            elevator.getCurrentState() != ElevatorState.STOP
-                ? elevator
-                    .overrideState(ElevatorState.STOP)
-                    .withName("Controller - Start - Elevator Emergency Stop")
-                    .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-                : Commands.runOnce(
-                        () -> CommandScheduler.getInstance().cancel(elevator.getCurrentCommand()))
-                    .withName("Controller - Start - Cancel Elevator Command/Disable EStop"));
+            Commands.runOnce(
+                    () -> {
+                      if (elevator.getCurrentState() != ElevatorState.STOP) {
+                        CommandScheduler.getInstance()
+                            .schedule(
+                                elevator
+                                    .overrideState(ElevatorState.STOP)
+                                    .withName("Controller - Start - Elevator Emergency Stop")
+                                    .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                      } else {
+                        CommandScheduler.getInstance().cancel(elevator.getCurrentCommand());
+                      }
+                    })
+                .withName("Controller - Start - Toggle Elevator Emergency Stop"));
     driverController
         .back()
         .onTrue(
             Commands.runOnce(drive::seedFieldCentric).withName("Controller - Back - Reset Gyro"));
 
     // Joystick Buttons
+    driverController
+        .leftStick()
+        .onTrue(
+            RobotCommands.autoScore(
+                robot, drive, teleopDash::getReefLocation, teleopDash::getLevel));
     driverController.rightStick().onTrue(RobotCommands.zeroElevator(robot, elevator));
   }
 
