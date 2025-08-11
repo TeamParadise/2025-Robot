@@ -7,8 +7,6 @@
 
 package com.team1165.robot.util.auto;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import com.team1165.robot.OdysseusManager;
 import com.team1165.robot.commands.RobotCommands;
 import com.team1165.robot.commands.drivetrain.DriveToPose;

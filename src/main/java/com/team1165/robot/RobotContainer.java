@@ -200,7 +200,6 @@ public class RobotContainer {
             RobotCommands.autoScore(
                 robot, drive, teleopDash::getReefLocation, teleopDash::getLevel));
     // Face Buttons
-    // TODO: Score at current height, not the set height. Maybe add auto score in teleop
     driverController
         .a()
         .onTrue(
@@ -262,9 +261,13 @@ public class RobotContainer {
     driverController
         .leftStick()
         .onTrue(
-            RobotCommands.autoScore(
-                robot, drive, teleopDash::getReefLocation, teleopDash::getLevel));
-    driverController.rightStick().onTrue(RobotCommands.zeroElevator(robot, elevator));
+            RobotCommands.autoScore(robot, drive, teleopDash::getReefLocation, teleopDash::getLevel)
+                .withName("Controller - Left Stick Click - Auto Score using Dashboard"));
+    driverController
+        .rightStick()
+        .onTrue(
+            RobotCommands.zeroElevator(robot, elevator)
+                .withName("Controller - Right Stick Click - Zero Elevator"));
   }
 
   /** Use this method to define default commands for subsystems. */

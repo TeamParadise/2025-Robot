@@ -8,7 +8,6 @@
 package com.team1165.robot.util.auto;
 
 import com.team1165.robot.globalconstants.FieldConstants.*;
-import edu.wpi.first.units.measure.Time;
 
 /**
  * An auto segment represents a segment of an auto, mainly consisting of a reef scoring
@@ -16,7 +15,5 @@ import edu.wpi.first.units.measure.Time;
  * include delays between actions.
  */
 public record AutoSegmentConfig(
-    Reef.Location reefLocation,
-    Reef.Level reefLevel,
-    CoralStationLocation coralStation) {}
+    Reef.Location reefLocation, Reef.Level reefLevel, CoralStationLocation coralStation) {}
 ;
