@@ -8,20 +8,21 @@
 package com.team1165.robot.util.auto;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.team1165.robot.OdysseusManager;
 import com.team1165.robot.globalconstants.FieldConstants.CoralStationLocation;
 import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.subsystems.drive.Drive;
-import com.team1165.robot.subsystems.elevator.Elevator;
-import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
-import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
+/**
+ * Class to publish values to the dashboard for autonomous configuration, and to build the final
+ * auto as soon as the autonomous period starts.
+ */
 public class AutoBuilder {
   private static AutoBuilder instance;
 
@@ -37,16 +38,16 @@ public class AutoBuilder {
       new LoggedDashboardChooser<>("Auto/Score/SecondLevel", new SendableChooser<>());
   private static final LoggedDashboardChooser<Reef.Level> level3 =
       new LoggedDashboardChooser<>("Auto/Score/ThirdLevel", new SendableChooser<>());
-  private static final LoggedNetworkNumber delayBeforeStart =
-      new LoggedNetworkNumber("Auto/StartDelay", 0.0);
-  private static final LoggedNetworkBoolean justLeave =
-      new LoggedNetworkBoolean("Auto/JustLeave", false);
   private static final LoggedDashboardChooser<CoralStationLocation> cs1 =
       new LoggedDashboardChooser<>("Auto/CS/First", new SendableChooser<>());
   private static final LoggedDashboardChooser<CoralStationLocation> cs2 =
       new LoggedDashboardChooser<>("Auto/CS/Second", new SendableChooser<>());
   private static final LoggedDashboardChooser<CoralStationLocation> cs3 =
       new LoggedDashboardChooser<>("Auto/CS/Third", new SendableChooser<>());
+  private static final LoggedNetworkBoolean justLeave =
+      new LoggedNetworkBoolean("Auto/JustLeave", false);
+  private static final LoggedNetworkBoolean pushPartner =
+      new LoggedNetworkBoolean("Auto/PushPartner", false);
   private static final LoggedNetworkNumber sequencesToRun =
       new LoggedNetworkNumber("Auto/SequencesToRun", 3);
 
@@ -71,8 +72,7 @@ public class AutoBuilder {
     csChooser.addOption("RCS", CoralStationLocation.RCS);
   }
 
-  public Command buildAutoCommand(
-      Drive drive, Elevator elevator, Flywheel flywheel, Funnel funnel) {
+  public Command buildAutoCommand(OdysseusManager robot, Drive drive) {
     if (justLeave.get()) {
       return drive
           .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
@@ -81,38 +81,21 @@ public class AutoBuilder {
 
     var numberOfSegments = (int) Math.round(sequencesToRun.get());
     var segments = new AutoSegmentConfig[numberOfSegments];
-    //    for (int i = 0; i < numberOfSegments; i++) {
-    //      if (i == 0) {
-    //        segments[i] =
-    //            new AutoSegmentConfig(
-    //                Reef.Location.valueOf(reef1.get()),
-    //                level1.get(),
-    //                Seconds.of(scoreDelay1.get()),
-    //                cs1.get(),
-    //                Seconds.of(csDelay1.get()));
-    //      } else if (i == 1) {
-    //        segments[i] =
-    //            new AutoSegmentConfig(
-    //                Reef.Location.valueOf(reef2.get()),
-    //                level2.get(),
-    //                Seconds.of(scoreDelay2.get()),
-    //                cs2.get(),
-    //                Seconds.of(csDelay2.get()));
-    //      } else if (i == 2) {
-    //        segments[i] =
-    //            new AutoSegmentConfig(
-    //                Reef.Location.valueOf(reef3.get()),
-    //                level3.get(),
-    //                Seconds.of(scoreDelay3.get()),
-    //                cs3.get(),
-    //                Seconds.of(csDelay3.get()));
-    //      }
-    //    }
-    //
-    //    var autoRoutine =
-    //        new AutoRoutine(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
-    //    return autoRoutine.getAutoCommand(drive, elevator, flywheel, funnel);
-    return Commands.none();
+    for (int i = 0; i < numberOfSegments; i++) {
+      if (i == 0) {
+        segments[i] =
+            new AutoSegmentConfig(Reef.Location.valueOf(reef1.get()), level1.get(), cs1.get());
+      } else if (i == 1) {
+        segments[i] =
+            new AutoSegmentConfig(Reef.Location.valueOf(reef2.get()), level2.get(), cs2.get());
+      } else if (i == 2) {
+        segments[i] =
+            new AutoSegmentConfig(Reef.Location.valueOf(reef3.get()), level3.get(), cs3.get());
+      }
+    }
+
+    var autoRoutine = new AutoRoutine(segments);
+    return autoRoutine.getAutoCommand(robot, drive);
   }
 
   public static AutoBuilder getInstance() {

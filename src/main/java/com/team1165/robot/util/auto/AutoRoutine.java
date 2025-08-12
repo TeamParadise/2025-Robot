@@ -8,6 +8,7 @@
 package com.team1165.robot.util.auto;
 
 import com.team1165.robot.OdysseusManager;
+import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.RobotCommands;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.subsystems.drive.Drive;
@@ -29,78 +30,10 @@ public class AutoRoutine {
       autoCommand =
           autoCommand.andThen(
               RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel)
-                  .andThen(new DriveToPose(drive, () -> segment.coralStation().getPose())));
+                  .andThen(new DriveToPose(drive, () -> segment.coralStation().getPose()))
+                  .alongWith(new Intake(robot)));
     }
-    //    var initialDriveCommand =
-    //        new DriveToPose(
-    //            drive,
-    //            () ->
-    //                segments[0]
-    //                    .reefLocation()
-    //                    .getPose()
-    //                    .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)));
-    //    var nextDriveCommand = new DriveToPose(drive, () -> segments[0].reefLocation().getPose());
-    //    var secondLineupCommand =
-    //        new DriveToPose(
-    //            drive,
-    //            () ->
-    //                segments[1]
-    //                    .reefLocation()
-    //                    .getPose()
-    //                    .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)));
-    //    var secondScoreCommand = new DriveToPose(drive, () ->
-    // segments[1].reefLocation().getPose());
-    //    var intake = new Intake(elevator, flywheel, funnel);
-    //
-    //    return new ElevatorPosition(elevator, () -> segments[0].reefLevel().getElevatorHeight())
-    //        .alongWith(
-    //            initialDriveCommand
-    //                .until(() ->
-    // elevator.getAtPosition(segments[0].reefLevel().getElevatorHeight(), 1))
-    //                .andThen(
-    //                    nextDriveCommand
-    //                        .alongWith(
-    //                            new WaitCommand(2).andThen(new FlywheelsPercenmt(flywheels, () ->
-    // 0.2)))
-    //                        .withTimeout(3)))
-    //        .withTimeout(5)
-    //        .andThen(
-    //            new DriveToPose(
-    //                    drive,
-    //                    () ->
-    //                        segments[0]
-    //                            .reefLocation()
-    //                            .getPose()
-    //                            .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)))
-    //                .withTimeout(0.75)
-    //                .andThen(new DriveToPose(drive, () -> segments[0].coralStation().getPose()))
-    //                .alongWith(intake))
-    //        .until(intake::isFinished)
-    //        .andThen(
-    //            new ElevatorPosition(elevator, () -> segments[1].reefLevel().getElevatorHeight())
-    //                .alongWith(
-    //                    secondLineupCommand
-    //                        .until(
-    //                            () ->
-    //                                elevator.getAtPosition(
-    //                                    segments[1].reefLevel().getElevatorHeight(), 1))
-    //                        .andThen(
-    //                            secondScoreCommand
-    //                                .alongWith(
-    //                                    new WaitCommand(2.3)
-    //                                        .andThen(new FlywheelsPercenmt(flywheels, () ->
-    // 0.25)))
-    //                                .withTimeout(3)))
-    //                .withTimeout(4))
-    //        .andThen(
-    //            new DriveToPose(
-    //                    drive,
-    //                    () ->
-    //                        segments[1]
-    //                            .reefLocation()
-    //                            .getPose()
-    //                            .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)))
-    //                .alongWith(new ElevatorPosition(elevator, () -> 0)));
+
     return Commands.none();
   }
 }

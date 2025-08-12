@@ -61,7 +61,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-
   // Subsystems
   private final Drive drive;
   private final Elevator elevator;
