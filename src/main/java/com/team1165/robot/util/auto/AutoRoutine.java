@@ -101,5 +101,6 @@ public class AutoRoutine {
     //                            .getPose()
     //                            .transformBy(new Transform2d(-0.3, 0.0, Rotation2d.kZero)))
     //                .alongWith(new ElevatorPosition(elevator, () -> 0)));
+    return Commands.none();
   }
 }

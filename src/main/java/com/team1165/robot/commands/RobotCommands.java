@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import java.util.function.Supplier;
 
 public class RobotCommands {
+
   // Score command tunables
   private static final LoggedTunableNumber scoreEndCurrent =
       new LoggedTunableNumber("Commands/Score/EndingCurrent", 10.0);
@@ -125,6 +126,27 @@ public class RobotCommands {
   }
 
   // endregion
+  public static Command moveUpLevel(OdysseusManager robot) {
+    return robot.stateSupplierCommand(
+        () ->
+            switch (robot.getCurrentState()) {
+              case L1 -> OdysseusState.L2;
+              case L2 -> OdysseusState.L3;
+              case L3, L4 -> OdysseusState.L4;
+              default -> OdysseusState.L1;
+            });
+  }
+
+  public static Command moveDownLevel(OdysseusManager robot) {
+    return robot.stateSupplierCommand(
+        () ->
+            switch (robot.getCurrentState()) {
+              case L4 -> OdysseusState.L3;
+              case L3 -> OdysseusState.L2;
+              case L2 -> OdysseusState.L1;
+              default -> OdysseusState.IDLE;
+            });
+  }
 
   public static Command setLevelState(OdysseusManager robot, Supplier<Level> level) {
     return robot.stateSupplierCommand(

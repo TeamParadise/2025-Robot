@@ -7,8 +7,6 @@
 
 package com.team1165.robot.util.auto;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.globalconstants.FieldConstants.CoralStationLocation;
 import com.team1165.robot.globalconstants.FieldConstants.Reef;
@@ -18,6 +16,7 @@ import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -82,37 +81,38 @@ public class AutoBuilder {
 
     var numberOfSegments = (int) Math.round(sequencesToRun.get());
     var segments = new AutoSegmentConfig[numberOfSegments];
-    for (int i = 0; i < numberOfSegments; i++) {
-      if (i == 0) {
-        segments[i] =
-            new AutoSegmentConfig(
-                Reef.Location.valueOf(reef1.get()),
-                level1.get(),
-                Seconds.of(scoreDelay1.get()),
-                cs1.get(),
-                Seconds.of(csDelay1.get()));
-      } else if (i == 1) {
-        segments[i] =
-            new AutoSegmentConfig(
-                Reef.Location.valueOf(reef2.get()),
-                level2.get(),
-                Seconds.of(scoreDelay2.get()),
-                cs2.get(),
-                Seconds.of(csDelay2.get()));
-      } else if (i == 2) {
-        segments[i] =
-            new AutoSegmentConfig(
-                Reef.Location.valueOf(reef3.get()),
-                level3.get(),
-                Seconds.of(scoreDelay3.get()),
-                cs3.get(),
-                Seconds.of(csDelay3.get()));
-      }
-    }
-
-    var autoRoutine =
-        new AutoRoutine(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
-    return autoRoutine.getAutoCommand(drive, elevator, flywheel, funnel);
+    //    for (int i = 0; i < numberOfSegments; i++) {
+    //      if (i == 0) {
+    //        segments[i] =
+    //            new AutoSegmentConfig(
+    //                Reef.Location.valueOf(reef1.get()),
+    //                level1.get(),
+    //                Seconds.of(scoreDelay1.get()),
+    //                cs1.get(),
+    //                Seconds.of(csDelay1.get()));
+    //      } else if (i == 1) {
+    //        segments[i] =
+    //            new AutoSegmentConfig(
+    //                Reef.Location.valueOf(reef2.get()),
+    //                level2.get(),
+    //                Seconds.of(scoreDelay2.get()),
+    //                cs2.get(),
+    //                Seconds.of(csDelay2.get()));
+    //      } else if (i == 2) {
+    //        segments[i] =
+    //            new AutoSegmentConfig(
+    //                Reef.Location.valueOf(reef3.get()),
+    //                level3.get(),
+    //                Seconds.of(scoreDelay3.get()),
+    //                cs3.get(),
+    //                Seconds.of(csDelay3.get()));
+    //      }
+    //    }
+    //
+    //    var autoRoutine =
+    //        new AutoRoutine(Seconds.of(delayBeforeStart.get()), pushPartner.get(), segments);
+    //    return autoRoutine.getAutoCommand(drive, elevator, flywheel, funnel);
+    return Commands.none();
   }
 
   public static AutoBuilder getInstance() {

@@ -191,14 +191,6 @@ public class RobotContainer {
 
   /** Use this method to define your button->command mappings. */
   private void configureButtonBindings() {
-    // Temporary
-    driverController.povUp().onTrue(robot.stateCommand(OdysseusState.L3));
-    driverController.povDown().onTrue(robot.stateCommand(OdysseusState.L2));
-    driverController
-        .rightStick()
-        .onTrue(
-            RobotCommands.autoScore(
-                robot, drive, teleopDash::getReefLocation, teleopDash::getLevel));
     // Face Buttons
     driverController
         .a()
@@ -217,6 +209,17 @@ public class RobotContainer {
         .onTrue(
             RobotCommands.setLevelState(robot, teleopDash::getLevel)
                 .withName("Controller - Y - Set Level"));
+
+    // D-Pad
+    driverController
+        .povUp()
+        .onTrue(
+            RobotCommands.moveUpLevel(robot).withName("Controller - D-Pad Up - Move Up One Level"));
+    driverController
+        .povDown()
+        .onTrue(
+            RobotCommands.moveDownLevel(robot)
+                .withName("Controller - D-Pad Down - Move Down One Level"));
 
     // Bumpers
     driverController
