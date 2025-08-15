@@ -43,7 +43,7 @@ public class AutoRoutine {
               RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel)
                   .andThen(
                       new DriveToPose(drive, () -> segment.coralStation().getPose())
-                          .alongWith(
+                          .raceWith(
                               new Intake(robot)
                                   // Every thing below is just for simulating intake in sim.
                                   .until(
@@ -57,11 +57,8 @@ public class AutoRoutine {
                                                               .coralStation()
                                                               .getPose()
                                                               .getTranslation())
-                                                  < 0.05)
-                                  .andThen(
-                                      RobotMode.get() == Mode.SIM
-                                          ? new WaitCommand(0.7)
-                                          : Commands.none()))));
+                                                  < 0.05)))
+                  .andThen(RobotMode.get() == Mode.SIM ? new WaitCommand(0.7) : Commands.none()));
     }
 
     return autoCommand;

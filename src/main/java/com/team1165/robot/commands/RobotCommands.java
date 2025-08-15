@@ -15,6 +15,8 @@ import com.team1165.robot.globalconstants.FieldConstants.Reef.Level;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,13 +35,15 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreFirstPoseOffset =
       new LoggedTunableNumber("Commands/AutoScore/FirstPoseOffset", -0.3);
   private static final LoggedTunableNumber autoScoreElevatorRaiseDistance =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1.0);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1.75);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 1.0);
   private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.04);
   private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.25);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.1);
+  private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.05);
 
   // Zeroing command tunables
   private static final LoggedTunableNumber zeroingCurrent =
@@ -95,10 +99,15 @@ public class RobotCommands {
                     .getPose()
                     .transformBy(
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
+    var debouncer = new Debouncer(autoScoreDistanceDebounceBeforeScore.get(), DebounceType.kRising);
 
     // TODO: Add debounce before scoring
-    return robot
-        .stateCommand(OdysseusState.IDLE)
+    return Commands.runOnce(
+            () -> {
+              debouncer.setDebounceTime(autoScoreDistanceDebounceBeforeScore.get());
+              debouncer.calculate(false);
+            })
+        .alongWith(robot.stateCommand(OdysseusState.IDLE))
         .andThen(
             driveCloseToFaceStart
                 .alongWith(
@@ -116,10 +125,11 @@ public class RobotCommands {
             new WaitUntilCommand(
                 () ->
                     drive
-                            .getPose()
-                            .getTranslation()
-                            .getDistance(face.get().getPose().getTranslation())
-                        < autoScoreDistanceToleranceBeforeScore.get()))
+                                .getPose()
+                                .getTranslation()
+                                .getDistance(face.get().getPose().getTranslation())
+                            < autoScoreDistanceToleranceBeforeScore.get()
+                        && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeScore.get())))
         .andThen(score(robot))
         .andThen(
             driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(0.2));

@@ -61,9 +61,11 @@ public class AutoBuilder {
     addLevelOptions(level1);
     addLevelOptions(level2);
     addLevelOptions(level3);
+    addLevelOptions(level4);
     addCSOptions(cs1);
     addCSOptions(cs2);
     addCSOptions(cs3);
+    addCSOptions(cs4);
   }
 
   private static void addLevelOptions(LoggedDashboardChooser<Reef.Level> levelChooser) {
