@@ -101,7 +101,6 @@ public class RobotCommands {
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var debouncer = new Debouncer(autoScoreDistanceDebounceBeforeScore.get(), DebounceType.kRising);
 
-    // TODO: Add debounce before scoring
     return Commands.runOnce(
             () -> {
               debouncer.setDebounceTime(autoScoreDistanceDebounceBeforeScore.get());
