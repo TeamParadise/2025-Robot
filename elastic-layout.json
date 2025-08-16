@@ -12,7 +12,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 768.0,
-            "height": 896.0,
+            "height": 1024.0,
             "type": "Reef",
             "properties": {
               "topic": "Teleop/Teleop Reef",
@@ -62,9 +62,9 @@
         "containers": [
           {
             "title": "First",
-            "x": 1152.0,
-            "y": 0.0,
-            "width": 256.0,
+            "x": 0.0,
+            "y": 640.0,
+            "width": 384.0,
             "height": 256.0,
             "type": "Split Button Chooser",
             "properties": {
@@ -74,9 +74,9 @@
           },
           {
             "title": "Second",
-            "x": 1152.0,
-            "y": 256.0,
-            "width": 256.0,
+            "x": 384.0,
+            "y": 640.0,
+            "width": 384.0,
             "height": 256.0,
             "type": "Split Button Chooser",
             "properties": {
@@ -86,9 +86,9 @@
           },
           {
             "title": "Third",
-            "x": 1152.0,
-            "y": 512.0,
-            "width": 256.0,
+            "x": 768.0,
+            "y": 640.0,
+            "width": 384.0,
             "height": 256.0,
             "type": "Split Button Chooser",
             "properties": {
@@ -97,10 +97,10 @@
             }
           },
           {
-            "title": "FirstLevel",
-            "x": 640.0,
-            "y": 0.0,
-            "width": 256.0,
+            "title": "First Level",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 384.0,
             "height": 256.0,
             "type": "Split Button Chooser",
             "properties": {
@@ -109,10 +109,10 @@
             }
           },
           {
-            "title": "SecondLevel",
-            "x": 640.0,
-            "y": 256.0,
-            "width": 256.0,
+            "title": "Second Level",
+            "x": 384.0,
+            "y": 384.0,
+            "width": 384.0,
             "height": 256.0,
             "type": "Split Button Chooser",
             "properties": {
@@ -121,10 +121,10 @@
             }
           },
           {
-            "title": "ThirdLevel",
-            "x": 640.0,
-            "y": 512.0,
-            "width": 256.0,
+            "title": "Third Level",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 384.0,
             "height": 256.0,
             "type": "Split Button Chooser",
             "properties": {
@@ -133,25 +133,11 @@
             }
           },
           {
-            "title": "StartDelay",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Auto/StartDelay",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "SequencesToRun",
-            "x": 1664.0,
+            "x": 1536.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
+            "width": 384.0,
+            "height": 128.0,
             "type": "Text Display",
             "properties": {
               "topic": "Auto/SequencesToRun",
@@ -162,10 +148,10 @@
           },
           {
             "title": "PushPartner",
-            "x": 0.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 1536.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 128.0,
             "type": "Toggle Switch",
             "properties": {
               "topic": "Auto/PushPartner",
@@ -175,10 +161,10 @@
           },
           {
             "title": "JustLeave",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 1536.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 128.0,
             "type": "Toggle Switch",
             "properties": {
               "topic": "Auto/JustLeave",
@@ -187,25 +173,11 @@
             }
           },
           {
-            "title": "FirstDelay",
-            "x": 1408.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Auto/Score/FirstDelay",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "FirstLocation",
-            "x": 256.0,
+            "title": "First Location",
+            "x": 0.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 384.0,
             "type": "Reef",
             "properties": {
               "topic": "Auto/Score/FirstLocation",
@@ -214,25 +186,11 @@
             }
           },
           {
-            "title": "SecondDelay",
-            "x": 1408.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Auto/Score/SecondDelay",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "SecondLocation",
-            "x": 256.0,
-            "y": 256.0,
+            "title": "Second Location",
+            "x": 384.0,
+            "y": 0.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 384.0,
             "type": "Reef",
             "properties": {
               "topic": "Auto/Score/SecondLocation",
@@ -241,25 +199,11 @@
             }
           },
           {
-            "title": "ThirdDelay",
-            "x": 1408.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Auto/Score/ThirdDelay",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "ThirdLocation",
-            "x": 256.0,
-            "y": 512.0,
+            "title": "Third Location",
+            "x": 768.0,
+            "y": 0.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 384.0,
             "type": "Reef",
             "properties": {
               "topic": "Auto/Score/ThirdLocation",
@@ -268,45 +212,52 @@
             }
           },
           {
-            "title": "SecondDelay",
-            "x": 896.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Auto/CS/SecondDelay",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "FirstDelay",
-            "x": 896.0,
+            "title": "Fourth Location",
+            "x": 1152.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Text Display",
+            "width": 384.0,
+            "height": 384.0,
+            "type": "Reef",
             "properties": {
-              "topic": "Auto/CS/FirstDelay",
+              "topic": "Auto/Score/FourthLocation",
               "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
+              "data_type": "string"
             }
           },
           {
-            "title": "ThirdDelay",
-            "x": 896.0,
-            "y": 512.0,
-            "width": 256.0,
+            "title": "Fourth Level",
+            "x": 1152.0,
+            "y": 384.0,
+            "width": 384.0,
             "height": 256.0,
-            "type": "Text Display",
+            "type": "Split Button Chooser",
             "properties": {
-              "topic": "Auto/CS/ThirdDelay",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
+              "topic": "/SmartDashboard/Auto/Score/FourthLevel",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Fourth",
+            "x": 1152.0,
+            "y": 640.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto/CS/Fourth",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Alerts",
+            "x": 1536.0,
+            "y": 384.0,
+            "width": 384.0,
+            "height": 512.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
             }
           }
         ]
