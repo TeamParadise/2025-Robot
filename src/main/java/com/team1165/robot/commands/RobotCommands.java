@@ -67,7 +67,17 @@ public class RobotCommands {
                     () ->
                         robot.getFlywheelCurrent() > 0
                             && robot.getFlywheelCurrent() < scoreEndCurrent.get()))
-            .withTimeout(1),
+            .withTimeout(1)
+            .andThen(
+                robot.stateSupplierCommand(
+                    () ->
+                        switch (robot.getCurrentState()) {
+                          case SCORE_L1, FAST_SCORE_L1 -> OdysseusState.L1;
+                          case SCORE_L2, FAST_SCORE_L2 -> OdysseusState.L2;
+                          case SCORE_L3, FAST_SCORE_L3 -> OdysseusState.L3;
+                          case SCORE_L4, FAST_SCORE_L4 -> OdysseusState.L4;
+                          default -> OdysseusState.IDLE;
+                        })),
         Commands.none(),
         () ->
             robot.getCurrentState() == OdysseusState.L1

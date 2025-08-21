@@ -190,10 +190,7 @@ public class RobotContainer {
     // Face Buttons
     driverController
         .a()
-        .onTrue(
-            RobotCommands.score(robot)
-                .andThen(robot.stateCommand(OdysseusState.IDLE))
-                .withName("Controller - A - Basic Score"));
+        .onTrue(RobotCommands.score(robot).withName("Controller - A - Basic Score"));
     driverController.b().onTrue(new Intake(robot).withName("Controller - B - Intake"));
     driverController
         .x()
