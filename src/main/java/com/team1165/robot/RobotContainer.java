@@ -278,9 +278,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.teleopManualDrive(
             drive,
-            () -> -driverController.getLeftY(),
-            () -> -driverController.getLeftX(),
-            () -> (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis()),
+            () -> -driverController.getLeftY() * (elevator.getHeight() >= 6.5 ? (1.0/3.0) : 1.0),
+            () -> -driverController.getLeftX() * (elevator.getHeight() >= 6.5 ? (1.0/3.0) : 1.0),
+            () -> (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis()) * (elevator.getHeight() >= 6.5 ? (1.0/3.0) : 1.0),
             true));
   }
 

@@ -49,6 +49,10 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
     return (inputs.primaryMotor.supplyCurrentAmps + inputs.secondaryMotor.supplyCurrentAmps) / 2.0;
   }
 
+  public double getHeight() {
+    return inputs.primaryMotor.position;
+  }
+
   public void setPositionToZero() {
     io.setPosition(0);
   }

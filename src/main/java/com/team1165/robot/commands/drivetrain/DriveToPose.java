@@ -36,7 +36,6 @@ public class DriveToPose extends Command {
   @Override
   public void initialize() {
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
-
     rotationController.reset();
     translationController.reset();
     translationController.setSetpoint(0.0);
