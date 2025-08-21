@@ -39,11 +39,11 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 1.0);
   private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.04);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.05);
   private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.1);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.05);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.04);
 
   // Zeroing command tunables
   private static final LoggedTunableNumber zeroingCurrent =
