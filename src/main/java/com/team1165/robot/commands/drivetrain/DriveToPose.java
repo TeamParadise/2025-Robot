@@ -9,11 +9,13 @@ package com.team1165.robot.commands.drivetrain;
 
 import com.team1165.robot.subsystems.drive.Drive;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -23,7 +25,8 @@ public class DriveToPose extends Command {
   private final Supplier<Pose2d> pose;
 
   private final PIDController translationController = new PIDController(4.0, 0.0, 0.0);
-  private final PIDController rotationController = new PIDController(7.0, 0.0, 0.0);
+  private final ProfiledPIDController rotationController =
+      new ProfiledPIDController(7.0, 0.0, 0.0, new TrapezoidProfile.Constraints(4, 6));
 
   public DriveToPose(Drive drive, Supplier<Pose2d> pose) {
     this.drive = drive;
@@ -36,7 +39,8 @@ public class DriveToPose extends Command {
   @Override
   public void initialize() {
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
-    rotationController.reset();
+    rotationController.reset(
+        drive.getPose().getRotation().getRadians(), drive.getSpeeds().omegaRadiansPerSecond);
     translationController.reset();
     translationController.setSetpoint(0.0);
   }
