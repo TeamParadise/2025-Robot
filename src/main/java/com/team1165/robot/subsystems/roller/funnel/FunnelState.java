@@ -15,7 +15,7 @@ public enum FunnelState implements State {
   /** Idle, not moving. */
   IDLE(0.0),
   /** Default intake state to get coral into the scoring mechanism. */
-  INTAKE(5.0),
+  INTAKE(1.8),
   /** Spin forwards. */
   MANUAL_FORWARD(3.0),
   /** Spin backwards. */

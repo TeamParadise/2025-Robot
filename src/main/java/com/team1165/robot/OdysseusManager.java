@@ -82,6 +82,11 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
       case SCORE_L1 -> {
         setSubsystemState(elevator, ElevatorState.L1);
         setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
+      }
+      case FAST_SCORE_L1 -> {
+        setSubsystemState(elevator, ElevatorState.L1);
+        setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
       }
       case L2 -> {
@@ -90,6 +95,11 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
         setSubsystemState(flywheel, FlywheelState.IDLE);
       }
       case SCORE_L2 -> {
+        setSubsystemState(elevator, ElevatorState.L2);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
+      }
+      case FAST_SCORE_L2 -> {
         setSubsystemState(elevator, ElevatorState.L2);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
@@ -102,6 +112,11 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
       case SCORE_L3 -> {
         setSubsystemState(elevator, ElevatorState.L3);
         setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
+      }
+      case FAST_SCORE_L3 -> {
+        setSubsystemState(elevator, ElevatorState.L3);
+        setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
       }
       case L4 -> {
@@ -110,6 +125,11 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
         setSubsystemState(flywheel, FlywheelState.IDLE);
       }
       case SCORE_L4 -> {
+        setSubsystemState(elevator, ElevatorState.L4);
+        setSubsystemState(funnel, FunnelState.IDLE);
+        setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
+      }
+      case FAST_SCORE_L4 -> {
         setSubsystemState(elevator, ElevatorState.L4);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);

@@ -132,7 +132,7 @@ public class RobotContainer {
         // TODO: Add simulation IO for Elevator
         elevator = new Elevator(new ElevatorIOTempSim());
 
-        flywheel = new Flywheel(new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)) {});
+        flywheel = new Flywheel(new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)));
 
         funnel = new Funnel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(40)));
 
@@ -190,10 +190,7 @@ public class RobotContainer {
     // Face Buttons
     driverController
         .a()
-        .onTrue(
-            RobotCommands.score(robot)
-                .andThen(robot.stateCommand(OdysseusState.IDLE))
-                .withName("Controller - A - Basic Score"));
+        .onTrue(RobotCommands.score(robot).withName("Controller - A - Basic Score"));
     driverController.b().onTrue(new Intake(robot).withName("Controller - B - Intake"));
     driverController
         .x()
@@ -274,9 +271,11 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.teleopManualDrive(
             drive,
-            () -> -driverController.getLeftY(),
-            () -> -driverController.getLeftX(),
-            () -> (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis()),
+            () -> -driverController.getLeftY() * (elevator.getHeight() >= 6.5 ? (1.0 / 3.0) : 1.0),
+            () -> -driverController.getLeftX() * (elevator.getHeight() >= 6.5 ? (1.0 / 3.0) : 1.0),
+            () ->
+                (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis())
+                    * (elevator.getHeight() >= 6.5 ? (1.0 / 3.0) : 1.0),
             true));
   }
 

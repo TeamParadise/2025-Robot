@@ -15,12 +15,16 @@ public enum OdysseusState implements State {
   INTAKE,
   L1,
   SCORE_L1,
+  FAST_SCORE_L1,
   L2,
   SCORE_L2,
+  FAST_SCORE_L2,
   L3,
   SCORE_L3,
+  FAST_SCORE_L3,
   L4,
   SCORE_L4,
+  FAST_SCORE_L4,
   ZERO_ELEVATOR;
 
   @Override
