@@ -44,6 +44,8 @@ public class RobotCommands {
       new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.1);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.04);
+  private static final LoggedTunableNumber autoScoreClosePoseOffset =
+      new LoggedTunableNumber("Commands/AutoScore/ClosePoseOffset", 0.06);
 
   // Zeroing command tunables
   private static final LoggedTunableNumber zeroingCurrent =
@@ -56,10 +58,14 @@ public class RobotCommands {
             .stateSupplierCommand(
                 () ->
                     switch (robot.getCurrentState()) {
-                      case L1 -> fastScore ? OdysseusState.FAST_SCORE_L1 : OdysseusState.SCORE_L1;
-                      case L2 -> fastScore ? OdysseusState.FAST_SCORE_L2 : OdysseusState.SCORE_L2;
-                      case L3 -> fastScore ? OdysseusState.FAST_SCORE_L3 : OdysseusState.SCORE_L3;
-                      case L4 -> fastScore ? OdysseusState.FAST_SCORE_L4 : OdysseusState.SCORE_L4;
+                      case L1, SCORE_L1, FAST_SCORE_L1 ->
+                          fastScore ? OdysseusState.FAST_SCORE_L1 : OdysseusState.SCORE_L1;
+                      case L2, SCORE_L2, FAST_SCORE_L2 ->
+                          fastScore ? OdysseusState.FAST_SCORE_L2 : OdysseusState.SCORE_L2;
+                      case L3, SCORE_L3, FAST_SCORE_L3 ->
+                          fastScore ? OdysseusState.FAST_SCORE_L3 : OdysseusState.SCORE_L3;
+                      case L4, SCORE_L4, FAST_SCORE_L4 ->
+                          fastScore ? OdysseusState.FAST_SCORE_L4 : OdysseusState.SCORE_L4;
                       default -> OdysseusState.IDLE;
                     })
             .alongWith(
@@ -79,11 +85,21 @@ public class RobotCommands {
                         }))
             .withTimeout(timeout),
         Commands.none(),
-        () ->
-            robot.getCurrentState() == OdysseusState.L1
-                || robot.getCurrentState() == OdysseusState.L2
-                || robot.getCurrentState() == OdysseusState.L3
-                || robot.getCurrentState() == OdysseusState.L4);
+        () -> {
+          var state = robot.getCurrentState();
+          return state == OdysseusState.L1
+              || state == OdysseusState.SCORE_L1
+              || state == OdysseusState.FAST_SCORE_L1
+              || state == OdysseusState.L2
+              || state == OdysseusState.SCORE_L2
+              || state == OdysseusState.FAST_SCORE_L2
+              || state == OdysseusState.L3
+              || state == OdysseusState.SCORE_L3
+              || state == OdysseusState.FAST_SCORE_L3
+              || state == OdysseusState.L4
+              || state == OdysseusState.SCORE_L4
+              || state == OdysseusState.FAST_SCORE_L4;
+        });
   }
 
   public static Command score(OdysseusManager robot) {
@@ -113,6 +129,14 @@ public class RobotCommands {
                     .getPose()
                     .transformBy(
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
+    var driveCloserToFace =
+        new DriveToPose(
+            drive,
+            () ->
+                face.get()
+                    .getPose()
+                    .transformBy(
+                        new Transform2d(autoScoreClosePoseOffset.get(), 0.0, Rotation2d.kZero)));
     var debouncer = new Debouncer(autoScoreDistanceDebounceBeforeScore.get(), DebounceType.kRising);
 
     return Commands.runOnce(
@@ -133,17 +157,29 @@ public class RobotCommands {
                                     < autoScoreElevatorRaiseDistance.get())
                         .andThen(switchToHeight))
                 .until(() -> robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get())))
-        .andThen(driveToFace)
-        .raceWith(
-            new WaitUntilCommand(
-                () ->
-                    drive
-                                .getPose()
-                                .getTranslation()
-                                .getDistance(face.get().getPose().getTranslation())
-                            < autoScoreDistanceToleranceBeforeScore.get()
-                        && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeScore.get())))
-        .andThen(score(robot))
+        .andThen(
+            driveToFace.withDeadline(
+                new WaitUntilCommand(
+                        () ->
+                            drive
+                                        .getPose()
+                                        .getTranslation()
+                                        .getDistance(face.get().getPose().getTranslation())
+                                    < autoScoreDistanceToleranceBeforeScore.get()
+                                && robot.getElevatorAtGoal(
+                                    autoScoreElevatorToleranceBeforeScore.get()))
+                    .andThen(score(robot, false, 0.35))))
+        .andThen(
+            new ConditionalCommand(
+                score(robot, true, 0.75).deadlineFor(driveCloserToFace),
+                Commands.none(),
+                () -> {
+                  var state = robot.getCurrentState();
+                  return state != OdysseusState.L1
+                      && state != OdysseusState.L2
+                      && state != OdysseusState.L3
+                      && state != OdysseusState.L4;
+                }))
         .andThen(
             driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(0.2));
   }
