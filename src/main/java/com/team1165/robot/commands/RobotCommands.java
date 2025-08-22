@@ -47,7 +47,7 @@ public class RobotCommands {
 
   // Zeroing command tunables
   private static final LoggedTunableNumber zeroingCurrent =
-      new LoggedTunableNumber("Commands/Zeroing/Current", 30.0);
+      new LoggedTunableNumber("Commands/Zeroing/Current", 20.0);
 
   // region Score Automation
   public static Command score(OdysseusManager robot) {

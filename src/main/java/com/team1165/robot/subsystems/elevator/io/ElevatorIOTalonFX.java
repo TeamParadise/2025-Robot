@@ -89,7 +89,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void stop() {
     primaryMotor.stopMotor();
-    secondaryMotor.stopMotor();
   }
 
   @Override

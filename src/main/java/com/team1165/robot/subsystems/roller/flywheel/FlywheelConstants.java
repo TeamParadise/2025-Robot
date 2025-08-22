@@ -22,19 +22,18 @@ import org.ironmaple.simulation.motorsims.SimMotorConfigs;
 /** Class to store constants for the {@link Flywheel} subsystem of the robot. */
 public class FlywheelConstants {
   // Base SPARK configuration
-  public static final SparkBaseConfig baseMotorConfig =
+  public static final SparkBaseConfig primaryMotor =
       new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake);
+  public static final SparkBaseConfig secondaryMotor =
+      new SparkMaxConfig().smartCurrentLimit(50).idleMode(IdleMode.kBrake).inverted(true);
 
   // Individual SPARK MAX configurations
   public static final SparkConfig primaryMotorConfig =
       SparkConfig.sparkMax(
-          "FlywheelPrimary", RIO.flywheelPrimary, MotorType.kBrushless, baseMotorConfig);
+          "FlywheelPrimary", RIO.flywheelPrimary, MotorType.kBrushless, primaryMotor);
   public static final SparkConfig secondaryMotorConfig =
       SparkConfig.sparkMax(
-          "FlywheelSecondary",
-          RIO.flywheelSecondary,
-          MotorType.kBrushless,
-          baseMotorConfig.inverted(true));
+          "FlywheelSecondary", RIO.flywheelSecondary, MotorType.kBrushless, secondaryMotor);
 
   // Simulation motor configuration
   public static final SimMotorConfigs simConfig =
