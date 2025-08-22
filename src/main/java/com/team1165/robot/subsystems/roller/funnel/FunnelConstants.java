@@ -29,14 +29,10 @@ public class FunnelConstants {
 
   // Individual SPARK MAX configurations
   public static final SparkConfig primaryMotorConfig =
-      SparkConfig.sparkMax(
-          "FunnelPrimary", RIO.funnelPrimary, MotorType.kBrushless, primaryMotor);
+      SparkConfig.sparkMax("FunnelPrimary", RIO.funnelPrimary, MotorType.kBrushless, primaryMotor);
   public static final SparkConfig secondaryMotorConfig =
       SparkConfig.sparkMax(
-          "FunnelSecondary",
-          RIO.funnelSecondary,
-          MotorType.kBrushless,
-          secondaryMotor);
+          "FunnelSecondary", RIO.funnelSecondary, MotorType.kBrushless, secondaryMotor);
 
   // Simulation motor configuration
   public static final SimMotorConfigs simConfig =

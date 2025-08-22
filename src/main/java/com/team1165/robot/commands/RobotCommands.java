@@ -50,16 +50,16 @@ public class RobotCommands {
       new LoggedTunableNumber("Commands/Zeroing/Current", 20.0);
 
   // region Score Automation
-  public static Command score(OdysseusManager robot) {
+  public static Command score(OdysseusManager robot, boolean fastScore, double timeout) {
     return new ConditionalCommand(
         robot
             .stateSupplierCommand(
                 () ->
                     switch (robot.getCurrentState()) {
-                      case L1 -> OdysseusState.SCORE_L1;
-                      case L2 -> OdysseusState.SCORE_L2;
-                      case L3 -> OdysseusState.SCORE_L3;
-                      case L4 -> OdysseusState.SCORE_L4;
+                      case L1 -> fastScore ? OdysseusState.FAST_SCORE_L1 : OdysseusState.SCORE_L1;
+                      case L2 -> fastScore ? OdysseusState.FAST_SCORE_L2 : OdysseusState.SCORE_L2;
+                      case L3 -> fastScore ? OdysseusState.FAST_SCORE_L3 : OdysseusState.SCORE_L3;
+                      case L4 -> fastScore ? OdysseusState.FAST_SCORE_L4 : OdysseusState.SCORE_L4;
                       default -> OdysseusState.IDLE;
                     })
             .alongWith(
@@ -67,7 +67,6 @@ public class RobotCommands {
                     () ->
                         robot.getFlywheelCurrent() > 0
                             && robot.getFlywheelCurrent() < scoreEndCurrent.get()))
-            .withTimeout(1)
             .andThen(
                 robot.stateSupplierCommand(
                     () ->
@@ -77,13 +76,18 @@ public class RobotCommands {
                           case SCORE_L3, FAST_SCORE_L3 -> OdysseusState.L3;
                           case SCORE_L4, FAST_SCORE_L4 -> OdysseusState.L4;
                           default -> OdysseusState.IDLE;
-                        })),
+                        }))
+            .withTimeout(timeout),
         Commands.none(),
         () ->
             robot.getCurrentState() == OdysseusState.L1
                 || robot.getCurrentState() == OdysseusState.L2
                 || robot.getCurrentState() == OdysseusState.L3
                 || robot.getCurrentState() == OdysseusState.L4);
+  }
+
+  public static Command score(OdysseusManager robot) {
+    return score(robot, false, 0.5);
   }
 
   public static Command autoScore(
