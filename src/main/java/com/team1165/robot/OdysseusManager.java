@@ -40,7 +40,7 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
 
   public double getFlywheelCurrent() {
     // TODO: Maybe goals should be used for this?
-    return flywheel.getSupplyCurrent();
+    return flywheel.getOutputCurrent();
   }
 
   public boolean getElevatorAtGoal(double tolerance) {
