@@ -28,9 +28,9 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
     this.io = io;
   }
 
-  public double getSupplyCurrent() {
+  public double getOutputCurrent() {
     // TODO: Maybe get the average of the values?
-    return inputs.primaryMotor.supplyCurrentAmps;
+    return inputs.primaryMotor.outputCurrentAmps;
   }
 
   @Override

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class Intake extends Command {
   private static final LoggedTunableNumber currentThreshold =
-      new LoggedTunableNumber("Commands/Intake/OverCurrentThreshold", 11.5);
+      new LoggedTunableNumber("Commands/Intake/OverCurrentThreshold", 13);
   private static final LoggedTunableNumber elapsedTime =
       new LoggedTunableNumber("Commands/Intake/OverCurrentTime", 0.04);
   private static final LoggedTunableNumber spinupTime =
@@ -38,6 +38,7 @@ public class Intake extends Command {
     startingTimestampCurrent = 0.0;
     didDrawHighCurrent = false;
     endCommand = false;
+    robot.setState(OdysseusState.INTAKE);
   }
 
   @Override
@@ -60,8 +61,6 @@ public class Intake extends Command {
         didDrawHighCurrent = false;
       }
     }
-
-    robot.setState(OdysseusState.INTAKE);
   }
 
   @Override
