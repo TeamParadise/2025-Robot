@@ -16,6 +16,8 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import java.util.function.Consumer;
@@ -202,6 +204,14 @@ public interface DriveIO {
 
   /** Class used to store the IO values of a CTRE Swerve Drivetrain. */
   class DriveIOInputs extends SwerveDriveState implements LoggableInputs, Cloneable {
+    public SwerveModuleState[] ModuleStates = new SwerveModuleState[4];
+    public SwerveModuleState[] ModuleTargets = new SwerveModuleState[4];
+    public SwerveModulePosition[] ModulePositions = new SwerveModulePosition[4];
+    public double Timestamp = 0.0;
+    public double OdometryPeriod = 0.0;
+    public int SuccessfulDaqs = 0;
+    public int FailedDaqs = 0;
+
     /** Updates this {@link DriveIOInputs} from a {@link SwerveDriveState}. */
     public void fromSwerveDriveState(SwerveDriveState state) {
       this.Pose = state.Pose;

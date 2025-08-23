@@ -119,6 +119,14 @@ public class RobotCommands {
                     .getPose()
                     .transformBy(
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
+    var driveCloseToFaceStart2 =
+        new DriveToPose(
+            drive,
+            () ->
+                face.get()
+                    .getPose()
+                    .transformBy(
+                        new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var switchToHeight = setLevelState(robot, level);
     var driveToFace = new DriveToPose(drive, () -> face.get().getPose());
     var driveCloseToFaceEnd =
@@ -146,17 +154,20 @@ public class RobotCommands {
             })
         .alongWith(robot.stateCommand(OdysseusState.IDLE))
         .andThen(
-            driveCloseToFaceStart
-                .alongWith(
-                    new WaitUntilCommand(
-                            () ->
-                                drive
-                                        .getPose()
-                                        .getTranslation()
-                                        .getDistance(face.get().getPose().getTranslation())
-                                    < autoScoreElevatorRaiseDistance.get())
-                        .andThen(switchToHeight))
-                .until(() -> robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get())))
+            driveCloseToFaceStart.raceWith(
+                new WaitUntilCommand(
+                        () ->
+                            drive
+                                    .getPose()
+                                    .getTranslation()
+                                    .getDistance(face.get().getPose().getTranslation())
+                                < autoScoreElevatorRaiseDistance.get())
+                    .andThen(switchToHeight)))
+        .andThen(
+            driveCloseToFaceStart2.until(
+                () ->
+                    switchToHeight.isFinished()
+                        && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get())))
         .andThen(
             driveToFace.withDeadline(
                 new WaitUntilCommand(
