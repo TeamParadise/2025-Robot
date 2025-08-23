@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 /** Commands to control the {@link Drive} subsystem. */
@@ -86,6 +87,7 @@ public class DriveCommands {
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier rotationSupplier,
+      BooleanSupplier slowMode,
       boolean fieldCentric) {
     return drive.run(
         () -> {
@@ -98,6 +100,10 @@ public class DriveCommands {
           double omega = MathUtil.applyDeadband(rotationSupplier.getAsDouble(), rotationDeadband);
           // Squaring probably isn't needed for trigger rotation, but uncomment if preferred
           // omega = Math.copySign(omega * omega, omega);
+
+          // Slow down linear velocity and rotational rate if we are in slow mode
+          linearVelocity = linearVelocity.div(slowMode.getAsBoolean() ? 2.5 : 1.0).div();
+          omega /= 2.5;
 
           // Set the control of the drive to our new speeds
           drive.setControl(
