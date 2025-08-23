@@ -35,13 +35,13 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreFirstPoseOffset =
       new LoggedTunableNumber("Commands/AutoScore/FirstPoseOffset", -0.3);
   private static final LoggedTunableNumber autoScoreElevatorRaiseDistance =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1.5);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1.75);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 0.75);
   private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.07);
   private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.3);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.25);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.08);
   private static final LoggedTunableNumber autoScoreClosePoseOffset =
@@ -195,7 +195,7 @@ public class RobotCommands {
         .andThen(
             driveCloseToFaceEnd
                 .alongWith(robot.stateCommand(OdysseusState.IDLE))
-                .withTimeout(0.325));
+                .withTimeout(0.1));
   }
 
   // endregion
