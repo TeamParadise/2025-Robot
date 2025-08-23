@@ -17,9 +17,9 @@ public enum FunnelState implements State {
   /** Default intake state to get coral into the scoring mechanism. */
   INTAKE(1.8),
   /** Spin forwards. */
-  MANUAL_FORWARD(3.0),
+  MANUAL_FORWARD(1.5),
   /** Spin backwards. */
-  MANUAL_REVERSE(-3.0),
+  MANUAL_REVERSE(-1.5),
   /** Custom state modified on the fly. Used as an emergency backup or for tuning. */
   CUSTOM_MANUAL(0.0);
 
