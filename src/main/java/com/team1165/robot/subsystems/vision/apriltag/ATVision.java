@@ -117,8 +117,10 @@ public class ATVision extends SubsystemBase {
 
       // Add visible tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
-        var tagPose = aprilTagLayout.getTagPose(tagId);
-        tagPose.ifPresent(tagPoses::add);
+        if (tagId != 14 && tagId != 15 && tagId != 4 && tagId != 5 && tagId != 3 && tagId != 16) {
+          var tagPose = aprilTagLayout.getTagPose(tagId);
+          tagPose.ifPresent(tagPoses::add);
+        }
       }
 
       // Loop over pose observations

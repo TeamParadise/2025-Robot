@@ -193,9 +193,7 @@ public class RobotCommands {
                       && state != OdysseusState.L4;
                 }))
         .andThen(
-            driveCloseToFaceEnd
-                .alongWith(robot.stateCommand(OdysseusState.IDLE))
-                .withTimeout(0.1));
+            driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(0.1));
   }
 
   // endregion
