@@ -17,9 +17,9 @@ public enum FlywheelState implements State {
   /** Default intake state to get coral into the scoring mechanism. */
   INTAKE(2.0),
   /** Slow scoring speed. */
-  SLOW_SCORE(2.5),
+  SLOW_SCORE(1.75),
   /** Fast scoring speed. */
-  FAST_SCORE(5.0),
+  FAST_SCORE(4.0),
   /** Spin forwards. */
   MANUAL_FORWARD(1.5),
   /** Spin backwards. */

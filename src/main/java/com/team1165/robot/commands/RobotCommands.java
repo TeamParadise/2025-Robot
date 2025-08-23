@@ -35,15 +35,15 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreFirstPoseOffset =
       new LoggedTunableNumber("Commands/AutoScore/FirstPoseOffset", -0.3);
   private static final LoggedTunableNumber autoScoreElevatorRaiseDistance =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1.75);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 1.5);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 1.0);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 0.75);
   private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.05);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.07);
   private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.1);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.3);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.04);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.08);
   private static final LoggedTunableNumber autoScoreClosePoseOffset =
       new LoggedTunableNumber("Commands/AutoScore/ClosePoseOffset", 0.06);
 
@@ -161,11 +161,12 @@ public class RobotCommands {
             driveToFace.withDeadline(
                 new WaitUntilCommand(
                         () ->
-                            drive
-                                        .getPose()
-                                        .getTranslation()
-                                        .getDistance(face.get().getPose().getTranslation())
-                                    < autoScoreDistanceToleranceBeforeScore.get()
+                            debouncer.calculate(
+                                    drive
+                                            .getPose()
+                                            .getTranslation()
+                                            .getDistance(face.get().getPose().getTranslation())
+                                        < autoScoreDistanceToleranceBeforeScore.get())
                                 && robot.getElevatorAtGoal(
                                     autoScoreElevatorToleranceBeforeScore.get()))
                     .andThen(score(robot, false, 0.35))))
@@ -181,7 +182,9 @@ public class RobotCommands {
                       && state != OdysseusState.L4;
                 }))
         .andThen(
-            driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(0.2));
+            driveCloseToFaceEnd
+                .alongWith(robot.stateCommand(OdysseusState.IDLE))
+                .withTimeout(0.325));
   }
 
   // endregion

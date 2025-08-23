@@ -42,7 +42,7 @@ public class Elevator extends GoalOverridableStateMachine<ElevatorState> {
     // TODO: Maybe take the average of both motor positions?
     return getGoalOverrideActive()
         ? getGoalOverrideValue()
-        : Math.abs(setpoint - inputs.primaryMotor.position) > tolerance;
+        : Math.abs(setpoint - inputs.primaryMotor.position) < tolerance;
   }
 
   public double getCurrent() {
