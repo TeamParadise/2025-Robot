@@ -55,7 +55,7 @@ public class FieldConstants {
         new Pose2d(3.6966769142381293, 5.070222087050671, Rotation2d.fromDegrees(360 - 60));
 
     public static final Pose2d rightCoralStation =
-        new Pose2d(1.6070318162817094, 0.8015220217145688, Rotation2d.fromDegrees(54.011));
+        new Pose2d(1.5470318162817094, 0.7415220217145688, Rotation2d.fromDegrees(54.011));
     public static final Pose2d leftCoralStation =
         new Pose2d(
             rightCoralStation.getX(),
