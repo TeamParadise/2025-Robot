@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class Intake extends Command {
   private static final LoggedTunableNumber currentThreshold =
-      new LoggedTunableNumber("Commands/Intake/OverCurrentThreshold", 13);
+      new LoggedTunableNumber("Commands/Intake/OverCurrentThreshold", 14);
   private static final LoggedTunableNumber elapsedTime =
       new LoggedTunableNumber("Commands/Intake/OverCurrentTime", 0.04);
   private static final LoggedTunableNumber spinupTime =
