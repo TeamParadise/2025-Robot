@@ -102,8 +102,8 @@ public class DriveCommands {
           // omega = Math.copySign(omega * omega, omega);
 
           // Slow down linear velocity and rotational rate if we are in slow mode
-          linearVelocity = linearVelocity.div(slowMode.getAsBoolean() ? 2.5 : 1.0).div();
-          omega /= 2.5;
+          linearVelocity = linearVelocity.div(slowMode.getAsBoolean() ? 2.5 : 1.0);
+          omega /= slowMode.getAsBoolean() ? 2.5 : 1.0;
 
           // Set the control of the drive to our new speeds
           drive.setControl(

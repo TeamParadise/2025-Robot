@@ -38,8 +38,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   // Motion Magic control
   // TODO: Try TorqueCurrentFOC or just FOC on the elevator
-  private final MotionMagicVoltage motionMagicControl =
-      new MotionMagicVoltage(0);
+  private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
 
   public ElevatorIOTalonFX(TalonFXConfig primaryConfig, TalonFXConfig secondaryConfig) {
     // Assign motor variables
