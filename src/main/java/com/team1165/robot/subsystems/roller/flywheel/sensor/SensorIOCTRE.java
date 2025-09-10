@@ -21,9 +21,13 @@ public class SensorIOCTRE {
   public SensorIOCTRE(CANrangeConfig config) {
     // Initialize CANrange
     sensor = PhoenixUtil.createNewCANrange(config);
+
+    // Add values to Phoenix refresh
+    PhoenixUtil.registerSignals(config.canBus(), sensor.getDistance());
   }
 
   public void updateInputs(SensorIOInputs inputs) {
-    inputs.distance = sensor.getDistance().getValueAsDouble();
+    inputs.connected = sensor.isConnected();
+    inputs.distance = sensor.getDistance(false).getValueAsDouble();
   }
 }
