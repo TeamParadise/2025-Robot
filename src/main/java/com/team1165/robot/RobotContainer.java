@@ -28,6 +28,8 @@ import com.team1165.robot.subsystems.elevator.io.ElevatorIOTempSim;
 import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelConstants;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelState;
+import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIO;
+import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIOCTRE;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import com.team1165.robot.subsystems.roller.funnel.FunnelConstants;
 import com.team1165.robot.subsystems.roller.funnel.FunnelState;
@@ -97,7 +99,7 @@ public class RobotContainer {
         flywheel =
             new Flywheel(
                 new RollerIOSpark(
-                    FlywheelConstants.primaryMotorConfig, FlywheelConstants.secondaryMotorConfig));
+                    FlywheelConstants.primaryMotorConfig, FlywheelConstants.secondaryMotorConfig), new SensorIOCTRE(FlywheelConstants.sensorConfig));
 
         funnel =
             new Funnel(
@@ -136,7 +138,7 @@ public class RobotContainer {
         // TODO: Add simulation IO for Elevator
         elevator = new Elevator(new ElevatorIOTempSim());
 
-        flywheel = new Flywheel(new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)));
+        flywheel = new Flywheel(new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)), new SensorIO() {});
 
         funnel = new Funnel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(40)));
 
@@ -171,7 +173,7 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
         drive = new Drive(new DriveIO() {});
         elevator = new Elevator(new ElevatorIO() {});
-        flywheel = new Flywheel(new RollerIO() {});
+        flywheel = new Flywheel(new RollerIO() {}, new SensorIO() {});
         funnel = new Funnel(new RollerIO() {});
         apriltagVision =
             new ATVision(

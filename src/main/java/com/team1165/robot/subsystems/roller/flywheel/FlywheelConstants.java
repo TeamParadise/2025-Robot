@@ -10,11 +10,13 @@ package com.team1165.robot.subsystems.roller.flywheel;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.team1165.robot.globalconstants.CANConstants.IDs.RIO;
+import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANrangeConfig;
 import com.team1165.robot.util.vendor.rev.SparkConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import org.ironmaple.simulation.motorsims.SimMotorConfigs;
@@ -38,4 +40,8 @@ public class FlywheelConstants {
   // Simulation motor configuration
   public static final SimMotorConfigs simConfig =
       new SimMotorConfigs(DCMotor.getNEO(1), 1, KilogramSquareMeters.of(0.002), Volts.of(0.05));
+
+  // Sensor configuration
+  public static final CANrangeConfiguration baseSensorConfig = new CANrangeConfiguration();
+  public static final CANrangeConfig sensorConfig = new CANrangeConfig("FlywheelSensor", RIO.flywheelSensor, "rio", baseSensorConfig);
 }
