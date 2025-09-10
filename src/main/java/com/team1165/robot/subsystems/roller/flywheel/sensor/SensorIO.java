@@ -14,6 +14,7 @@ public interface SensorIO {
   /** Class used to store the IO values of a sensor. */
   @AutoLog
   class SensorIOInputs {
+    public boolean connected = false;
     public double distance = 0.0;
   }
 
