@@ -16,6 +16,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.team1165.robot.globalconstants.CANConstants.IDs.RIO;
+import com.team1165.robot.subsystems.roller.flywheel.sensor.DetectionMode;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANrangeConfig;
 import com.team1165.robot.util.vendor.rev.SparkConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -44,4 +45,6 @@ public class FlywheelConstants {
   // Sensor configuration
   public static final CANrangeConfiguration baseSensorConfig = new CANrangeConfiguration();
   public static final CANrangeConfig sensorConfig = new CANrangeConfig("FlywheelSensor", RIO.flywheelSensor, "rio", baseSensorConfig);
+
+  public static final DetectionMode defaultDetectionMode = DetectionMode.DistanceSensor;
 }
