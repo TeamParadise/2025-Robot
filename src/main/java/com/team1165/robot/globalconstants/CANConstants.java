@@ -18,6 +18,7 @@ public class CANConstants {
       public static final int flywheelSecondary = 2;
       public static final int funnelPrimary = 3;
       public static final int funnelSecondary = 4;
+      public static final int flywheelSensor = 5;
     }
 
     public static final class CANivore {
