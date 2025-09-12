@@ -46,5 +46,5 @@ public class FlywheelConstants {
   public static final CANrangeConfiguration baseSensorConfig = new CANrangeConfiguration();
   public static final CANrangeConfig sensorConfig = new CANrangeConfig("FlywheelSensor", RIO.flywheelSensor, "rio", baseSensorConfig);
 
-  public static final DetectionMode defaultDetectionMode = DetectionMode.DistanceSensor;
+  public static final DetectionMode defaultDetectionMode = DetectionMode.DISTANCE_SENSOR;
 }
