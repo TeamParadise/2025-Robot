@@ -9,7 +9,7 @@ package com.team1165.robot.subsystems.roller.flywheel.sensor;
 
 public enum DetectionMode {
   /** Detection using current, only works if the wheels are actively spinning. */
-  Current,
+  CURRENT,
   /** Detection using a distance sensor, like a CANrange. */
-  DistanceSensor
+  DISTANCE_SENSOR
 }

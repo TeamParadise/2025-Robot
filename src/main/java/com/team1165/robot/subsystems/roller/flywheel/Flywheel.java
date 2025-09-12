@@ -7,6 +7,7 @@
 
 package com.team1165.robot.subsystems.roller.flywheel;
 
+import com.team1165.robot.subsystems.roller.flywheel.sensor.DetectionMode;
 import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIO;
 import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIO.SensorIOInputs;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
@@ -23,9 +24,10 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
   private final RollerIO io;
   private final RollerIOInputs inputs = new RollerIOInputs();
 
-  // SensorIO objects
+  // Sensor objects
   private final SensorIO sensorIO;
   private final SensorIOInputs sensorInputs = new SensorIOInputs();
+  private DetectionMode detectionMode = FlywheelConstants.defaultDetectionMode;
 
   private final EnumMap<FlywheelState, LoggedTunableNumber> tunableMap =
       StateUtils.createTunableNumberMap(name + "/Voltages", FlywheelState.class);
