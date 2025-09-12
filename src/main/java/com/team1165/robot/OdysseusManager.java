@@ -38,11 +38,6 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
     this.funnel = funnel;
   }
 
-  public double getFlywheelCurrent() {
-    // TODO: Maybe goals should be used for this?
-    return flywheel.getOutputCurrent();
-  }
-
   public boolean getElevatorAtGoal(double tolerance) {
     return elevator.atGoal(tolerance);
   }
