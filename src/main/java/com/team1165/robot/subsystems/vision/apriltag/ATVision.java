@@ -12,6 +12,7 @@ import static com.team1165.robot.subsystems.vision.apriltag.constants.ATVisionCo
 import com.ctre.phoenix6.Utils;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOInputsAutoLogged;
+import com.team1165.robot.util.statemachine.OverridableStateMachine;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -36,7 +37,7 @@ import org.littletonrobotics.junction.Logger;
  * A subsystem for a collection of cameras that estimates the pose of the robot with AprilTags
  * placed around the field.
  */
-public class ATVision extends SubsystemBase {
+public class ATVision extends OverridableStateMachine<ATVisionState> {
   // Alerts to send for each of the cameras if they get disconnected
   private final Alert[] disconnectedAlerts;
 
@@ -323,8 +324,8 @@ public class ATVision extends SubsystemBase {
   }
 
   public void enableSingleTagTrig() {
-    for (int i = 0; i < io.length; i++) {
-      io[i].setSingleTagTrig(true);
+    for (ATVisionIO visionIO : io) {
+      visionIO.setSingleTagTrig(true);
     }
   }
 
