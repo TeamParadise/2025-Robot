@@ -9,7 +9,10 @@ package com.team1165.robot.subsystems.roller.flywheel.sensor;
 
 import org.littletonrobotics.junction.AutoLog;
 
-/** A hardware interface/implementation layer for a sensor (beam break/distance sensor style) for the {@link com.team1165.robot.subsystems.roller.flywheel.Flywheel} subsystem. */
+/**
+ * A hardware interface/implementation layer for a sensor (beam break/distance sensor style) for the
+ * {@link com.team1165.robot.subsystems.roller.flywheel.Flywheel} subsystem.
+ */
 public interface SensorIO {
   /** Class used to store the IO values of a sensor. */
   @AutoLog

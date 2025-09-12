@@ -99,7 +99,8 @@ public class RobotContainer {
         flywheel =
             new Flywheel(
                 new RollerIOSpark(
-                    FlywheelConstants.primaryMotorConfig, FlywheelConstants.secondaryMotorConfig), new SensorIOCTRE(FlywheelConstants.sensorConfig));
+                    FlywheelConstants.primaryMotorConfig, FlywheelConstants.secondaryMotorConfig),
+                new SensorIOCTRE(FlywheelConstants.sensorConfig));
 
         funnel =
             new Funnel(
@@ -138,7 +139,9 @@ public class RobotContainer {
         // TODO: Add simulation IO for Elevator
         elevator = new Elevator(new ElevatorIOTempSim());
 
-        flywheel = new Flywheel(new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)), new SensorIO() {});
+        flywheel =
+            new Flywheel(
+                new RollerIOSim(FlywheelConstants.simConfig, Amps.of(50)), new SensorIO() {});
 
         funnel = new Funnel(new RollerIOSim(FunnelConstants.simConfig, Amps.of(40)));
 

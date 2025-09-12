@@ -11,10 +11,8 @@ import com.ctre.phoenix6.hardware.CANrange;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.CANrangeConfig;
 import com.team1165.robot.util.vendor.ctre.PhoenixUtil;
 
-/**
- * A hardware interface/implementation layer for a CTRE CANrange sensor.
- */
-public class SensorIOCTRE implements SensorIO{
+/** A hardware interface/implementation layer for a CTRE CANrange sensor. */
+public class SensorIOCTRE implements SensorIO {
   private final CANrange sensor;
 
   public SensorIOCTRE(CANrangeConfig config) {

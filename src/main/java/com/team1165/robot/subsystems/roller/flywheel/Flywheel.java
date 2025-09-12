@@ -10,12 +10,16 @@ package com.team1165.robot.subsystems.roller.flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.sensor.DetectionMode;
 import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIO;
 import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIO.SensorIOInputs;
+import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIOInputsAutoLogged;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import com.team1165.robot.util.statemachine.OverridableStateMachine;
 import com.team1165.robot.util.statemachine.StateUtils;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.EnumMap;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 /** State-machine-based Flywheel subsystem, powered by two motors. */
@@ -26,8 +30,11 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
 
   // Sensor objects
   private final SensorIO sensorIO;
-  private final SensorIOInputs sensorInputs = new SensorIOInputs();
+  private final SensorIOInputsAutoLogged sensorInputs = new SensorIOInputsAutoLogged();
+  private final LoggedTunableNumber sensorDistanceThreshold =
+      new LoggedTunableNumber(name + "/Sensor/DistanceThreshold", 1.0);
   private DetectionMode detectionMode = FlywheelConstants.defaultDetectionMode;
+  private final Alert sensorAlert = new Alert("Scoring mechanism sensor disconnected!", AlertType.kError);
 
   private final EnumMap<FlywheelState, LoggedTunableNumber> tunableMap =
       StateUtils.createTunableNumberMap(name + "/Voltages", FlywheelState.class);
@@ -38,13 +45,19 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
     this.sensorIO = sensorIO;
   }
 
-  public double getOutputCurrent() {
-    // TODO: Maybe get the average of the values?
-    return inputs.primaryMotor.outputCurrentAmps;
+  @AutoLogOutput(key = "Flywheel/DetectionMode")
+  public DetectionMode getDetectionMode() {
+    return detectionMode;
   }
 
-  public double getSensorDistance() {
-    return sensorInputs.distance;
+  public boolean getCurrentHold(double current) {
+    return Math.abs(inputs.primaryMotor.outputCurrentAmps) > current;
+  }
+
+  @AutoLogOutput(key = "Flywheel/Sensors/Hold")
+  public boolean getSensorHold() {
+    // Default to true if the distance sensor is not active
+    return detectionMode != DetectionMode.DISTANCE_SENSOR || sensorInputs.distance < sensorDistanceThreshold.get();
   }
 
   @Override
@@ -52,7 +65,13 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
     io.updateInputs(inputs);
     sensorIO.updateInputs(sensorInputs);
     Logger.processInputs(name, inputs);
-    Logger.processInputs(name + "/Sensor", inputs);
+    Logger.processInputs(name + "/Sensor", sensorInputs);
+
+    // Detect if the CANrange has become disconnected and fall back to current
+    if (FlywheelConstants.defaultDetectionMode != DetectionMode.CURRENT) {
+      detectionMode = sensorInputs.connected ? DetectionMode.DISTANCE_SENSOR : DetectionMode.CURRENT;
+      sensorAlert.set(!sensorInputs.connected);
+    }
   }
 
   @Override
