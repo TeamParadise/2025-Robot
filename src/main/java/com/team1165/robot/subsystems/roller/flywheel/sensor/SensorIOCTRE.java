@@ -23,6 +23,7 @@ public class SensorIOCTRE implements SensorIO {
     PhoenixUtil.registerSignals(config.canBus(), sensor.getDistance());
   }
 
+  @Override
   public void updateInputs(SensorIOInputs inputs) {
     inputs.connected = sensor.isConnected();
     inputs.distance = sensor.getDistance(false).getValueAsDouble();
