@@ -11,6 +11,7 @@ import com.team1165.robot.subsystems.elevator.Elevator;
 import com.team1165.robot.subsystems.elevator.ElevatorState;
 import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelState;
+import com.team1165.robot.subsystems.roller.flywheel.sensor.DetectionMode;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import com.team1165.robot.subsystems.roller.funnel.FunnelState;
 import com.team1165.robot.util.statemachine.RobotManager;
@@ -36,6 +37,18 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
     this.elevator = elevator;
     this.flywheel = flywheel;
     this.funnel = funnel;
+  }
+
+  public DetectionMode getFlywheelDetectionMode() {
+    return flywheel.getDetectionMode();
+  }
+
+  public boolean getFlywheelCurrentHold(double current) {
+    return flywheel.getCurrentHold(current);
+  }
+
+  public boolean getFlywheelSensorHold() {
+    return flywheel.getSensorHold();
   }
 
   public boolean getElevatorAtGoal(double tolerance) {
