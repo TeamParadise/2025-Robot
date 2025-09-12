@@ -9,7 +9,6 @@ package com.team1165.robot.subsystems.roller.flywheel;
 
 import com.team1165.robot.subsystems.roller.flywheel.sensor.DetectionMode;
 import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIO;
-import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIO.SensorIOInputs;
 import com.team1165.robot.subsystems.roller.flywheel.sensor.SensorIOInputsAutoLogged;
 import com.team1165.robot.subsystems.roller.io.RollerIO;
 import com.team1165.robot.subsystems.roller.io.RollerIO.RollerIOInputs;
@@ -34,7 +33,8 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
   private final LoggedTunableNumber sensorDistanceThreshold =
       new LoggedTunableNumber(name + "/Sensor/DistanceThreshold", 1.0);
   private DetectionMode detectionMode = FlywheelConstants.defaultDetectionMode;
-  private final Alert sensorAlert = new Alert("Scoring mechanism sensor disconnected!", AlertType.kError);
+  private final Alert sensorAlert =
+      new Alert("Scoring mechanism sensor disconnected!", AlertType.kError);
 
   private final EnumMap<FlywheelState, LoggedTunableNumber> tunableMap =
       StateUtils.createTunableNumberMap(name + "/Voltages", FlywheelState.class);
@@ -57,7 +57,8 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
   @AutoLogOutput(key = "Flywheel/Sensors/Hold")
   public boolean getSensorHold() {
     // Default to true if the distance sensor is not active
-    return detectionMode != DetectionMode.DISTANCE_SENSOR || sensorInputs.distance < sensorDistanceThreshold.get();
+    return detectionMode != DetectionMode.DISTANCE_SENSOR
+        || sensorInputs.distance < sensorDistanceThreshold.get();
   }
 
   @Override
@@ -69,7 +70,8 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
 
     // Detect if the CANrange has become disconnected and fall back to current
     if (FlywheelConstants.defaultDetectionMode != DetectionMode.CURRENT) {
-      detectionMode = sensorInputs.connected ? DetectionMode.DISTANCE_SENSOR : DetectionMode.CURRENT;
+      detectionMode =
+          sensorInputs.connected ? DetectionMode.DISTANCE_SENSOR : DetectionMode.CURRENT;
       sensorAlert.set(!sensorInputs.connected);
     }
   }

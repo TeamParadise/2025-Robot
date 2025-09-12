@@ -20,8 +20,8 @@ public class Intake extends Command {
       new LoggedTunableNumber("Commands/Intake/OverCurrentThreshold", 14);
   private static final LoggedTunableNumber currentElapsedTime =
       new LoggedTunableNumber("Commands/Intake/OverCurrentTime", 0.04);
-  private static final LoggedTunableNumber sensorElapsedTime = new LoggedTunableNumber(
-      "Commands/Intake/SensorElapsedTime", 0.04);
+  private static final LoggedTunableNumber sensorElapsedTime =
+      new LoggedTunableNumber("Commands/Intake/SensorElapsedTime", 0.04);
   private static final LoggedTunableNumber spinupTime =
       new LoggedTunableNumber("Commands/Intake/SpinupTime", 0.15);
 
@@ -47,7 +47,8 @@ public class Intake extends Command {
     // TODO: Add a check to make sure elevator is down before fully intaking? Additional state.
     var detectionMode = robot.getFlywheelDetectionMode();
     var isCoralDetected =
-        detectionMode == DetectionMode.DISTANCE_SENSOR ? robot.getFlywheelSensorHold()
+        detectionMode == DetectionMode.DISTANCE_SENSOR
+            ? robot.getFlywheelSensorHold()
             : robot.getFlywheelCurrentHold(currentThreshold.get());
 
     if (timer.hasElapsed(spinupTime.get())) {
@@ -55,9 +56,11 @@ public class Intake extends Command {
         startingDetectionTimestamp = timer.get();
       }
 
-      if (isCoralDetected && timer.get() - startingDetectionTimestamp > (
-          detectionMode == DetectionMode.DISTANCE_SENSOR ? sensorElapsedTime.get()
-              : currentElapsedTime.get())) {
+      if (isCoralDetected
+          && timer.get() - startingDetectionTimestamp
+              > (detectionMode == DetectionMode.DISTANCE_SENSOR
+                  ? sensorElapsedTime.get()
+                  : currentElapsedTime.get())) {
         endCommand = true;
         robot.setState(OdysseusState.IDLE);
       } else {

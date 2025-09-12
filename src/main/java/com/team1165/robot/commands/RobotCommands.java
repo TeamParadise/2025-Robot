@@ -69,10 +69,7 @@ public class RobotCommands {
                       default -> OdysseusState.IDLE;
                     })
             .alongWith(
-                new WaitUntilCommand(
-                    () ->
-                        robot.getFlywheelCurrent() > 0
-                            && robot.getFlywheelCurrent() < scoreEndCurrent.get()))
+                new WaitUntilCommand(() -> robot.getFlywheelCurrentHold(scoreEndCurrent.get())))
             .andThen(
                 robot.stateSupplierCommand(
                     () ->
