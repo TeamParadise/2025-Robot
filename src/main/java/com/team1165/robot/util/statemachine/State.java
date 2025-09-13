@@ -18,5 +18,6 @@ import java.util.OptionalDouble;
 public interface State {
   default OptionalDouble get() {
     return OptionalDouble.empty();
-  };
+  }
+  ;
 }

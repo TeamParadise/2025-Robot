@@ -11,8 +11,14 @@ import com.team1165.robot.util.statemachine.State;
 
 /** All the possible states for the {@link ATVision} subsystem. */
 public enum ATVisionState implements State {
-  /** Single-tag vision without the trig-based gyro combination. Default PhotonVision method, more accurate up-close, less accurate when far away. */
+  /**
+   * Single-tag vision without the trig-based gyro combination. Default PhotonVision method, more
+   * accurate up-close, less accurate when far away.
+   */
   SINGLE_TAG_3D(),
-  /** Single-tag vision with the trig-based gyro combination. More accurate further away, less accurate close up. */
+  /**
+   * Single-tag vision with the trig-based gyro combination. More accurate further away, less
+   * accurate close up.
+   */
   SINGLE_TAG_TRIG()
 }

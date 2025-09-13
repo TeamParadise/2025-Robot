@@ -13,6 +13,8 @@ import com.team1165.robot.subsystems.roller.flywheel.Flywheel;
 import com.team1165.robot.subsystems.roller.flywheel.FlywheelState;
 import com.team1165.robot.subsystems.roller.funnel.Funnel;
 import com.team1165.robot.subsystems.roller.funnel.FunnelState;
+import com.team1165.robot.subsystems.vision.apriltag.ATVision;
+import com.team1165.robot.subsystems.vision.apriltag.ATVisionState;
 import com.team1165.robot.util.statemachine.RobotManager;
 import com.team1165.robot.util.statemachine.StateMachine;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.Supplier;
 
 public class OdysseusManager extends RobotManager<OdysseusState> {
+  private final ATVision apriltagVision;
   private final Elevator elevator;
   private final Flywheel flywheel;
   private final Funnel funnel;
@@ -31,8 +34,13 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
    * @see StateMachine
    */
   protected OdysseusManager(
-      OdysseusState initialState, Elevator elevator, Flywheel flywheel, Funnel funnel) {
+      OdysseusState initialState,
+      ATVision apriltagVision,
+      Elevator elevator,
+      Flywheel flywheel,
+      Funnel funnel) {
     super(initialState);
+    this.apriltagVision = apriltagVision;
     this.elevator = elevator;
     this.flywheel = flywheel;
     this.funnel = funnel;
@@ -65,76 +73,91 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
         // TODO: Maybe add a method to ElevatorState to get the specified state for a specific reef
         // TODO: level, to prevent having to copy and paste code over and over?
       case IDLE -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_TRIG);
         setSubsystemState(elevator, ElevatorState.IDLE);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.IDLE);
       }
       case INTAKE -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_TRIG);
         setSubsystemState(elevator, ElevatorState.INTAKE);
         setSubsystemState(funnel, FunnelState.INTAKE);
         setSubsystemState(flywheel, FlywheelState.INTAKE);
       }
       case L1 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L1);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.IDLE);
       }
       case SCORE_L1 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L1);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
       }
       case FAST_SCORE_L1 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L1);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
       }
       case L2 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L2);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.IDLE);
       }
       case SCORE_L2 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L2);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
       }
       case FAST_SCORE_L2 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L2);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
       }
       case L3 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L3);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.IDLE);
       }
       case SCORE_L3 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L3);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
       }
       case FAST_SCORE_L3 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L3);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
       }
       case L4 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L4);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.IDLE);
       }
       case SCORE_L4 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L4);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.SLOW_SCORE);
       }
       case FAST_SCORE_L4 -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_3D);
         setSubsystemState(elevator, ElevatorState.L4);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.FAST_SCORE);
       }
       case ZERO_ELEVATOR -> {
+        setSubsystemState(apriltagVision, ATVisionState.SINGLE_TAG_TRIG);
         setSubsystemState(elevator, ElevatorState.ZEROING);
         setSubsystemState(funnel, FunnelState.IDLE);
         setSubsystemState(flywheel, FlywheelState.IDLE);
