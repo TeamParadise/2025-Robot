@@ -24,7 +24,7 @@ public class DriveToPose extends Command {
   private final Drive drive;
   private final Supplier<Pose2d> pose;
 
-  private final PIDController translationController = new PIDController(4.0, 0.0, 0.0);
+  private final PIDController translationController = new PIDController(2.0, 0.0, 0.0);
   private final ProfiledPIDController rotationController =
       new ProfiledPIDController(7.0, 0.0, 0.0, new TrapezoidProfile.Constraints(4, 6));
 
