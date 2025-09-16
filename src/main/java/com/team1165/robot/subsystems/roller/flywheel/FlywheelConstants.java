@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
+import com.ctre.phoenix6.signals.UpdateModeValue;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -48,4 +49,11 @@ public class FlywheelConstants {
       new CANrangeConfig("FlywheelSensor", RIO.flywheelSensor, "rio", baseSensorConfig);
 
   public static final DetectionMode defaultDetectionMode = DetectionMode.DISTANCE_SENSOR;
+
+  static {
+    baseSensorConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRange100Hz;
+
+    baseSensorConfig.FovParams.FOVRangeX = 10;
+    baseSensorConfig.FovParams.FOVRangeY = 10;
+  }
 }
