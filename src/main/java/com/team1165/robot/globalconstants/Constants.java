@@ -11,5 +11,5 @@ package com.team1165.robot.globalconstants;
  * Global robot constants, typically ones that distinguish major functionality changes in the code.
  */
 public class Constants {
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
 }

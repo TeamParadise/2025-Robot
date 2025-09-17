@@ -43,8 +43,8 @@ public class OdysseusManager extends RobotManager<OdysseusState> {
     return flywheel.getDetectionMode();
   }
 
-  public boolean getFlywheelCurrentHold(double current) {
-    return flywheel.getCurrentHold(current);
+  public double getFlywheelCurrent() {
+    return flywheel.getCurrent();
   }
 
   public boolean getFlywheelSensorHold() {

@@ -31,7 +31,7 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
   private final SensorIO sensorIO;
   private final SensorIOInputsAutoLogged sensorInputs = new SensorIOInputsAutoLogged();
   private final LoggedTunableNumber sensorDistanceThreshold =
-      new LoggedTunableNumber(name + "/Sensor/DistanceThreshold", 1.0);
+      new LoggedTunableNumber(name + "/Sensor/DistanceThreshold", 0.07);
   private DetectionMode detectionMode = FlywheelConstants.defaultDetectionMode;
   private final Alert sensorAlert =
       new Alert("Scoring mechanism sensor disconnected!", AlertType.kError);
@@ -50,8 +50,8 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
     return detectionMode;
   }
 
-  public boolean getCurrentHold(double current) {
-    return Math.abs(inputs.primaryMotor.outputCurrentAmps) > current;
+  public double getCurrent() {
+    return inputs.primaryMotor.supplyCurrentAmps;
   }
 
   @AutoLogOutput(key = "Flywheel/Sensors/Hold")
