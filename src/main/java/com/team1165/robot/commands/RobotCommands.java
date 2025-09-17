@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class RobotCommands {
@@ -202,27 +203,20 @@ public class RobotCommands {
 
   // region Auto Align
   public static Command autoAlignToNearest(Drive drive, boolean left) {
-    AprilTagFieldLayout fieldLayout = ATVisionConstants.aprilTagLayout;
-    Pose2d closestAprilTag = drive.getPose().nearest(FieldConstants.reefAprilTagPoses);
-    int closestID = FieldConstants.reefAprilTagIDs.get(
-        FieldConstants.reefAprilTagPoses.indexOf(closestAprilTag));
+    return Commands.defer(() -> {
+      Pose2d closestAprilTag = drive.getPose().nearest(FieldConstants.reefAprilTagPoses);
+      int closestID = FieldConstants.reefAprilTagIDs.get(
+          FieldConstants.reefAprilTagPoses.indexOf(closestAprilTag));
 
-    Reef.Location scoringLocation = switch (closestID) {
-      case 7, 18 -> left ? Reef.Location.A : Reef.Location.B;
-      case 8, 17 -> left ? Reef.Location.C : Reef.Location.D;
-      case 9, 22 -> left ? Reef.Location.E : Reef.Location.F;
-      case 10, 21 -> left ? Reef.Location.G : Reef.Location.H;
-      case 11, 20 -> left ? Reef.Location.I : Reef.Location.J;
-      default -> left ? Reef.Location.K : Reef.Location.L;
-    };
-    return new DriveToPose(drive, () -> switch (closestID) {
-      case 7, 18 -> left ? Reef.Location.A.getPose() : Reef.Location.B.getPose();
-      case 8, 17 -> left ? Reef.Location.C.getPose() : Reef.Location.D.getPose();
-      case 9, 22 -> left ? Reef.Location.E.getPose() : Reef.Location.F.getPose();
-      case 10, 21 -> left ? Reef.Location.G.getPose() : Reef.Location.H.getPose();
-      case 11, 20 -> left ? Reef.Location.I.getPose() : Reef.Location.J.getPose();
-      default -> left ? Reef.Location.K.getPose() : Reef.Location.L.getPose();
-    });
+      return new DriveToPose(drive, () -> switch (closestID) {
+        case 7, 18 -> left ? Reef.Location.A.getPose() : Reef.Location.B.getPose();
+        case 8, 17 -> left ? Reef.Location.C.getPose() : Reef.Location.D.getPose();
+        case 9, 22 -> left ? Reef.Location.E.getPose() : Reef.Location.F.getPose();
+        case 10, 21 -> left ? Reef.Location.G.getPose() : Reef.Location.H.getPose();
+        case 11, 20 -> left ? Reef.Location.I.getPose() : Reef.Location.J.getPose();
+        default -> left ? Reef.Location.K.getPose() : Reef.Location.L.getPose();
+      });
+    }, Set.of(drive));
   }
   // endregiom
 
