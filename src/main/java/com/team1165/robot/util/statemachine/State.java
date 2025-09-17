@@ -16,5 +16,8 @@ import java.util.OptionalDouble;
  * represents a distinct state that the {@link StateMachine} can be in.
  */
 public interface State {
-  OptionalDouble get();
+  default OptionalDouble get() {
+    return OptionalDouble.empty();
+  }
+  ;
 }

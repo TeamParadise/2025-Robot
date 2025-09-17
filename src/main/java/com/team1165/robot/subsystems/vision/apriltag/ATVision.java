@@ -12,6 +12,7 @@ import static com.team1165.robot.subsystems.vision.apriltag.constants.ATVisionCo
 import com.ctre.phoenix6.Utils;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIO;
 import com.team1165.robot.subsystems.vision.apriltag.io.ATVisionIOInputsAutoLogged;
+import com.team1165.robot.util.statemachine.OverridableStateMachine;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -27,7 +28,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import org.littletonrobotics.junction.Logger;
@@ -36,7 +37,7 @@ import org.littletonrobotics.junction.Logger;
  * A subsystem for a collection of cameras that estimates the pose of the robot with AprilTags
  * placed around the field.
  */
-public class ATVision extends SubsystemBase {
+public class ATVision extends OverridableStateMachine<ATVisionState> {
   // Alerts to send for each of the cameras if they get disconnected
   private final Alert[] disconnectedAlerts;
 
@@ -62,6 +63,9 @@ public class ATVision extends SubsystemBase {
       ATVisionConsumer globalConsumer,
       ATVisionRotationSupplier robotRotationSupplier,
       CameraConfig... config) {
+    // Call super from state machine
+    super(ATVisionState.SINGLE_TAG_3D);
+
     // Initialize consumer and supplier
     this.globalConsumer = globalConsumer;
     rotationSupplier = robotRotationSupplier;
@@ -90,6 +94,9 @@ public class ATVision extends SubsystemBase {
               "The AprilTag camera \"" + inputs[i].name + "\" (ID " + i + ") is disconnected.",
               AlertType.kWarning);
     }
+
+    // Specifically make sure we are set to SINGLE_TAG_3D before enabled for pose correction
+    setState(ATVisionState.SINGLE_TAG_3D);
   }
 
   @Override
@@ -322,9 +329,21 @@ public class ATVision extends SubsystemBase {
         "AprilTagVision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
   }
 
-  public void enableSingleTagTrig() {
-    for (int i = 0; i < io.length; i++) {
-      io[i].setSingleTagTrig(true);
+  @Override
+  public Command overrideState(ATVisionState state) {
+    return super.overrideState(state).ignoringDisable(true);
+  }
+
+  private void setSingleTagTrig(boolean enable) {
+    for (ATVisionIO visionIO : io) {
+      visionIO.setSingleTagTrig(enable);
+    }
+  }
+
+  protected void transition() {
+    switch (getCurrentState()) {
+      case SINGLE_TAG_3D -> setSingleTagTrig(false);
+      case SINGLE_TAG_TRIG -> setSingleTagTrig(true);
     }
   }
 
