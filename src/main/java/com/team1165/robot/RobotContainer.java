@@ -217,6 +217,8 @@ public class RobotContainer {
         .onTrue(
             RobotCommands.moveDownLevel(robot)
                 .withName("Controller - D-Pad Down - Move Down One Level"));
+    driverController.povLeft().whileTrue(RobotCommands.autoAlignToNearest(drive, true).withName("Controller - D-Pad Left - Align To Left Branch"));
+    driverController.povRight().whileTrue(RobotCommands.autoAlignToNearest(drive, false).withName("Controller - D-Pad Right - Align To Right Branch"));
 
     // Bumpers
     driverController
