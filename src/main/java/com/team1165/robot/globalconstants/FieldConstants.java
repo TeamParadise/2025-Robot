@@ -8,14 +8,17 @@
 package com.team1165.robot.globalconstants;
 
 import com.team1165.robot.globalconstants.FieldConstants.Reef.Location;
+import com.team1165.robot.subsystems.vision.apriltag.constants.ATVisionConstants;
 import com.team1165.robot.util.AllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import java.util.List;
 
 public class FieldConstants {
+
   // region Actual "Field" constants (length, width, starting line)
   public static final Distance fieldLength =
       Units.Feet.of(57).plus(Units.Inches.of(6.0 + 7.0 / 8.0));
@@ -25,10 +28,19 @@ public class FieldConstants {
   public static final Distance startingLineX =
       Units.Inches.of(299.438); // Measured from the inside of starting line
 
+  public static final List<Integer> reefAprilTagIDs =
+      List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
+  public static final List<Pose2d> reefAprilTagPoses =
+      ATVisionConstants.aprilTagLayout.getTags().stream()
+          .filter(tag -> reefAprilTagIDs.contains(tag.ID))
+          .map(tag -> tag.pose.toPose2d())
+          .toList();
+
   // endregion
 
   /** Generic poses without any "fudge" factors or alliance switching. */
   private static class GenericPoses {
+
     private static final Pose2d reefA =
         new Pose2d(3.1886031999999997, 4.1902126, Rotation2d.fromDegrees(0));
     private static final Pose2d reefB =
@@ -65,6 +77,7 @@ public class FieldConstants {
 
   /** Elevator heights for scoring on the Reef. */
   private static class ElevatorHeights {
+
     private static final double l1 = 2.0;
     private static final double l2 = 3.68;
     private static final double l3 = 7.23;
@@ -81,6 +94,7 @@ public class FieldConstants {
    * (robot-centric)
    */
   private static class FudgeFactors {
+
     // Fudge factors for reef scoring sides
     private static final Transform2d reefA = new Transform2d(-0.08, 0.0, Rotation2d.kZero);
     private static final Transform2d reefB = new Transform2d(-0.08, 0.0, Rotation2d.kZero);
@@ -103,7 +117,9 @@ public class FieldConstants {
 
   /** Alliance poses based off the generic poses combined with the fudge factors. */
   private static class AlliancePoses {
+
     private static class Blue {
+
       // Reef poses
       private static final Pose2d reefA = GenericPoses.reefA.transformBy(FudgeFactors.reefA);
       private static final Pose2d reefB = GenericPoses.reefB.transformBy(FudgeFactors.reefB);
@@ -126,6 +142,7 @@ public class FieldConstants {
     }
 
     private static class Red {
+
       // Reef poses
       private static final Pose2d reefA = flipPoseAlliance(Blue.reefA);
       private static final Pose2d reefB = flipPoseAlliance(Blue.reefB);
@@ -174,6 +191,7 @@ public class FieldConstants {
 
   /** Constants for Reef scoring and lineup. */
   public static final class Reef {
+
     public enum Level {
       L1,
       L2,
