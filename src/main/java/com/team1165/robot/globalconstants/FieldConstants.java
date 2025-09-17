@@ -28,17 +28,17 @@ public class FieldConstants {
   public static final Distance startingLineX =
       Units.Inches.of(299.438); // Measured from the inside of starting line
 
-  public static final List<Integer> reefAprilTagIDs = List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
-  public static final List<Pose2d> reefAprilTagPoses = ATVisionConstants.aprilTagLayout.getTags()
-      .stream()
-      .filter(tag -> reefAprilTagIDs.contains(tag.ID))
-      .map(tag -> tag.pose.toPose2d())
-      .toList();
+  public static final List<Integer> reefAprilTagIDs =
+      List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
+  public static final List<Pose2d> reefAprilTagPoses =
+      ATVisionConstants.aprilTagLayout.getTags().stream()
+          .filter(tag -> reefAprilTagIDs.contains(tag.ID))
+          .map(tag -> tag.pose.toPose2d())
+          .toList();
+
   // endregion
 
-  /**
-   * Generic poses without any "fudge" factors or alliance switching.
-   */
+  /** Generic poses without any "fudge" factors or alliance switching. */
   private static class GenericPoses {
 
     private static final Pose2d reefA =
@@ -75,9 +75,7 @@ public class FieldConstants {
             Rotation2d.fromRadians(-rightCoralStation.getRotation().getRadians()));
   }
 
-  /**
-   * Elevator heights for scoring on the Reef.
-   */
+  /** Elevator heights for scoring on the Reef. */
   private static class ElevatorHeights {
 
     private static final double l1 = 2.0;
@@ -117,9 +115,7 @@ public class FieldConstants {
     private static final Transform2d leftCoralStation = new Transform2d(0.0, 0.0, Rotation2d.kZero);
   }
 
-  /**
-   * Alliance poses based off the generic poses combined with the fudge factors.
-   */
+  /** Alliance poses based off the generic poses combined with the fudge factors. */
   private static class AlliancePoses {
 
     private static class Blue {
@@ -193,9 +189,7 @@ public class FieldConstants {
     }
   }
 
-  /**
-   * Constants for Reef scoring and lineup.
-   */
+  /** Constants for Reef scoring and lineup. */
   public static final class Reef {
 
     public enum Level {
@@ -234,27 +228,23 @@ public class FieldConstants {
     }
   }
 
-  /**
-   * Simple enum to specify the coral station to score at.
-   */
+  /** Simple enum to specify the coral station to score at. */
   public enum CoralStationLocation {
-    /**
-     * The right coral station FROM THE DRIVER STATION PERSPECTIVE.
-     */
+    /** The right coral station FROM THE DRIVER STATION PERSPECTIVE. */
     RCS,
-    /**
-     * The left coral station FROM THE DRIVER STATION PERSPECTIVE.
-     */
+    /** The left coral station FROM THE DRIVER STATION PERSPECTIVE. */
     LCS;
 
     public Pose2d getPose() {
       return switch (this) {
-        case RCS -> AllianceFlipUtil.shouldFlip()
-            ? AlliancePoses.Red.rightCoralStation
-            : AlliancePoses.Blue.rightCoralStation;
-        case LCS -> AllianceFlipUtil.shouldFlip()
-            ? AlliancePoses.Red.leftCoralStation
-            : AlliancePoses.Blue.leftCoralStation;
+        case RCS ->
+            AllianceFlipUtil.shouldFlip()
+                ? AlliancePoses.Red.rightCoralStation
+                : AlliancePoses.Blue.rightCoralStation;
+        case LCS ->
+            AllianceFlipUtil.shouldFlip()
+                ? AlliancePoses.Red.leftCoralStation
+                : AlliancePoses.Blue.leftCoralStation;
       };
     }
   }

@@ -15,9 +15,7 @@ import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.globalconstants.FieldConstants.Reef.Level;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
-import com.team1165.robot.subsystems.vision.apriltag.constants.ATVisionConstants;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -161,12 +159,12 @@ public class RobotCommands {
         .andThen(
             driveCloseToFaceStart.raceWith(
                 new WaitUntilCommand(
-                    () ->
-                        drive
-                            .getPose()
-                            .getTranslation()
-                            .getDistance(face.get().getPose().getTranslation())
-                            < autoScoreElevatorRaiseDistance.get())
+                        () ->
+                            drive
+                                    .getPose()
+                                    .getTranslation()
+                                    .getDistance(face.get().getPose().getTranslation())
+                                < autoScoreElevatorRaiseDistance.get())
                     .andThen(switchToHeight)))
         .andThen(
             driveCloseToFaceStart2.until(
@@ -176,15 +174,15 @@ public class RobotCommands {
         .andThen(
             driveToFace.withDeadline(
                 new WaitUntilCommand(
-                    () ->
-                        debouncer.calculate(
-                            drive
-                                .getPose()
-                                .getTranslation()
-                                .getDistance(face.get().getPose().getTranslation())
-                                < autoScoreDistanceToleranceBeforeScore.get())
-                            && robot.getElevatorAtGoal(
-                            autoScoreElevatorToleranceBeforeScore.get()))
+                        () ->
+                            debouncer.calculate(
+                                    drive
+                                            .getPose()
+                                            .getTranslation()
+                                            .getDistance(face.get().getPose().getTranslation())
+                                        < autoScoreDistanceToleranceBeforeScore.get())
+                                && robot.getElevatorAtGoal(
+                                    autoScoreElevatorToleranceBeforeScore.get()))
                     .andThen(score(robot, false, 0.35))))
         .andThen(
             new ConditionalCommand(
@@ -203,21 +201,28 @@ public class RobotCommands {
 
   // region Auto Align
   public static Command autoAlignToNearest(Drive drive, boolean left) {
-    return Commands.defer(() -> {
-      Pose2d closestAprilTag = drive.getPose().nearest(FieldConstants.reefAprilTagPoses);
-      int closestID = FieldConstants.reefAprilTagIDs.get(
-          FieldConstants.reefAprilTagPoses.indexOf(closestAprilTag));
+    return Commands.defer(
+        () -> {
+          Pose2d closestAprilTag = drive.getPose().nearest(FieldConstants.reefAprilTagPoses);
+          int closestID =
+              FieldConstants.reefAprilTagIDs.get(
+                  FieldConstants.reefAprilTagPoses.indexOf(closestAprilTag));
 
-      return new DriveToPose(drive, () -> switch (closestID) {
-        case 7, 18 -> left ? Reef.Location.A.getPose() : Reef.Location.B.getPose();
-        case 8, 17 -> left ? Reef.Location.C.getPose() : Reef.Location.D.getPose();
-        case 9, 22 -> left ? Reef.Location.E.getPose() : Reef.Location.F.getPose();
-        case 10, 21 -> left ? Reef.Location.G.getPose() : Reef.Location.H.getPose();
-        case 11, 20 -> left ? Reef.Location.I.getPose() : Reef.Location.J.getPose();
-        default -> left ? Reef.Location.K.getPose() : Reef.Location.L.getPose();
-      });
-    }, Set.of(drive));
+          return new DriveToPose(
+              drive,
+              () ->
+                  switch (closestID) {
+                    case 7, 18 -> left ? Reef.Location.A.getPose() : Reef.Location.B.getPose();
+                    case 8, 17 -> left ? Reef.Location.C.getPose() : Reef.Location.D.getPose();
+                    case 9, 22 -> left ? Reef.Location.E.getPose() : Reef.Location.F.getPose();
+                    case 10, 21 -> left ? Reef.Location.G.getPose() : Reef.Location.H.getPose();
+                    case 11, 20 -> left ? Reef.Location.I.getPose() : Reef.Location.J.getPose();
+                    default -> left ? Reef.Location.K.getPose() : Reef.Location.L.getPose();
+                  });
+        },
+        Set.of(drive));
   }
+
   // endregion
 
   // endregion
