@@ -13,6 +13,7 @@ import com.team1165.robot.subsystems.roller.flywheel.sensor.DetectionMode;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.littletonrobotics.junction.Logger;
 
 public class Intake extends Command {
 
@@ -49,13 +50,14 @@ public class Intake extends Command {
     var isCoralDetected =
         detectionMode == DetectionMode.DISTANCE_SENSOR
             ? robot.getFlywheelSensorHold()
-            : robot.getFlywheelCurrentHold(currentThreshold.get());
+            : Math.abs(robot.getFlywheelCurrent()) > currentThreshold.get();
 
     if (timer.hasElapsed(spinupTime.get())) {
       if (isCoralDetected && startingDetectionTimestamp == 0.0) {
         startingDetectionTimestamp = timer.get();
       }
 
+      Logger.recordOutput("Intake/Timer", timer.get() - startingDetectionTimestamp);
       if (isCoralDetected
           && timer.get() - startingDetectionTimestamp
               > (detectionMode == DetectionMode.DISTANCE_SENSOR
@@ -63,7 +65,7 @@ public class Intake extends Command {
                   : currentElapsedTime.get())) {
         endCommand = true;
         robot.setState(OdysseusState.IDLE);
-      } else {
+      } else if (!isCoralDetected) {
         startingDetectionTimestamp = 0.0;
       }
     }
