@@ -72,7 +72,10 @@ public class RobotCommands {
                       default -> OdysseusState.IDLE;
                     })
             .alongWith(
-                new WaitUntilCommand(() -> robot.getFlywheelCurrent() > 0 && robot.getFlywheelCurrent() < scoreEndCurrent.get()))
+                new WaitUntilCommand(
+                    () ->
+                        robot.getFlywheelCurrent() > 0
+                            && robot.getFlywheelCurrent() < scoreEndCurrent.get()))
             .andThen(
                 robot.stateSupplierCommand(
                     () ->
@@ -191,9 +194,7 @@ public class RobotCommands {
                       && state != OdysseusState.L2
                       && state != OdysseusState.L3
                       && state != OdysseusState.L4;
-                }))
-        .andThen(
-            driveCloseToFaceEnd.alongWith(robot.stateCommand(OdysseusState.IDLE)).withTimeout(0.1));
+                }));
   }
 
   // region Auto Align
