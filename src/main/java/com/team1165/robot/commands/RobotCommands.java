@@ -271,8 +271,9 @@ public class RobotCommands {
   public static Command zeroElevator(OdysseusManager robot, Elevator elevator) {
     return robot
         .stateCommand(OdysseusState.ZERO_ELEVATOR)
-        .alongWith(new WaitUntilCommand(() -> elevator.getCurrent() > zeroingCurrent.get()))
-        .andThen(Commands.runOnce(elevator::setPositionToZero))
+        .alongWith(
+            new WaitUntilCommand(() -> elevator.getCurrent() > zeroingCurrent.get())
+                .andThen(Commands.runOnce(elevator::setPositionToZero)))
         .andThen(robot.stateCommand(OdysseusState.IDLE));
   }
 }

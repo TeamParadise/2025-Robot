@@ -51,7 +51,7 @@ public class Flywheel extends OverridableStateMachine<FlywheelState> {
   }
 
   public double getCurrent() {
-    return inputs.primaryMotor.supplyCurrentAmps;
+    return inputs.primaryMotor.outputCurrentAmps;
   }
 
   @AutoLogOutput(key = "Flywheel/Sensors/Hold")
