@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.team1165.robot.subsystems.elevator.ElevatorConstants.Motors;
 import com.team1165.robot.util.constants.CANFrequency;
 import com.team1165.robot.util.logging.MotorData.TalonFXMotorData;
 import com.team1165.robot.util.vendor.ctre.PhoenixDeviceConfigs.TalonFXConfig;
@@ -58,6 +59,21 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         CANFrequency.FAST,
         primaryMotor.getPosition(),
         primaryMotor.getTorqueCurrent());
+
+    // Set both motor zero positions (doing it here because both Phoenix and REVLib are dumb and
+    // don't let me clone a configuration)
+    primaryMotor
+        .getConfigurator()
+        .apply(
+            Motors.baseMotorConfig.withFeedback(
+                Motors.baseMotorConfig.Feedback.withFeedbackRotorOffset(
+                    Motors.primaryZeroPosition)));
+    secondaryMotor
+        .getConfigurator()
+        .apply(
+            Motors.baseMotorConfig.withFeedback(
+                Motors.baseMotorConfig.Feedback.withFeedbackRotorOffset(
+                    Motors.secondaryZeroPosition)));
   }
 
   @Override
