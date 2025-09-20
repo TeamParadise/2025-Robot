@@ -24,7 +24,7 @@ public enum ElevatorState implements State {
   /** Idle, at base position. */
   IDLE(0.0),
   /** Default intake state to get coral into the scoring mechanism. */
-  INTAKE(0.0),
+  INTAKE(0.025),
   /** Tells the motors to stop output. */
   STOP(Double.NaN),
   /** State that should slowly push the second stage into the first stage, allowing for zeroing. */

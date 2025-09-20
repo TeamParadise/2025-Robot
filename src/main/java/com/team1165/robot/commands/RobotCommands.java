@@ -42,9 +42,9 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 0.75);
   private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.07);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.09);
   private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.25);
+      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.30);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.08);
   private static final LoggedTunableNumber autoScoreClosePoseOffset =
