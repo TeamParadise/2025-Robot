@@ -31,8 +31,8 @@ public class ElevatorConstants {
     // Base configuration creation
     public static final TalonFXConfiguration baseMotorConfig = new TalonFXConfiguration();
 
-    public static final double primaryZeroPosition = -0.39826724051;
-    public static final double secondaryZeroPosition = 0.12982191818;
+    public static final double primaryZeroPosition = -0.05826724051 - 0.38;
+    public static final double secondaryZeroPosition = 0.12982191818 - 0.048;
 
     static {
       baseMotorConfig.CurrentLimits.SupplyCurrentLimit = 60;
