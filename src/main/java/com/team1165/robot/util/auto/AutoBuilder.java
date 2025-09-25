@@ -25,6 +25,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkString;
  */
 public class AutoBuilder {
   private static AutoBuilder instance;
+  private static AutoRoutine currentAutoRoutine;
 
   private static final LoggedNetworkString reef1 =
       new LoggedNetworkString("Auto/Score/FirstLocation", "J");
@@ -105,7 +106,7 @@ public class AutoBuilder {
       }
     }
 
-    return new AutoRoutine(pushPartner.get(), segments).getAutoCommand(robot, drive);
+    return new AutoRoutine(robot, drive, pushPartner.get(), segments).getAutoCommand();
   }
 
   public static AutoBuilder getInstance() {

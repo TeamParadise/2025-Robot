@@ -23,18 +23,17 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class AutoRoutine {
   private final boolean pushPartner;
   private final AutoSegmentConfig[] segments;
+  private final Command command;
 
-  public AutoRoutine(boolean pushPartner, AutoSegmentConfig... segments) {
+  public AutoRoutine(OdysseusManager robot, Drive drive, boolean pushPartner, AutoSegmentConfig... segments) {
     this.pushPartner = pushPartner;
     this.segments = segments;
-  }
 
-  public Command getAutoCommand(OdysseusManager robot, Drive drive) {
     var autoCommand =
         pushPartner
             ? drive
-                .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
-                .withTimeout(0.75)
+            .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
+            .withTimeout(0.75)
             : Commands.none();
 
     for (AutoSegmentConfig segment : segments) {
@@ -50,17 +49,21 @@ public class AutoRoutine {
                                       () ->
                                           RobotMode.get() == Mode.SIM
                                               && drive
+                                              .getPose()
+                                              .getTranslation()
+                                              .getDistance(
+                                                  segment
+                                                      .coralStation()
                                                       .getPose()
-                                                      .getTranslation()
-                                                      .getDistance(
-                                                          segment
-                                                              .coralStation()
-                                                              .getPose()
-                                                              .getTranslation())
-                                                  < 0.05)))
+                                                      .getTranslation())
+                                              < 0.05)))
                   .andThen(RobotMode.get() == Mode.SIM ? new WaitCommand(0.7) : Commands.none()));
     }
 
-    return autoCommand;
+      this.command = autoCommand;
+  }
+
+  public Command getAutoCommand() {
+    return command;
   }
 }
