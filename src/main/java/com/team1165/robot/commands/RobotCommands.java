@@ -15,6 +15,7 @@ import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.globalconstants.FieldConstants.Reef.Level;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.subsystems.elevator.Elevator;
+import com.team1165.robot.util.commands.ChezySequenceCommandGroup;
 import com.team1165.robot.util.logging.LoggedTunableNumber;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -57,26 +58,26 @@ public class RobotCommands {
   // region Score Automation
   public static Command score(OdysseusManager robot, boolean fastScore, double timeout) {
     return new ConditionalCommand(
-        robot
-            .stateSupplierCommand(
-                () ->
-                    switch (robot.getCurrentState()) {
-                      case L1, SCORE_L1, FAST_SCORE_L1 ->
-                          fastScore ? OdysseusState.FAST_SCORE_L1 : OdysseusState.SCORE_L1;
-                      case L2, SCORE_L2, FAST_SCORE_L2 ->
-                          fastScore ? OdysseusState.FAST_SCORE_L2 : OdysseusState.SCORE_L2;
-                      case L3, SCORE_L3, FAST_SCORE_L3 ->
-                          fastScore ? OdysseusState.FAST_SCORE_L3 : OdysseusState.SCORE_L3;
-                      case L4, SCORE_L4, FAST_SCORE_L4 ->
-                          fastScore ? OdysseusState.FAST_SCORE_L4 : OdysseusState.SCORE_L4;
-                      default -> OdysseusState.IDLE;
-                    })
-            .alongWith(
-                new WaitUntilCommand(
-                    () ->
-                        robot.getFlywheelCurrent() > 0
-                            && robot.getFlywheelCurrent() < scoreEndCurrent.get()))
-            .andThen(
+        new ChezySequenceCommandGroup(
+                robot
+                    .stateSupplierCommand(
+                        () ->
+                            switch (robot.getCurrentState()) {
+                              case L1, SCORE_L1, FAST_SCORE_L1 ->
+                                  fastScore ? OdysseusState.FAST_SCORE_L1 : OdysseusState.SCORE_L1;
+                              case L2, SCORE_L2, FAST_SCORE_L2 ->
+                                  fastScore ? OdysseusState.FAST_SCORE_L2 : OdysseusState.SCORE_L2;
+                              case L3, SCORE_L3, FAST_SCORE_L3 ->
+                                  fastScore ? OdysseusState.FAST_SCORE_L3 : OdysseusState.SCORE_L3;
+                              case L4, SCORE_L4, FAST_SCORE_L4 ->
+                                  fastScore ? OdysseusState.FAST_SCORE_L4 : OdysseusState.SCORE_L4;
+                              default -> OdysseusState.IDLE;
+                            })
+                    .alongWith(
+                        new WaitUntilCommand(
+                            () ->
+                                robot.getFlywheelCurrent() > 0
+                                    && robot.getFlywheelCurrent() < scoreEndCurrent.get())),
                 robot.stateSupplierCommand(
                     () ->
                         switch (robot.getCurrentState()) {
