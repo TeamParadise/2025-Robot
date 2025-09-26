@@ -189,6 +189,8 @@ public class RobotContainer {
     robot = new OdysseusManager(OdysseusState.IDLE, elevator, flywheel, funnel);
 
     autoBuilder = AutoBuilder.getInstance();
+    // Make sure auto routine exists immediately
+    autoBuilder.updateAutoRoutine(robot, drive);
 
     configureButtonBindings();
     configureDefaultCommands();
@@ -297,6 +299,10 @@ public class RobotContainer {
             true));
   }
 
+  public void updateAutoRoutine() {
+    autoBuilder.updateAutoRoutine(robot, drive);
+  }
+
   public Command getAutonomousCommand() {
     return new InstantCommand(
             () ->
@@ -305,6 +311,6 @@ public class RobotContainer {
                             && DriverStation.getAlliance().get() == Alliance.Red
                         ? Rotation2d.kZero
                         : Rotation2d.kPi))
-        .andThen(autoBuilder.buildAutoCommand(robot, drive));
+        .andThen(autoBuilder.getAutoCommand(drive));
   }
 }

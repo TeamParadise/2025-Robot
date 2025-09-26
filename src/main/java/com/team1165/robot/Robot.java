@@ -11,6 +11,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.team1165.robot.globalconstants.BuildConstants;
 import com.team1165.robot.util.constants.RobotMode;
 import com.team1165.robot.util.vendor.ctre.PhoenixUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -29,6 +30,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private final RobotContainer robotContainer;
+
+  private final Timer autoRoutineUpdate = new Timer();
 
   public Robot() {
     // Record Git metadata
@@ -104,15 +107,26 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    autoRoutineUpdate.reset();
+    autoRoutineUpdate.start();
+  }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    // Update the auto routine when disabled every 2 seconds
+    if (autoRoutineUpdate.hasElapsed(2)) {
+      autoRoutineUpdate.reset();
+      robotContainer.updateAutoRoutine();
+    }
+  }
 
   /** This function is called once when the robot is enabled. */
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+    autoRoutineUpdate.stop();
+  }
 
   /** This function runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
