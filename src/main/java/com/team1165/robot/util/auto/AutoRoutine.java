@@ -13,6 +13,7 @@ import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.RobotCommands;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
 import com.team1165.robot.subsystems.drive.Drive;
+import com.team1165.robot.util.commands.ChezySequenceCommandGroup;
 import com.team1165.robot.util.constants.RobotMode;
 import com.team1165.robot.util.constants.RobotMode.Mode;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,44 +24,39 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class AutoRoutine {
   private final boolean pushPartner;
   private final AutoSegmentConfig[] segments;
-  private final Command command;
+  private final ChezySequenceCommandGroup command;
 
-  public AutoRoutine(OdysseusManager robot, Drive drive, boolean pushPartner, AutoSegmentConfig... segments) {
+  public AutoRoutine(
+      OdysseusManager robot, Drive drive, boolean pushPartner, AutoSegmentConfig... segments) {
     this.pushPartner = pushPartner;
     this.segments = segments;
 
-    var autoCommand =
-        pushPartner
-            ? drive
-            .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
-            .withTimeout(0.75)
-            : Commands.none();
+    command =
+        new ChezySequenceCommandGroup(
+            pushPartner
+                ? drive
+                    .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(-1.5))
+                    .withTimeout(0.75)
+                : Commands.none());
 
     for (AutoSegmentConfig segment : segments) {
-      autoCommand =
-          autoCommand.andThen(
-              RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel)
-                  .andThen(
-                      new DriveToPose(drive, () -> segment.coralStation().getPose())
-                          .raceWith(
-                              new Intake(robot)
-                                  // Every thing below is just for simulating intake in sim.
-                                  .until(
-                                      () ->
-                                          RobotMode.get() == Mode.SIM
-                                              && drive
-                                              .getPose()
-                                              .getTranslation()
-                                              .getDistance(
-                                                  segment
-                                                      .coralStation()
-                                                      .getPose()
-                                                      .getTranslation())
-                                              < 0.05)))
-                  .andThen(RobotMode.get() == Mode.SIM ? new WaitCommand(0.7) : Commands.none()));
+      command.addCommands(
+          RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel),
+          new DriveToPose(drive, () -> segment.coralStation().getPose())
+              .raceWith(
+                  new Intake(robot)
+                      // Every thing below is just for simulating intake in sim.
+                      .until(
+                          () ->
+                              RobotMode.get() == Mode.SIM
+                                  && drive
+                                          .getPose()
+                                          .getTranslation()
+                                          .getDistance(
+                                              segment.coralStation().getPose().getTranslation())
+                                      < 0.05)),
+          RobotMode.get() == Mode.SIM ? new WaitCommand(0.7) : Commands.none());
     }
-
-      this.command = autoCommand;
   }
 
   public Command getAutoCommand() {
