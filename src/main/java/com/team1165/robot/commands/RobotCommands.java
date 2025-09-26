@@ -151,51 +151,50 @@ public class RobotCommands {
                         new Transform2d(autoScoreClosePoseOffset.get(), 0.0, Rotation2d.kZero)));
     var debouncer = new Debouncer(autoScoreDistanceDebounceBeforeScore.get(), DebounceType.kRising);
 
-    return Commands.runOnce(
-            () -> {
-              debouncer.setDebounceTime(autoScoreDistanceDebounceBeforeScore.get());
-              debouncer.calculate(false);
-            })
-        .alongWith(robot.stateCommand(OdysseusState.IDLE))
-        .andThen(
-            driveCloseToFaceStart.raceWith(
-                new WaitUntilCommand(
-                        () ->
-                            drive
-                                    .getPose()
-                                    .getTranslation()
-                                    .getDistance(face.get().getPose().getTranslation())
-                                < autoScoreElevatorRaiseDistance.get())
-                    .andThen(switchToHeight)))
-        .andThen(
-            driveCloseToFaceStart2.until(
-                () ->
-                    switchToHeight.isFinished()
-                        && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get())))
-        .andThen(
-            driveToFace.withDeadline(
-                new WaitUntilCommand(
-                        () ->
-                            debouncer.calculate(
-                                    drive
-                                            .getPose()
-                                            .getTranslation()
-                                            .getDistance(face.get().getPose().getTranslation())
-                                        < autoScoreDistanceToleranceBeforeScore.get())
-                                && robot.getElevatorAtGoal(
-                                    autoScoreElevatorToleranceBeforeScore.get()))
-                    .andThen(score(robot, false, 0.35))))
-        .andThen(
-            new ConditionalCommand(
-                score(robot, true, 0.75).deadlineFor(driveCloserToFace),
-                Commands.none(),
+    return new ChezySequenceCommandGroup(
+        Commands.runOnce(
                 () -> {
-                  var state = robot.getCurrentState();
-                  return state != OdysseusState.L1
-                      && state != OdysseusState.L2
-                      && state != OdysseusState.L3
-                      && state != OdysseusState.L4;
-                }));
+                  debouncer.setDebounceTime(autoScoreDistanceDebounceBeforeScore.get());
+                  debouncer.calculate(false);
+                })
+            .alongWith(robot.stateCommand(OdysseusState.IDLE)),
+        driveCloseToFaceStart.raceWith(
+            new ChezySequenceCommandGroup(
+                new WaitUntilCommand(
+                    () ->
+                        drive
+                                .getPose()
+                                .getTranslation()
+                                .getDistance(face.get().getPose().getTranslation())
+                            < autoScoreElevatorRaiseDistance.get()),
+                switchToHeight)),
+        driveCloseToFaceStart2.until(
+            () ->
+                switchToHeight.isFinished()
+                    && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get())),
+        driveToFace.withDeadline(
+            new ChezySequenceCommandGroup(
+                new WaitUntilCommand(
+                    () ->
+                        debouncer.calculate(
+                                drive
+                                        .getPose()
+                                        .getTranslation()
+                                        .getDistance(face.get().getPose().getTranslation())
+                                    < autoScoreDistanceToleranceBeforeScore.get())
+                            && robot.getElevatorAtGoal(
+                                autoScoreElevatorToleranceBeforeScore.get())),
+                score(robot, false, 0.35))),
+        new ConditionalCommand(
+            score(robot, true, 0.75).deadlineFor(driveCloserToFace),
+            Commands.none(),
+            () -> {
+              var state = robot.getCurrentState();
+              return state != OdysseusState.L1
+                  && state != OdysseusState.L2
+                  && state != OdysseusState.L3
+                  && state != OdysseusState.L4;
+            }));
   }
 
   // region Auto Align
