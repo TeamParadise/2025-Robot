@@ -59,6 +59,19 @@ public class AutoRoutine {
     }
   }
 
+  public boolean checkIfEquivalent(boolean pushPartner, AutoSegmentConfig... segments) {
+    if (pushPartner == this.pushPartner && segments.length == this.segments.length) {
+      for (int i = 0; i < segments.length; i++) {
+        if (segments[i].coralStation() != this.segments[i].coralStation() || segments[i].reefLevel() != this.segments[i].reefLevel() || segments[i].reefLocation() != this.segments[i].reefLocation()) {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+    return true;
+  }
+
   public Command getAutoCommand() {
     return command;
   }
