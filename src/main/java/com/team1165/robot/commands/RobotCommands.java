@@ -10,6 +10,7 @@ package com.team1165.robot.commands;
 import com.team1165.robot.OdysseusManager;
 import com.team1165.robot.OdysseusState;
 import com.team1165.robot.commands.drivetrain.DriveToPose;
+import com.team1165.robot.commands.drivetrain.DriveToPoseProfiled;
 import com.team1165.robot.globalconstants.FieldConstants;
 import com.team1165.robot.globalconstants.FieldConstants.Reef;
 import com.team1165.robot.globalconstants.FieldConstants.Reef.Level;
@@ -116,7 +117,7 @@ public class RobotCommands {
       Supplier<Reef.Location> face,
       Supplier<Reef.Level> level) {
     var driveCloseToFaceStart =
-        new DriveToPose(
+        new DriveToPoseProfiled(
             drive,
             () ->
                 face.get()
@@ -124,7 +125,7 @@ public class RobotCommands {
                     .transformBy(
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var driveCloseToFaceStart2 =
-        new DriveToPose(
+        new DriveToPoseProfiled(
             drive,
             () ->
                 face.get()
@@ -132,9 +133,9 @@ public class RobotCommands {
                     .transformBy(
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var switchToHeight = setLevelState(robot, level);
-    var driveToFace = new DriveToPose(drive, () -> face.get().getPose());
+    var driveToFace = new DriveToPoseProfiled(drive, () -> face.get().getPose());
     var driveCloserToFace =
-        new DriveToPose(
+        new DriveToPoseProfiled(
             drive,
             () ->
                 face.get()
