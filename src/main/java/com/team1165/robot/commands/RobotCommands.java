@@ -133,14 +133,6 @@ public class RobotCommands {
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var switchToHeight = setLevelState(robot, level);
     var driveToFace = new DriveToPose(drive, () -> face.get().getPose());
-    var driveCloseToFaceEnd =
-        new DriveToPose(
-            drive,
-            () ->
-                face.get()
-                    .getPose()
-                    .transformBy(
-                        new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var driveCloserToFace =
         new DriveToPose(
             drive,
