@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class RobotCommands {
@@ -116,8 +117,92 @@ public class RobotCommands {
       Drive drive,
       Supplier<Reef.Location> face,
       Supplier<Reef.Level> level) {
-    var driveCloseToFaceStart =
+    // Create debouncer and boolean supplier used in the commands
+    var debouncer = new Debouncer(autoScoreDistanceDebounceBeforeScore.get(), DebounceType.kRising);
+    BooleanSupplier readyToRaiseElevator =
+        () ->
+            drive.getPose().getTranslation().getDistance(face.get().getPose().getTranslation())
+                < autoScoreElevatorRaiseDistance.get();
+    BooleanSupplier readyToMoveCloseToReef =
+        () -> robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get());
+    BooleanSupplier readyToScore =
+        () ->
+            debouncer.calculate(
+                    drive
+                            .getPose()
+                            .getTranslation()
+                            .getDistance(face.get().getPose().getTranslation())
+                        < autoScoreDistanceToleranceBeforeScore.get())
+                && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeScore.get());
+
+    // Commands
+    var initializationCommand =
+        // Set robot state to idle if not ready to raise the elevator already
+        new ConditionalCommand(
+            robot.stateCommand(OdysseusState.IDLE), Commands.none(), readyToRaiseElevator) {
+          // Reset debouncer when the auto score command starts
+          @Override
+          public void initialize() {
+            super.initialize();
+            debouncer.setDebounceTime(autoScoreDistanceDebounceBeforeScore.get());
+            debouncer.calculate(false);
+          }
+        };
+    var driveToInitialReefPosition =
+        // Drive close to the reef until elevator is safe to move all the way to the reef
         new DriveToPoseProfiled(
+                drive,
+                () ->
+                    face.get()
+                        .getPose()
+                        .transformBy(
+                            new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)))
+            .withDeadline(
+                // Wait until ready to raise the elevator, raise elevator, wait until safe to move
+                new ChezySequenceCommandGroup(
+                    new WaitUntilCommand(readyToRaiseElevator),
+                    setLevelState(robot, level),
+                    new WaitUntilCommand(readyToMoveCloseToReef)));
+    var driveAndScore =
+        // Drive to final scoring position and score once ready
+        new DriveToPoseProfiled(drive, () -> face.get().getPose())
+            .withDeadline(
+                new ChezySequenceCommandGroup(
+                    new WaitUntilCommand(readyToScore), score(robot, false, 0.35)));
+    var scoreFallback =
+        // If the coral was not fully scored, score at a faster speed and move forward slightly
+        new ConditionalCommand(
+            score(robot, true, 0.75)
+                .deadlineFor(
+                    new DriveToPose(
+                        drive,
+                        () ->
+                            face.get()
+                                .getPose()
+                                .transformBy(
+                                    new Transform2d(
+                                        autoScoreClosePoseOffset.get(), 0.0, Rotation2d.kZero)))),
+            Commands.none(),
+            () -> {
+              var state = robot.getCurrentState();
+              return state != OdysseusState.L1
+                  && state != OdysseusState.L2
+                  && state != OdysseusState.L3
+                  && state != OdysseusState.L4;
+            });
+
+    // Assemble commands into group
+    return new ChezySequenceCommandGroup(
+        initializationCommand, driveToInitialReefPosition, driveAndScore, scoreFallback);
+  }
+
+  public static Command oldAutoScore(
+      OdysseusManager robot,
+      Drive drive,
+      Supplier<Reef.Location> face,
+      Supplier<Reef.Level> level) {
+    var driveCloseToFaceStart =
+        new DriveToPose(
             drive,
             () ->
                 face.get()
@@ -125,7 +210,7 @@ public class RobotCommands {
                     .transformBy(
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var driveCloseToFaceStart2 =
-        new DriveToPoseProfiled(
+        new DriveToPose(
             drive,
             () ->
                 face.get()
@@ -133,9 +218,9 @@ public class RobotCommands {
                     .transformBy(
                         new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var switchToHeight = setLevelState(robot, level);
-    var driveToFace = new DriveToPoseProfiled(drive, () -> face.get().getPose());
+    var driveToFace = new DriveToPose(drive, () -> face.get().getPose());
     var driveCloserToFace =
-        new DriveToPoseProfiled(
+        new DriveToPose(
             drive,
             () ->
                 face.get()
