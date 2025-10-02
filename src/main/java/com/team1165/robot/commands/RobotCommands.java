@@ -44,10 +44,14 @@ public class RobotCommands {
       new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 2.0);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 0.75);
-  private static final LoggedTunableNumber autoScoreDistanceToleranceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceToleranceBeforeScore", 0.09);
-  private static final LoggedTunableNumber autoScoreDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/DistanceDebounceBeforeScore", 0.30);
+  private static final LoggedTunableNumber autoScorePrimaryDistanceToleranceBeforeScore =
+      new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceTolerance", 0.04);
+  private static final LoggedTunableNumber autoScorePrimaryDistanceDebounceBeforeScore =
+      new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceDebounceBeforeScore", 0.06);
+  private static final LoggedTunableNumber autoScoreSecondaryDistanceToleranceBeforeScore =
+      new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceToleranceBeforeScore", 0.09);
+  private static final LoggedTunableNumber autoScoreSecondaryDistanceDebounceBeforeScore =
+      new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceDebounceBeforeScore", 0.25);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.15);
   private static final LoggedTunableNumber autoScoreClosePoseOffset =
@@ -118,7 +122,10 @@ public class RobotCommands {
       Supplier<Reef.Location> face,
       Supplier<Reef.Level> level) {
     // Create debouncer and boolean supplier used in the commands
-    var debouncer = new Debouncer(autoScoreDistanceDebounceBeforeScore.get(), DebounceType.kRising);
+    var primaryDebouncer =
+        new Debouncer(autoScorePrimaryDistanceDebounceBeforeScore.get(), DebounceType.kRising);
+    var secondaryDebouncer =
+        new Debouncer(autoScoreSecondaryDistanceDebounceBeforeScore.get(), DebounceType.kRising);
     BooleanSupplier readyToRaiseElevator =
         () ->
             drive.getPose().getTranslation().getDistance(face.get().getPose().getTranslation())
@@ -126,14 +133,15 @@ public class RobotCommands {
     BooleanSupplier readyToMoveCloseToReef =
         () -> robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeMoving.get());
     BooleanSupplier readyToScore =
-        () ->
-            debouncer.calculate(
-                    drive
-                            .getPose()
-                            .getTranslation()
-                            .getDistance(face.get().getPose().getTranslation())
-                        < autoScoreDistanceToleranceBeforeScore.get())
-                && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeScore.get());
+        () -> {
+          double distance =
+              drive.getPose().getTranslation().getDistance(face.get().getPose().getTranslation());
+          return (primaryDebouncer.calculate(
+                      distance < autoScorePrimaryDistanceToleranceBeforeScore.get())
+                  || secondaryDebouncer.calculate(
+                      distance < autoScoreSecondaryDistanceToleranceBeforeScore.get()))
+              && robot.getElevatorAtGoal(autoScoreElevatorToleranceBeforeScore.get());
+        };
 
     // Commands
     var initializationCommand =
@@ -144,8 +152,10 @@ public class RobotCommands {
           @Override
           public void initialize() {
             super.initialize();
-            debouncer.setDebounceTime(autoScoreDistanceDebounceBeforeScore.get());
-            debouncer.calculate(false);
+            primaryDebouncer.setDebounceTime(autoScorePrimaryDistanceDebounceBeforeScore.get());
+            primaryDebouncer.calculate(false);
+            secondaryDebouncer.setDebounceTime(autoScoreSecondaryDistanceDebounceBeforeScore.get());
+            secondaryDebouncer.calculate(false);
           }
         };
     var driveToInitialReefPosition =
@@ -227,12 +237,13 @@ public class RobotCommands {
                     .getPose()
                     .transformBy(
                         new Transform2d(autoScoreClosePoseOffset.get(), 0.0, Rotation2d.kZero)));
-    var debouncer = new Debouncer(autoScoreDistanceDebounceBeforeScore.get(), DebounceType.kRising);
+    var debouncer =
+        new Debouncer(autoScoreSecondaryDistanceDebounceBeforeScore.get(), DebounceType.kRising);
 
     return new ChezySequenceCommandGroup(
         Commands.runOnce(
                 () -> {
-                  debouncer.setDebounceTime(autoScoreDistanceDebounceBeforeScore.get());
+                  debouncer.setDebounceTime(autoScoreSecondaryDistanceDebounceBeforeScore.get());
                   debouncer.calculate(false);
                 })
             .alongWith(robot.stateCommand(OdysseusState.IDLE)),
@@ -259,7 +270,7 @@ public class RobotCommands {
                                         .getPose()
                                         .getTranslation()
                                         .getDistance(face.get().getPose().getTranslation())
-                                    < autoScoreDistanceToleranceBeforeScore.get())
+                                    < autoScoreSecondaryDistanceToleranceBeforeScore.get())
                             && robot.getElevatorAtGoal(
                                 autoScoreElevatorToleranceBeforeScore.get())),
                 score(robot, false, 0.35))),

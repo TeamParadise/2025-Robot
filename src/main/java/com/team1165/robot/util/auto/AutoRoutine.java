@@ -11,7 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.team1165.robot.OdysseusManager;
 import com.team1165.robot.commands.Intake;
 import com.team1165.robot.commands.RobotCommands;
-import com.team1165.robot.commands.drivetrain.DriveToPose;
+import com.team1165.robot.commands.drivetrain.DriveToPoseProfiled;
 import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.util.commands.ChezySequenceCommandGroup;
 import com.team1165.robot.util.constants.RobotMode;
@@ -42,7 +42,7 @@ public class AutoRoutine {
     for (AutoSegmentConfig segment : segments) {
       command.addCommands(
           RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel),
-          new DriveToPose(drive, () -> segment.coralStation().getPose())
+          new DriveToPoseProfiled(drive, () -> segment.coralStation().getPose())
               .raceWith(
                   new Intake(robot)
                       // Every thing below is just for simulating intake in sim.
