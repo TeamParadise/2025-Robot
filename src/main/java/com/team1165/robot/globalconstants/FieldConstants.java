@@ -80,7 +80,7 @@ public class FieldConstants {
 
     private static final double l1 = 2.0;
     private static final double l2 = 3.68;
-    private static final double l3 = 7.23;
+    private static final double l3 = 7.10;
     private static final double l4 = 12.05;
   }
 
