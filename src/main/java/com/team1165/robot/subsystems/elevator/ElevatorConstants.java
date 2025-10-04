@@ -31,7 +31,7 @@ public class ElevatorConstants {
     // Base configuration creation
     public static final TalonFXConfiguration baseMotorConfig = new TalonFXConfiguration();
 
-    public static final double primaryZeroPosition = -0.28;
+    public static final double primaryZeroPosition = -0.30;
     public static final double secondaryZeroPosition = 0.12982191818 - 0.048;
 
     static {
