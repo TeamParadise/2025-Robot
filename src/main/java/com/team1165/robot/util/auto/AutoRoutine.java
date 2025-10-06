@@ -16,6 +16,7 @@ import com.team1165.robot.subsystems.drive.Drive;
 import com.team1165.robot.util.commands.ChezySequenceCommandGroup;
 import com.team1165.robot.util.constants.RobotMode;
 import com.team1165.robot.util.constants.RobotMode.Mode;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -40,9 +41,18 @@ public class AutoRoutine {
                 : Commands.none());
 
     for (AutoSegmentConfig segment : segments) {
+      var initialCoralStationCommand = new DriveToPoseProfiled(drive, () -> segment.coralStation().getPose());
+      var secondCoralStationCommand = new DriveToPoseProfiled(drive, () -> segment.coralStation().getPose(), initialCoralStationCommand::getCurrentVelocitySetpoint, new TrapezoidProfile.Constraints(2.0, 2.0));
+
       command.addCommands(
           RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel),
-          new DriveToPoseProfiled(drive, () -> segment.coralStation().getPose())
+          initialCoralStationCommand
+              .until(() -> drive
+                      .getPose()
+                      .getTranslation()
+                      .getDistance(
+                          segment.coralStation().getPose().getTranslation()) < 1.2)
+              .andThen(secondCoralStationCommand)
               .raceWith(
                   new ChezySequenceCommandGroup(
                       new WaitCommand(0.2),
