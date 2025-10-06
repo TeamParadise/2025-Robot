@@ -44,17 +44,19 @@ public class AutoRoutine {
           RobotCommands.autoScore(robot, drive, segment::reefLocation, segment::reefLevel),
           new DriveToPoseProfiled(drive, () -> segment.coralStation().getPose())
               .raceWith(
-                  new Intake(robot)
-                      // Every thing below is just for simulating intake in sim.
-                      .until(
-                          () ->
-                              RobotMode.get() == Mode.SIM
-                                  && drive
-                                          .getPose()
-                                          .getTranslation()
-                                          .getDistance(
-                                              segment.coralStation().getPose().getTranslation())
-                                      < 0.05)),
+                  new ChezySequenceCommandGroup(
+                      new WaitCommand(0.2),
+                      new Intake(robot)
+                          // Every thing below is just for simulating intake in sim.
+                          .until(
+                              () ->
+                                  RobotMode.get() == Mode.SIM
+                                      && drive
+                                              .getPose()
+                                              .getTranslation()
+                                              .getDistance(
+                                                  segment.coralStation().getPose().getTranslation())
+                                          < 0.05))),
           RobotMode.get() == Mode.SIM ? new WaitCommand(0.7) : Commands.none());
     }
   }

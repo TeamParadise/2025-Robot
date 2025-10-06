@@ -35,23 +35,23 @@ public class RobotCommands {
 
   // Score command tunables
   private static final LoggedTunableNumber scoreEndCurrent =
-      new LoggedTunableNumber("Commands/Score/EndingCurrent", 10.0);
+      new LoggedTunableNumber("Commands/Score/EndingCurrent", 9.0);
 
   // Auto score command tunables
   private static final LoggedTunableNumber autoScoreFirstPoseOffset =
-      new LoggedTunableNumber("Commands/AutoScore/FirstPoseOffset", -0.3);
+      new LoggedTunableNumber("Commands/AutoScore/FirstPoseOffset", -0.2);
   private static final LoggedTunableNumber autoScoreElevatorRaiseDistance =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 2.0);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorRaiseDistance", 2.5);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeMoving =
-      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 0.75);
+      new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeMoving", 2.5);
   private static final LoggedTunableNumber autoScorePrimaryDistanceToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceTolerance", 0.04);
   private static final LoggedTunableNumber autoScorePrimaryDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceDebounceBeforeScore", 0.06);
+      new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceDebounceBeforeScore", 0.02);
   private static final LoggedTunableNumber autoScoreSecondaryDistanceToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceToleranceBeforeScore", 0.09);
   private static final LoggedTunableNumber autoScoreSecondaryDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceDebounceBeforeScore", 0.25);
+      new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceDebounceBeforeScore", 0.10);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.15);
   private static final LoggedTunableNumber autoScoreClosePoseOffset =

@@ -21,7 +21,7 @@ public enum FlywheelState implements State {
   /** Fast scoring speed. */
   FAST_SCORE(4.0),
   /** Spin forwards. */
-  MANUAL_FORWARD(1.5),
+  MANUAL_FORWARD(1.4),
   /** Spin backwards. */
   MANUAL_REVERSE(-1.5),
   /** Custom state modified on the fly. Avoid use. */

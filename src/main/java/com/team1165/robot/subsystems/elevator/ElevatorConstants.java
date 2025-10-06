@@ -61,8 +61,8 @@ public class ElevatorConstants {
 
       baseMotorConfig.MotionMagic =
           new MotionMagicConfigs()
-              .withMotionMagicCruiseVelocity(15)
-              .withMotionMagicAcceleration(30);
+              .withMotionMagicCruiseVelocity(23)
+              .withMotionMagicAcceleration(35);
     }
 
     // Individual Talon FX configurations

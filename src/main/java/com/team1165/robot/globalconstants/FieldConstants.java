@@ -111,8 +111,9 @@ public class FieldConstants {
 
     // Fudge factors for coral station poses
     private static final Transform2d rightCoralStation =
-        new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d leftCoralStation = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+        new Transform2d(-0.08, 0.0, Rotation2d.kZero);
+    private static final Transform2d leftCoralStation =
+        new Transform2d(-0.08, 0.0, Rotation2d.kZero);
   }
 
   /** Alliance poses based off the generic poses combined with the fudge factors. */
