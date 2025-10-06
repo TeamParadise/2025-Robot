@@ -16,12 +16,15 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class DriveToPoseProfiled extends Command {
   private final Drive drive;
   private final Supplier<Pose2d> pose;
+
+  private DoubleSupplier previousVelocity;
 
   private final ProfiledPIDController translationController =
       new ProfiledPIDController(3.0, 0.0, 0.0, new TrapezoidProfile.Constraints(4.5, 6.5));
@@ -38,6 +41,16 @@ public class DriveToPoseProfiled extends Command {
     addRequirements(this.drive);
   }
 
+  public DriveToPoseProfiled(Drive drive, Supplier<Pose2d> pose, DoubleSupplier previousVelocity) {
+    this(drive, pose);
+    this.previousVelocity = previousVelocity;
+  }
+
+  public DriveToPoseProfiled(Drive drive, Supplier<Pose2d> pose, DoubleSupplier previousVelocity, TrapezoidProfile.Constraints constraints) {
+    this(drive, pose, previousVelocity);
+    translationController.setConstraints(constraints);
+  }
+
   @Override
   public void initialize() {
     var currentPose = drive.getPose();
@@ -51,18 +64,24 @@ public class DriveToPoseProfiled extends Command {
     rotationController.reset(
         drive.getPose().getRotation().getRadians(), drive.getSpeeds().omegaRadiansPerSecond);
 
-    translationController.reset(
-        currentPose.getTranslation().getDistance(pose.get().getTranslation()),
-        Math.min(
-            0.0,
-            -linearFieldVelocity
-                .rotateBy(
-                    pose.get()
-                        .getTranslation()
-                        .minus(currentPose.getTranslation())
-                        .getAngle()
-                        .unaryMinus())
-                .getX()));
+    if (previousVelocity != null) {
+      translationController.reset(
+          currentPose.getTranslation().getDistance(pose.get().getTranslation()),
+          previousVelocity.getAsDouble());
+    } else {
+      translationController.reset(
+          currentPose.getTranslation().getDistance(pose.get().getTranslation()),
+          Math.min(
+              0.0,
+              -linearFieldVelocity
+                  .rotateBy(
+                      pose.get()
+                          .getTranslation()
+                          .minus(currentPose.getTranslation())
+                          .getAngle()
+                          .unaryMinus())
+                  .getX()));
+    }
 
     lastSetpointTranslation = currentPose.getTranslation();
   }
@@ -109,6 +128,10 @@ public class DriveToPoseProfiled extends Command {
 
     Logger.recordOutput("DriveToPose/ChassisSpeeds", chassisSpeeds);
     drive.runRobotSpeeds(chassisSpeeds);
+  }
+
+  public double getCurrentVelocitySetpoint() {
+    return translationController.getSetpoint().velocity;
   }
 
   @Override
