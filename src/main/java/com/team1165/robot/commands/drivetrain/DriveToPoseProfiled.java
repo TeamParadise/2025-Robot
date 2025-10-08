@@ -16,7 +16,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -24,14 +23,12 @@ public class DriveToPoseProfiled extends Command {
   private final Drive drive;
   private final Supplier<Pose2d> pose;
 
-  private DoubleSupplier previousVelocity;
+  private Supplier<TrapezoidProfile.State> previousState;
 
   private final ProfiledPIDController translationController =
       new ProfiledPIDController(3.0, 0.0, 0.0, new TrapezoidProfile.Constraints(4.5, 6.5));
   private final ProfiledPIDController rotationController =
       new ProfiledPIDController(7.0, 0.0, 0.0, new TrapezoidProfile.Constraints(4, 6));
-
-  private Translation2d lastSetpointTranslation = Translation2d.kZero;
 
   public DriveToPoseProfiled(Drive drive, Supplier<Pose2d> pose) {
     this.drive = drive;
@@ -41,13 +38,18 @@ public class DriveToPoseProfiled extends Command {
     addRequirements(this.drive);
   }
 
-  public DriveToPoseProfiled(Drive drive, Supplier<Pose2d> pose, DoubleSupplier previousVelocity) {
+  public DriveToPoseProfiled(
+      Drive drive, Supplier<Pose2d> pose, Supplier<TrapezoidProfile.State> previousState) {
     this(drive, pose);
-    this.previousVelocity = previousVelocity;
+    this.previousState = previousState;
   }
 
-  public DriveToPoseProfiled(Drive drive, Supplier<Pose2d> pose, DoubleSupplier previousVelocity, TrapezoidProfile.Constraints constraints) {
-    this(drive, pose, previousVelocity);
+  public DriveToPoseProfiled(
+      Drive drive,
+      Supplier<Pose2d> pose,
+      Supplier<TrapezoidProfile.State> previousState,
+      TrapezoidProfile.Constraints constraints) {
+    this(drive, pose, previousState);
     translationController.setConstraints(constraints);
   }
 
@@ -64,10 +66,8 @@ public class DriveToPoseProfiled extends Command {
     rotationController.reset(
         drive.getPose().getRotation().getRadians(), drive.getSpeeds().omegaRadiansPerSecond);
 
-    if (previousVelocity != null) {
-      translationController.reset(
-          currentPose.getTranslation().getDistance(pose.get().getTranslation()),
-          previousVelocity.getAsDouble());
+    if (previousState != null) {
+      translationController.reset(previousState.get());
     } else {
       translationController.reset(
           currentPose.getTranslation().getDistance(pose.get().getTranslation()),
@@ -82,36 +82,24 @@ public class DriveToPoseProfiled extends Command {
                           .unaryMinus())
                   .getX()));
     }
-
-    lastSetpointTranslation = currentPose.getTranslation();
   }
 
   @Override
   public void execute() {
+    // Get target and current pose
     var targetPose = pose.get();
     var currentPose = drive.getPose();
 
+    // Calculate the current distance away from the target pose
     double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
 
-    translationController.reset(
-        lastSetpointTranslation.getDistance(targetPose.getTranslation()),
-        translationController.getSetpoint().velocity);
-
+    // Calculate distance and rotation
     double translationVelocityScalar = translationController.calculate(currentDistance, 0.0);
     double rotationVelocity =
         rotationController.calculate(
             currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-    lastSetpointTranslation =
-        new Pose2d(
-                targetPose.getTranslation(),
-                currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
-            .transformBy(
-                new Transform2d(
-                    translationController.getSetpoint().position, 0.0, Rotation2d.kZero))
-            .getTranslation();
 
-    Logger.recordOutput("DriveToPose/TargetPose", targetPose);
-
+    // Convert velocity to be based on the angle of movement
     var translationVelocity =
         new Pose2d(
                 Translation2d.kZero,
@@ -119,6 +107,7 @@ public class DriveToPoseProfiled extends Command {
             .transformBy(new Transform2d(translationVelocityScalar, 0.0, Rotation2d.kZero))
             .getTranslation();
 
+    // Create chassis speeds
     var chassisSpeeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
             translationVelocity.getX(),
@@ -126,12 +115,16 @@ public class DriveToPoseProfiled extends Command {
             rotationVelocity,
             currentPose.getRotation());
 
-    Logger.recordOutput("DriveToPose/ChassisSpeeds", chassisSpeeds);
+    // Run chassis speeds
     drive.runRobotSpeeds(chassisSpeeds);
+
+    // Log info
+    Logger.recordOutput("DriveToPose/TargetPose", targetPose);
+    Logger.recordOutput("DriveToPose/ChassisSpeeds", chassisSpeeds);
   }
 
-  public double getCurrentVelocitySetpoint() {
-    return translationController.getSetpoint().velocity;
+  public TrapezoidProfile.State getCurrentState() {
+    return translationController.getSetpoint();
   }
 
   @Override
