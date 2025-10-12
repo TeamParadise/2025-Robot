@@ -182,7 +182,7 @@ public class RobotContainer {
       }
     }
 
-    robot = new OdysseusManager(OdysseusState.IDLE, elevator, flywheel, funnel);
+    robot = new OdysseusManager(OdysseusState.IDLE, apriltagVision, elevator, flywheel, funnel);
 
     autoBuilder = AutoBuilder.getInstance();
     // Make sure auto routine exists immediately
