@@ -144,6 +144,12 @@ public class Drive extends SubsystemBase {
             - (inputs.Speeds.omegaRadiansPerSecond * (Timer.getTimestamp() - timestamp)));
   }
 
+  public Rotation2d getRawRotation(double timestamp) {
+    return inputs.RawHeading.minus(
+        Rotation2d.fromRadians(
+            inputs.Speeds.omegaRadiansPerSecond * (Timer.getTimestamp() - timestamp)));
+  }
+
   /**
    * Get the current {@link ChassisSpeeds} of the drivetrain.
    *
