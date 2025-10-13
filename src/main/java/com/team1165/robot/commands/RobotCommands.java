@@ -47,11 +47,11 @@ public class RobotCommands {
   private static final LoggedTunableNumber autoScorePrimaryDistanceToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceTolerance", 0.04);
   private static final LoggedTunableNumber autoScorePrimaryDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceDebounceBeforeScore", 0.02);
+      new LoggedTunableNumber("Commands/AutoScore/PrimaryDistanceDebounceBeforeScore", 0.08);
   private static final LoggedTunableNumber autoScoreSecondaryDistanceToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceToleranceBeforeScore", 0.09);
   private static final LoggedTunableNumber autoScoreSecondaryDistanceDebounceBeforeScore =
-      new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceDebounceBeforeScore", 0.10);
+      new LoggedTunableNumber("Commands/AutoScore/SecondaryDistanceDebounceBeforeScore", 0.18);
   private static final LoggedTunableNumber autoScoreElevatorToleranceBeforeScore =
       new LoggedTunableNumber("Commands/AutoScore/ElevatorToleranceBeforeScore", 0.15);
   private static final LoggedTunableNumber autoScoreClosePoseOffset =
@@ -161,21 +161,16 @@ public class RobotCommands {
     var driveToInitialReefPosition =
         // Drive close to the reef until elevator is safe to move all the way to the reef
         new DriveToPoseProfiled(
-                drive,
-                () ->
-                    face.get()
-                        .getPose()
-                        .transformBy(
-                            new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)))
-            .withDeadline(
-                // Wait until ready to raise the elevator, raise elevator, wait until safe to move
-                new ChezySequenceCommandGroup(
-                    new WaitUntilCommand(readyToRaiseElevator),
-                    setLevelState(robot, level),
-                    new WaitUntilCommand(readyToMoveCloseToReef)));
+            drive,
+            () ->
+                face.get()
+                    .getPose()
+                    .transformBy(
+                        new Transform2d(autoScoreFirstPoseOffset.get(), 0.0, Rotation2d.kZero)));
     var driveAndScore =
         // Drive to final scoring position and score once ready
-        new DriveToPoseProfiled(drive, () -> face.get().getPose())
+        new DriveToPoseProfiled(
+                drive, () -> face.get().getPose(), driveToInitialReefPosition::getCurrentState)
             .withDeadline(
                 new ChezySequenceCommandGroup(
                     new WaitUntilCommand(readyToScore), score(robot, false, 0.35)));
@@ -203,7 +198,15 @@ public class RobotCommands {
 
     // Assemble commands into group
     return new ChezySequenceCommandGroup(
-        initializationCommand, driveToInitialReefPosition, driveAndScore, scoreFallback);
+        initializationCommand,
+        driveToInitialReefPosition.withDeadline(
+            // Wait until ready to raise the elevator, raise elevator, wait until safe to move
+            new ChezySequenceCommandGroup(
+                new WaitUntilCommand(readyToRaiseElevator),
+                setLevelState(robot, level),
+                new WaitUntilCommand(readyToMoveCloseToReef))),
+        driveAndScore,
+        scoreFallback);
   }
 
   public static Command oldAutoScore(
