@@ -28,7 +28,7 @@ public class DriveToPoseProfiled extends Command {
   private final ProfiledPIDController translationController =
       new ProfiledPIDController(3.0, 0.0, 0.0, new TrapezoidProfile.Constraints(4.5, 6.5));
   private final ProfiledPIDController rotationController =
-      new ProfiledPIDController(7.0, 0.0, 0.0, new TrapezoidProfile.Constraints(4, 6));
+      new ProfiledPIDController(7.0, 0.0, 0.0, new TrapezoidProfile.Constraints(5, 6));
 
   public DriveToPoseProfiled(Drive drive, Supplier<Pose2d> pose) {
     this.drive = drive;

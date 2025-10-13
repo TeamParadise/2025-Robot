@@ -36,8 +36,8 @@ public class ATVisionConstants {
 
   // Standard deviation baselines, for 1 meter distance and 1 tag
   // (Adjusted automatically based on distance and # of tags)
-  public static double linearStdDevBaseline = 0.015; // Meters
-  public static double angularStdDevBaseline = 0.03; // Radians
+  public static double linearStdDevBaseline = 0.02; // Meters
+  public static double angularStdDevBaseline = 0.05; // Radians
 
   public static double linearStdDevSingleTagBaseline = 0.02;
 }
