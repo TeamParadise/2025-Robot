@@ -28,13 +28,13 @@ public class AutoBuilder {
   private AutoRoutine currentAutoRoutine;
 
   private static final LoggedNetworkString reef1 =
-      new LoggedNetworkString("Auto/Score/FirstLocation", "J");
+      new LoggedNetworkString("Auto/Score/FirstLocation", "E");
   private static final LoggedNetworkString reef2 =
-      new LoggedNetworkString("Auto/Score/SecondLocation", "K");
+      new LoggedNetworkString("Auto/Score/SecondLocation", "D");
   private static final LoggedNetworkString reef3 =
-      new LoggedNetworkString("Auto/Score/ThirdLocation", "L");
+      new LoggedNetworkString("Auto/Score/ThirdLocation", "C");
   private static final LoggedNetworkString reef4 =
-      new LoggedNetworkString("Auto/Score/FourthLocation", "A");
+      new LoggedNetworkString("Auto/Score/FourthLocation", "B");
   private static final LoggedDashboardChooser<Reef.Level> level1 =
       new LoggedDashboardChooser<>("Auto/Score/FirstLevel", new SendableChooser<>());
   private static final LoggedDashboardChooser<Reef.Level> level2 =
@@ -77,8 +77,8 @@ public class AutoBuilder {
   }
 
   private static void addCSOptions(LoggedDashboardChooser<CoralStationLocation> csChooser) {
-    csChooser.addDefaultOption("LCS", CoralStationLocation.LCS);
-    csChooser.addOption("RCS", CoralStationLocation.RCS);
+    csChooser.addDefaultOption("RCS", CoralStationLocation.RCS);
+    csChooser.addOption("LCS", CoralStationLocation.LCS);
   }
 
   public void updateAutoRoutine(OdysseusManager robot, Drive drive) {
