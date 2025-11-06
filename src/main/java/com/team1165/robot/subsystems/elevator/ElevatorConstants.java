@@ -31,7 +31,7 @@ public class ElevatorConstants {
     // Base configuration creation
     public static final TalonFXConfiguration baseMotorConfig = new TalonFXConfiguration();
 
-    public static final double primaryZeroPosition = -0.05826724051 - 0.38;
+    public static final double primaryZeroPosition = -0.42;
     public static final double secondaryZeroPosition = 0.12982191818 - 0.048;
 
     static {
@@ -61,8 +61,8 @@ public class ElevatorConstants {
 
       baseMotorConfig.MotionMagic =
           new MotionMagicConfigs()
-              .withMotionMagicCruiseVelocity(15)
-              .withMotionMagicAcceleration(30);
+              .withMotionMagicCruiseVelocity(23)
+              .withMotionMagicAcceleration(35);
     }
 
     // Individual Talon FX configurations

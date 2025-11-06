@@ -79,8 +79,8 @@ public class FieldConstants {
   private static class ElevatorHeights {
 
     private static final double l1 = 2.0;
-    private static final double l2 = 3.68;
-    private static final double l3 = 7.23;
+    private static final double l2 = 3.98;
+    private static final double l3 = 7.10;
     private static final double l4 = 12.05;
   }
 
@@ -111,8 +111,9 @@ public class FieldConstants {
 
     // Fudge factors for coral station poses
     private static final Transform2d rightCoralStation =
-        new Transform2d(0.0, 0.0, Rotation2d.kZero);
-    private static final Transform2d leftCoralStation = new Transform2d(0.0, 0.0, Rotation2d.kZero);
+        new Transform2d(-0.08, 0.0, Rotation2d.kZero);
+    private static final Transform2d leftCoralStation =
+        new Transform2d(-0.08, 0.0, Rotation2d.kZero);
   }
 
   /** Alliance poses based off the generic poses combined with the fudge factors. */

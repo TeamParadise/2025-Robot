@@ -25,15 +25,16 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkString;
  */
 public class AutoBuilder {
   private static AutoBuilder instance;
+  private AutoRoutine currentAutoRoutine;
 
   private static final LoggedNetworkString reef1 =
-      new LoggedNetworkString("Auto/Score/FirstLocation", "J");
+      new LoggedNetworkString("Auto/Score/FirstLocation", "E");
   private static final LoggedNetworkString reef2 =
-      new LoggedNetworkString("Auto/Score/SecondLocation", "K");
+      new LoggedNetworkString("Auto/Score/SecondLocation", "D");
   private static final LoggedNetworkString reef3 =
-      new LoggedNetworkString("Auto/Score/ThirdLocation", "L");
+      new LoggedNetworkString("Auto/Score/ThirdLocation", "C");
   private static final LoggedNetworkString reef4 =
-      new LoggedNetworkString("Auto/Score/FourthLocation", "A");
+      new LoggedNetworkString("Auto/Score/FourthLocation", "B");
   private static final LoggedDashboardChooser<Reef.Level> level1 =
       new LoggedDashboardChooser<>("Auto/Score/FirstLevel", new SendableChooser<>());
   private static final LoggedDashboardChooser<Reef.Level> level2 =
@@ -76,17 +77,11 @@ public class AutoBuilder {
   }
 
   private static void addCSOptions(LoggedDashboardChooser<CoralStationLocation> csChooser) {
-    csChooser.addDefaultOption("LCS", CoralStationLocation.LCS);
-    csChooser.addOption("RCS", CoralStationLocation.RCS);
+    csChooser.addDefaultOption("RCS", CoralStationLocation.RCS);
+    csChooser.addOption("LCS", CoralStationLocation.LCS);
   }
 
-  public Command buildAutoCommand(OdysseusManager robot, Drive drive) {
-    if (justLeave.get()) {
-      return drive
-          .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(1.5))
-          .withTimeout(0.75);
-    }
-
+  public void updateAutoRoutine(OdysseusManager robot, Drive drive) {
     var numberOfSegments = (int) Math.round(sequencesToRun.get());
     var segments = new AutoSegmentConfig[numberOfSegments];
     for (int i = 0; i < numberOfSegments; i++) {
@@ -105,7 +100,20 @@ public class AutoBuilder {
       }
     }
 
-    return new AutoRoutine(pushPartner.get(), segments).getAutoCommand(robot, drive);
+    if (currentAutoRoutine == null
+        || !currentAutoRoutine.checkIfEquivalent(pushPartner.get(), segments)) {
+      currentAutoRoutine = new AutoRoutine(robot, drive, pushPartner.get(), segments);
+    }
+  }
+
+  public Command getAutoCommand(Drive drive) {
+    if (justLeave.get()) {
+      return drive
+          .applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(1.5))
+          .withTimeout(0.75);
+    }
+
+    return currentAutoRoutine.getAutoCommand();
   }
 
   public static AutoBuilder getInstance() {
